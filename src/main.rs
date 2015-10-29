@@ -14,16 +14,16 @@ fn gui_main() {
         gtk::Entry::new().unwrap()
     })
         .collect();
-     let labels: Vec<gtk::Label> = (0..n).map(|i| -> gtk::Label {
-         let name = format!("paramter {}", i);
-         gtk::Label::new(&name).unwrap()})
+    let labels: Vec<gtk::Label> = (0..n).map(|i| -> gtk::Label {
+        let name = format!("paramter {}", i);
+        gtk::Label::new(&name).unwrap()})
         .collect();
-     let entry_boxes: Vec<gtk::Box> = (0..n).map(|i| {
-         let entry_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
-         entry_box.pack_start(&labels[i], false, false, 10);
-         entry_box.pack_start(&entries[i], false, false, 0);
-         entry_box
-     })
+    let entry_boxes: Vec<gtk::Box> = (0..n).map(|i| {
+        let entry_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
+        entry_box.pack_start(&labels[i], false, false, 10);
+        entry_box.pack_start(&entries[i], false, false, 0);
+        entry_box
+    })
         .collect();
 
     // Create the button
