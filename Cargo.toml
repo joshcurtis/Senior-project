@@ -6,4 +6,3 @@ authors = ["Josh Curtis <jcurtis825@gmail.com>"]
 [dependencies]
 gtk = "*"
 glib = "*"
-thread = "*"

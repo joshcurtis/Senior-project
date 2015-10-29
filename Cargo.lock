@@ -4,7 +4,6 @@ version = "0.1.0"
 dependencies = [
  "glib 0.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "gtk 0.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "thread 0.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -208,10 +207,5 @@ dependencies = [
 [[package]]
 name = "pkg-config"
 version = "0.3.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
-name = "thread"
-version = "0.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
