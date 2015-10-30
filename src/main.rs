@@ -9,6 +9,8 @@ fn gui_main() {
             panic!("Unable to load GTK");
         }
     }
+
+    // Create 5 entry boxes with labels for each
     let n = 5;
     let entries: Vec<gtk::Entry> = (0..n).map(|_| -> gtk::Entry {
         gtk::Entry::new().unwrap()
@@ -26,7 +28,7 @@ fn gui_main() {
     })
         .collect();
 
-    // Create the button
+    // Create a button
     let button = gtk::Button::new_with_label("Generate INI file").unwrap();
     button.connect_clicked(move |_| {
         for entry in &entries {
@@ -35,16 +37,19 @@ fn gui_main() {
         }
     });
 
+
+    // Create a button and associate it with a file chooser dialog
     let file_button = gtk::Button::new_with_label("Find INI file").unwrap();
+    let file_window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();
+    let file_chooser =  gtk::FileChooserDialog::new("title",
+                                                    Some(&file_window),
+                                                    gtk::FileChooserAction::Open,
+                                                    [("Ok", gtk::ResponseType::Accept), ("Cancel", gtk::ResponseType::Cancel)]);
     file_button.connect_clicked(move |_| {
-        let file_window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();
-        let file_chooser =  gtk::FileChooserDialog::new("title",
-                                                        Some(&file_window),
-                                                        gtk::FileChooserAction::Open,
-                                                        [("Ok", gtk::ResponseType::Accept), ("Cancel", gtk::ResponseType::Cancel)]);
         file_chooser.show_all();
         let response = file_chooser.run();
         match response {
+            // gtk::ResponseType::Accept == -3 but I'm not sure how to compare enums and i32s
             -3 => {
                 let filename = file_chooser.get_filename().unwrap();
                 println!("{}", filename);
@@ -55,7 +60,7 @@ fn gui_main() {
         file_chooser.hide();
     });
 
-
+    // Display everything
     let display = gtk::Box::new(gtk::Orientation::Vertical,10).unwrap();
     for i in 0..n {
         display.pack_start(&entry_boxes[i], false, false, 0);
