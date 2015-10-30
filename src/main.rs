@@ -47,15 +47,9 @@ fn gui_main() {
                                                     [("Ok", gtk::ResponseType::Accept), ("Cancel", gtk::ResponseType::Cancel)]);
     file_button.connect_clicked(move |_| {
         file_chooser.show_all();
-        let response = file_chooser.run();
-        match response {
-            // gtk::ResponseType::Accept == -3 but I'm not sure how to compare enums and i32s
-            -3 => {
+        if file_chooser.run() == gtk::ResponseType::Accept as i32 {
                 let filename = file_chooser.get_filename().unwrap();
                 println!("{}", filename);
-            },
-            _ => ()
-
         }
         file_chooser.hide();
     });
