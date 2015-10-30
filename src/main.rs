@@ -34,11 +34,34 @@ fn gui_main() {
             println!("{}",s)
         }
     });
+
+    let file_button = gtk::Button::new_with_label("Find INI file").unwrap();
+    file_button.connect_clicked(move |_| {
+        let file_window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();
+        let file_chooser =  gtk::FileChooserDialog::new("title",
+                                                        Some(&file_window),
+                                                        gtk::FileChooserAction::Open,
+                                                        [("Ok", gtk::ResponseType::Accept), ("Cancel", gtk::ResponseType::Cancel)]);
+        file_chooser.show_all();
+        let response = file_chooser.run();
+        match response {
+            -3 => {
+                let filename = file_chooser.get_filename().unwrap();
+                println!("{}", filename);
+            },
+            _ => ()
+
+        }
+        file_chooser.hide();
+    });
+
+
     let display = gtk::Box::new(gtk::Orientation::Vertical,10).unwrap();
     for i in 0..n {
         display.pack_start(&entry_boxes[i], false, false, 0);
     }
     display.pack_start(&button, false, false, 0);
+    display.pack_start(&file_button, false, false, 0);
 
 
     let window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();

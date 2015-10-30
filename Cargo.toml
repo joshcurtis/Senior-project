@@ -4,5 +4,5 @@ version = "0.1.0"
 authors = ["Josh Curtis <jcurtis825@gmail.com>"]
 
 [dependencies]
-gtk = "*"
 glib = "*"
+gtk = "*"
