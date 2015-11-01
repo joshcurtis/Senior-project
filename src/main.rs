@@ -17,7 +17,7 @@ fn gui_main() {
     })
         .collect();
     let labels: Vec<gtk::Label> = (0..n).map(|i| -> gtk::Label {
-        let name = format!("paramter {}", i);
+        let name = format!("parameter {}", i);
         gtk::Label::new(&name).unwrap()})
         .collect();
     let entry_boxes: Vec<gtk::Box> = (0..n).map(|i| {
@@ -41,7 +41,7 @@ fn gui_main() {
     // Create a button and associate it with a file chooser dialog
     let file_button = gtk::Button::new_with_label("Find INI file").unwrap();
     let file_window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();
-    let file_chooser =  gtk::FileChooserDialog::new("title",
+    let file_chooser =  gtk::FileChooserDialog::new("Load ini file",
                                                     Some(&file_window),
                                                     gtk::FileChooserAction::Open,
                                                     [("Ok", gtk::ResponseType::Accept), ("Cancel", gtk::ResponseType::Cancel)]);
