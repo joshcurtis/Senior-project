@@ -3,20 +3,15 @@ use gtk::traits::*;
 use gtk::signal::Inhibit;
 
 fn gui_main() {
-    match gtk::init() {
-        Ok(_) => (),
-        Err(_) => {
-            panic!("Unable to load GTK");
-        }
-    }
+    gtk::init().ok().expect("Unable to load GTK");
 
     // Create 5 entry boxes with labels for each
     let n = 5;
-    let entries: Vec<gtk::Entry> = (0..n).map(|_| -> gtk::Entry {
+    let entries: Vec<gtk::Entry> = (0..n).map(|_| {
         gtk::Entry::new().unwrap()
     })
         .collect();
-    let labels: Vec<gtk::Label> = (0..n).map(|i| -> gtk::Label {
+    let labels: Vec<gtk::Label> = (0..n).map(|i| {
         let name = format!("parameter {}", i);
         gtk::Label::new(&name).unwrap()})
         .collect();
