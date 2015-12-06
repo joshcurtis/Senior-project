@@ -2,19 +2,19 @@ extern crate gtk;
 use gtk::traits::*;
 use gtk::signal::Inhibit;
 
-fn gui_main() {
-    gtk::init().ok().expect("Unable to load GTK");
 
-    // Create 5 entry boxes with labels for each
-    let n = 5;
+// Give a list of parameters, create a labeled entry for each
+fn build_entry_box(params: Vec<&str>) -> (Vec<gtk::Entry>, Vec<gtk::Label>, Vec<gtk::Box>) {
+    let n = params.len();
     let entries: Vec<gtk::Entry> = (0..n).map(|_| {
         gtk::Entry::new().unwrap()
     })
         .collect();
     let labels: Vec<gtk::Label> = (0..n).map(|i| {
-        let name = format!("parameter {}", i);
+        let name = format!("{}", params[i]);
         gtk::Label::new(&name).unwrap()})
         .collect();
+
     let entry_boxes: Vec<gtk::Box> = (0..n).map(|i| {
         let entry_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
         entry_box.pack_start(&labels[i], false, false, 10);
@@ -22,10 +22,20 @@ fn gui_main() {
         entry_box
     })
         .collect();
+    return (entries, labels, entry_boxes);
 
-    // Create a button
+}
+
+fn gui_main() {
+    gtk::init().ok().expect("Unable to load GTK");
+
+    let params = vec!["Temperature", "Operating System",];
+    let n = params.len();
+    let (entries, labels, entry_boxes) = build_entry_box(params);
+
     let button = gtk::Button::new_with_label("Generate INI file").unwrap();
     button.connect_clicked(move |_| {
+        // Debugging info for now
         for entry in &entries {
             let s = entry.get_text().unwrap();
             println!("{}",s)
@@ -43,8 +53,8 @@ fn gui_main() {
     file_button.connect_clicked(move |_| {
         file_chooser.show_all();
         if file_chooser.run() == gtk::ResponseType::Accept as i32 {
-                let filename = file_chooser.get_filename().unwrap();
-                println!("{}", filename);
+            let filename = file_chooser.get_filename().unwrap();
+            println!("{}", filename);
         }
         file_chooser.hide();
     });
@@ -71,7 +81,7 @@ fn gui_main() {
 
     loop {
         window.show_all();
-        gtk::main_iteration_do(true);
+        gtk::main_iteration_do(false);
         std::thread::sleep_ms(10);
     }
 }
