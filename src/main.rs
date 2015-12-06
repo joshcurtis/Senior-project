@@ -79,11 +79,8 @@ fn gui_main() {
     window.set_default_size(350, 400);
     window.add(&display);
 
-    loop {
-        window.show_all();
-        gtk::main_iteration_do(false);
-        std::thread::sleep_ms(10);
-    }
+    window.show_all();
+    gtk::main();
 }
 
 
