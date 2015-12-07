@@ -1,60 +1,13 @@
 extern crate gtk;
+
 mod ini_data;
+mod gtk_helper;
+
 use std::rc::Rc;
 use std::cell::RefCell;
 use std::sync::{Arc,Mutex};
 use gtk::traits::*;
 use gtk::signal::Inhibit;
-
-fn build_entry_and_label(name: String) -> (gtk::Entry, gtk::Label) {
-    let entry = gtk::Entry::new().unwrap();
-    let label = gtk::Label::new(&name).unwrap();
-    return (entry, label);
-}
-
-
-fn build_entries_and_labels(labels: Vec<String>) -> (Vec<gtk::Entry>, Vec<gtk::Label>) {
-    let n = labels.len();
-    let entries: Vec<gtk::Entry> = (0..n).map(|_| {
-        gtk::Entry::new().unwrap()
-    }).collect();
-
-    let gtk_labels: Vec<gtk::Label> = (0..n).map(|i| {
-        let name = format!("{}", labels[i]);
-        gtk::Label::new(&name).unwrap()
-    }).collect();
-
-    return (entries, gtk_labels);
-}
-
-
-/**
- * Builds entry boxes with a label and input field for every string label.
- *
- * @param The entry boxes and the labels of each box
- *
- * @return Tuple of (vec<Entry>, vec<Box>)
- **/
-fn build_entry_boxes(names: Vec<String>) -> (Vec<gtk::Entry>, Vec<gtk::Box>) {
-    let n = names.len();
-    let labels: Vec<gtk::Label> = (0..n).map(|i| {
-        let name = format!("{}", names[i]);
-        gtk::Label::new(&name).unwrap()
-    }).collect();
-
-    let entries: Vec<gtk::Entry> = (0..n).map(|_| {
-        gtk::Entry::new().unwrap()
-    }).collect();
-
-    let boxes: Vec<gtk::Box> = (0..n).map(|i| {
-        let entry_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
-        entry_box.pack_start(&labels[i], false, false, 10);
-        entry_box.pack_start(&entries[i], false, false, 0);
-        entry_box
-    }).collect();
-
-    return (entries, boxes);
-}
 
 
 fn create_ini_file( _ : gtk::Button) {
@@ -70,7 +23,7 @@ fn create_ini_file( _ : gtk::Button) {
     add_param_dialog.set_window_position(gtk::WindowPosition::Center);
 
     // Create a parameter entry box for creating new parameters
-    let (add_param_entry, add_param_label) = build_entry_and_label("Parameter Name".to_string());
+    let (add_param_entry, add_param_label) = gtk_helper::build_entry_and_label("Parameter Name".to_string());
     let param_entry_box = add_param_dialog.get_content_area();
     param_entry_box.add(&add_param_label);
     param_entry_box.add(&add_param_entry);
@@ -96,7 +49,7 @@ fn create_ini_file( _ : gtk::Button) {
             println!("{}", s);
             params_ref.lock().unwrap().push(s.clone());
 
-            let (param_entries, param_labels) =  build_entry_and_label(s.to_string());
+            let (param_entries, param_labels) =  gtk_helper::build_entry_and_label(s.to_string());
 
             let entry_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
             entry_box.pack_start(&param_labels, false, false, 10);
@@ -146,7 +99,7 @@ fn gui_main() {
     // Initialize the GUI with the sample INI
     for i in (0..sample_ini.section_values_vec.len()) {
         let v = sample_ini.section_values_vec[1].1.iter().map(|e| {e.1.clone()}).collect();
-        let (ret_entries, ret_boxes) = build_entry_boxes(v);
+        let (ret_entries, ret_boxes) = gtk_helper::build_entry_boxes(v);
         sample_ini.entries_vec.push(ret_entries);
 
         let section_label = gtk::Label::new(&sample_ini.section_values_vec[i].0).unwrap();
