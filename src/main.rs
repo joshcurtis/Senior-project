@@ -49,7 +49,6 @@ fn build_entry_boxes(names: &Vec<&str>) -> (Vec<gtk::Entry>, Vec<gtk::Label>, Ve
 
 fn create_ini_file( _ : gtk::Button) {
     let params = Arc::new(Mutex::new(Vec::new()));
-    let display = Arc::new(Mutex::new(gtk::Box::new(gtk::Orientation::Vertical, 10).unwrap()));
 
     let add_param_window = create_default_window("Add Parameter");
     let add_param_dialog = gtk::Dialog::with_buttons("Add Parameter",
@@ -68,8 +67,8 @@ fn create_ini_file( _ : gtk::Button) {
     let window = create_default_window("Create INI File");
     let add_param_button = gtk::Button::new_with_label("Add Parameter").unwrap();
 
-    let d = display.clone();
-    let w = window.clone();
+    // Copy the window so it can be modified inside and outside the closure
+    let win = window.clone();
     add_param_button.connect_clicked(move |button| {
         add_param_dialog.show_all();
         if add_param_dialog.run() == gtk::ResponseType::Accept as i32 {
@@ -85,15 +84,16 @@ fn create_ini_file( _ : gtk::Button) {
             let display = gtk::Box::new(gtk::Orientation::Vertical, 10).unwrap();
             display.pack_start(&entry_box, false, false, 10);
             let window = button.get_parent().unwrap();
-            window.add(&display);
+            window.add(&entry_box);
             window.show_all();
         }
         add_param_dialog.hide();
     });
 
-    d.lock().unwrap().pack_start(&add_param_button, false, false, 10);
-    w.add(&d.lock().unwrap().clone());
-    w.show_all();
+    let display = gtk::Box::new(gtk::Orientation::Vertical, 10).unwrap();
+    display.pack_start(&add_param_button, false, false, 10);
+    win.add(&display);
+    win.show_all();
 }
 
 
