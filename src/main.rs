@@ -30,7 +30,14 @@ impl<'a> IniData<'a> {
 }
 
 
-fn build_entry_box_with_labels(labels: Vec<String>) -> (Vec<gtk::Entry>, Vec<gtk::Label>) {
+fn build_entry_and_label(name: String) -> (gtk::Entry, gtk::Label) {
+    let entry = gtk::Entry::new().unwrap();
+    let label = gtk::Label::new(&name).unwrap();
+    return (entry, label);
+}
+
+
+fn build_entries_and_labels(labels: Vec<String>) -> (Vec<gtk::Entry>, Vec<gtk::Label>) {
     let n = labels.len();
     let entries: Vec<gtk::Entry> = (0..n).map(|_| {
         gtk::Entry::new().unwrap()
@@ -48,7 +55,7 @@ fn build_entry_box_with_labels(labels: Vec<String>) -> (Vec<gtk::Entry>, Vec<gtk
 /**
  * Builds entry boxes with a label and input field for every string label.
  *
- * @param names Strings for each box
+ * @param The entry boxes and the labels of each box
  *
  * @return Tuple of (vec<Entry>, vec<Box>)
  **/
@@ -76,7 +83,6 @@ fn build_entry_boxes(names: &Vec<&str>) -> (Vec<gtk::Entry>, Vec<gtk::Box>) {
 
 fn create_ini_file( _ : gtk::Button) {
     let params = Arc::new(Mutex::new(Vec::new()));
-    let display = Arc::new(Mutex::new(gtk::Box::new(gtk::Orientation::Vertical, 10).unwrap()));
 
     let add_param_window = create_default_window("Add Parameter");
     let add_param_dialog = gtk::Dialog::with_buttons("Add Parameter",
@@ -87,28 +93,28 @@ fn create_ini_file( _ : gtk::Button) {
     add_param_dialog.set_window_position(gtk::WindowPosition::Center);
 
     // Create a parameter entry box for creating new parameters
-    let (add_param_entry, add_param_label) = build_entry_box_with_labels(vec!["Parameter Name".to_string()]);
+    let (add_param_entry, add_param_label) = build_entry_and_label("Parameter Name".to_string());
     let param_entry_box = add_param_dialog.get_content_area();
-    param_entry_box.add(&add_param_label[0]);
-    param_entry_box.add(&add_param_entry[0]);
+    param_entry_box.add(&add_param_label);
+    param_entry_box.add(&add_param_entry);
 
     let window = create_default_window("Create INI File");
     let add_param_button = gtk::Button::new_with_label("Add Parameter").unwrap();
 
-    let d = display.clone();
-    let w = window.clone();
+    // Copy the window so it can be modified inside and outside the closure
+    let win = window.clone();
     add_param_button.connect_clicked(move |button| {
         add_param_dialog.show_all();
         if add_param_dialog.run() == gtk::ResponseType::Accept as i32 {
-            let s = add_param_entry[0].get_text().unwrap();
+            let s = add_param_entry.get_text().unwrap();
             println!("{}", s);
             params.lock().unwrap().push(s.clone());
 
             let (param_entries, param_labels) =
-                build_entry_box_with_labels(vec![s]);
+                build_entry_and_label(s.to_string());
             let entry_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
-            entry_box.pack_start(&param_labels[0], false, false, 10);
-            entry_box.pack_start(&param_entries[0], false, false, 0);
+            entry_box.pack_start(&param_labels, false, false, 10);
+            entry_box.pack_start(&param_entries, false, false, 0);
             let display = gtk::Box::new(gtk::Orientation::Vertical, 10).unwrap();
             display.pack_start(&entry_box, false, false, 10);
             let window = button.get_parent().unwrap();
@@ -118,9 +124,10 @@ fn create_ini_file( _ : gtk::Button) {
         add_param_dialog.hide();
     });
 
-    d.lock().unwrap().pack_start(&add_param_button, false, false, 10);
-    w.add(&d.lock().unwrap().clone());
-    w.show_all();
+    let display = gtk::Box::new(gtk::Orientation::Vertical, 10).unwrap();
+    display.pack_start(&add_param_button, false, false, 10);
+    win.add(&display);
+    win.show_all();
 }
 
 
@@ -138,6 +145,7 @@ fn create_default_window(title: &str) -> gtk::Window {
 
 
 fn gui_main() {
+
     // Make sure GTK loads
     gtk::init().ok().expect("Unable to load GTK");
 
