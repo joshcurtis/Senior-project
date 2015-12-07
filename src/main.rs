@@ -96,21 +96,7 @@ fn gui_main() {
                                    ( "Width".to_string(), empty.clone())])
     ]);
 
-    // Initialize the GUI with the sample INI
-    for i in (0..sample_ini.section_values_vec.len()) {
-        let v = sample_ini.section_values_vec[1].1.iter().map(|e| {e.1.clone()}).collect();
-        let (ret_entries, ret_boxes) = gtk_helper::build_entry_boxes(v);
-        sample_ini.entries_vec.push(ret_entries);
-
-        let section_label = gtk::Label::new(&sample_ini.section_values_vec[i].0).unwrap();
-        let section_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
-        section_box.pack_start(&section_label, false, false, 10);
-        display.pack_start(&section_box, false, false, 0);
-
-        for j in (0..ret_boxes.len()) {
-            display.pack_start(&ret_boxes[j], false, false, 0);
-        }
-    }
+    display.pack_start(&sample_ini.get_entry_boxes(), false, false, 10);
 
     // Create a Rc (reference can be cloned) from
     // a RefCell (which can give access to mutable data)
