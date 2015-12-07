@@ -1,8 +1,0 @@
-[package]
-name = "beaglebone_client"
-version = "0.1.0"
-authors = ["wmedrano"]
-
-[dependencies]
-hyper = "*"
-rustc-serialize = "*"
