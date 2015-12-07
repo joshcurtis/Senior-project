@@ -35,7 +35,7 @@ fn build_entries_and_labels(labels: Vec<String>) -> (Vec<gtk::Entry>, Vec<gtk::L
  *
  * @return Tuple of (vec<Entry>, vec<Box>)
  **/
-fn build_entry_boxes(names: &Vec<&str>) -> (Vec<gtk::Entry>, Vec<gtk::Box>) {
+fn build_entry_boxes(names: Vec<String>) -> (Vec<gtk::Entry>, Vec<gtk::Box>) {
     let n = names.len();
     let labels: Vec<gtk::Label> = (0..n).map(|i| {
         let name = format!("{}", names[i]);
@@ -135,17 +135,21 @@ fn gui_main() {
     let display = gtk::Box::new(gtk::Orientation::Vertical,10).unwrap();
 
     // Initialize some example INI information
+    let empty = "".to_string();
     let mut sample_ini = ini_data::IniData::new(vec![
-        ("Alpha", vec!["Temperature", "Operating System"]),
-        ("Beta",  vec!["Height", "Width"])
+        ("Alpha".to_string(), vec![("Temperature".to_string(), empty.clone()),
+                                   ("Operating System".to_string(), empty.clone())]),
+        ("Beta".to_string(),  vec![("Height".to_string(), empty.clone()),
+                                   ( "Width".to_string(), empty.clone())])
     ]);
 
     // Initialize the GUI with the sample INI
     for i in (0..sample_ini.section_values_vec.len()) {
-        let (ret_entries, ret_boxes) = build_entry_boxes(&sample_ini.section_values_vec[i].1);
+        let v = sample_ini.section_values_vec[1].1.iter().map(|e| {e.1.clone()}).collect();
+        let (ret_entries, ret_boxes) = build_entry_boxes(v);
         sample_ini.entries_vec.push(ret_entries);
 
-        let section_label = gtk::Label::new(sample_ini.section_values_vec[i].0).unwrap();
+        let section_label = gtk::Label::new(&sample_ini.section_values_vec[i].0).unwrap();
         let section_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
         section_box.pack_start(&section_label, false, false, 10);
         display.pack_start(&section_box, false, false, 0);
@@ -170,9 +174,9 @@ fn gui_main() {
             for i in (0..(*ini_ref).section_values_vec.len()) {
                 println!("[{}]", (*ini_ref).section_values_vec[i].0);
                 for j in (0..(*ini_ref).section_values_vec[i].1.len()) {
-                    let label = ((*ini_ref).section_values_vec[i].1)[j];
+                    let label = ((*ini_ref).section_values_vec[i].1)[j].clone();
                     let input = (*ini_ref).entries_vec[i][j].get_text().unwrap();
-                    println!("{}={}", label, input);
+                    println!("{}={}", label.0, input);
                 }
                 println!("");
             }

@@ -4,8 +4,8 @@ use gtk::traits::*;
 /**
  * Contains shared data for manipulating INIs.
  **/
-pub struct IniData<'a> {
-    pub section_values_vec: Vec<(&'a str, Vec<&'a str>)>,
+pub struct IniData {
+    pub section_values_vec: Vec<(String, Vec<(String, String)>)>,
     pub entries_vec: Vec<Vec<gtk::Entry>>,
     pub generate_button: gtk::Button,
     pub open_button: gtk::Button
@@ -14,8 +14,8 @@ pub struct IniData<'a> {
 /**
  * Currently, only used for IniData::new() which creates a default IniData object.
  **/
-impl<'a> IniData<'a> {
-    pub fn new(initial_data: Vec<(&'a str, Vec<&'a str>)>) -> IniData<'a> {
+impl IniData {
+    pub fn new(initial_data: Vec<(String, Vec<(String, String)>)> )-> IniData {
         IniData {
             section_values_vec: initial_data,
             entries_vec: Vec::new(),
