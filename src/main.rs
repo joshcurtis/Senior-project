@@ -1,34 +1,10 @@
 extern crate gtk;
+mod ini_data;
 use std::rc::Rc;
 use std::cell::RefCell;
 use std::sync::{Arc,Mutex};
 use gtk::traits::*;
 use gtk::signal::Inhibit;
-
-/**
- * Contains shared data for manipulating INIs.
- **/
-struct IniData<'a> {
-    section_values_vec: Vec<(&'a str, Vec<&'a str>)>,
-    entries_vec: Vec<Vec<gtk::Entry>>,
-    generate_button: gtk::Button,
-    open_button: gtk::Button
-}
-
-/**
- * Currently, only used for IniData::new() which creates a default IniData object.
- **/
-impl<'a> IniData<'a> {
-    fn new(initial_data: Vec<(&'a str, Vec<&'a str>)>) -> IniData<'a> {
-        IniData {
-            section_values_vec: initial_data,
-            entries_vec: Vec::new(),
-            generate_button: gtk::Button::new_with_label("Generate INI File").unwrap(),
-            open_button: gtk::Button::new_with_label("Load INI File").unwrap()
-        }
-    }
-}
-
 
 fn build_entry_and_label(name: String) -> (gtk::Entry, gtk::Label) {
     let entry = gtk::Entry::new().unwrap();
@@ -136,9 +112,7 @@ fn create_ini_file( _ : gtk::Button) {
         add_param_dialog.hide();
     });
     window.lock().unwrap().show_all();
-
 }
-
 
 fn create_default_window(title: &str) -> gtk::Window {
     let window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();
@@ -152,7 +126,6 @@ fn create_default_window(title: &str) -> gtk::Window {
     return window;
 }
 
-
 fn gui_main() {
 
     // Make sure GTK loads
@@ -162,7 +135,7 @@ fn gui_main() {
     let display = gtk::Box::new(gtk::Orientation::Vertical,10).unwrap();
 
     // Initialize some example INI information
-    let mut sample_ini = IniData::new(vec![
+    let mut sample_ini = ini_data::IniData::new(vec![
         ("Alpha", vec!["Temperature", "Operating System"]),
         ("Beta",  vec!["Height", "Width"])
     ]);
@@ -185,7 +158,6 @@ fn gui_main() {
     // Create a Rc (reference can be cloned) from
     // a RefCell (which can give access to mutable data)
     let main_ini_ref = Rc::new(RefCell::new(sample_ini));
-
     {
         // Clone the RC<RefCell<IniData>> so the closure can own it
         let cloned_ref = main_ini_ref.clone();
