@@ -10,9 +10,16 @@ pub fn build_entry_and_label(name: String) -> (gtk::Entry, gtk::Label) {
 
 
 pub fn build_entries_and_labels(labels: Vec<String>) -> (Vec<gtk::Entry>, Vec<gtk::Label>) {
+    let defaults = (0..labels.len()).into_iter().map(|_| "".to_string()).collect();
+    return build_entries_and_labels_with_defaults(labels, defaults);
+}
+
+pub fn build_entries_and_labels_with_defaults(labels: Vec<String>, defaults: Vec<String>) -> (Vec<gtk::Entry>, Vec<gtk::Label>) {
     let n = labels.len();
-    let entries: Vec<gtk::Entry> = (0..n).map(|_| {
-        gtk::Entry::new().unwrap()
+    let entries: Vec<gtk::Entry> = (0..n).map(|i| {
+        let entry = gtk::Entry::new().unwrap();
+        entry.set_text(&defaults[i]);
+        entry
     }).collect();
 
     let gtk_labels: Vec<gtk::Label> = (0..n).map(|i| {
