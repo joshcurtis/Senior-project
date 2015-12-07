@@ -1,7 +1,33 @@
 extern crate gtk;
+use std::rc::Rc;
+use std::cell::RefCell;
 use std::sync::{Arc,Mutex};
 use gtk::traits::*;
 use gtk::signal::Inhibit;
+
+/**
+ * Contains shared data for manipulating INIs.
+ **/
+struct IniData<'a> {
+    section_values_vec: Vec<(&'a str, Vec<&'a str>)>,
+    entries_vec: Vec<Vec<gtk::Entry>>,
+    generate_button: gtk::Button,
+    open_button: gtk::Button
+}
+
+/**
+ * Currently, only used for IniData::new() which creates a default IniData object.
+ **/
+impl<'a> IniData<'a> {
+    fn new(initial_data: Vec<(&'a str, Vec<&'a str>)>) -> IniData<'a> {
+        IniData {
+            section_values_vec: initial_data,
+            entries_vec: Vec::new(),
+            generate_button: gtk::Button::new_with_label("Generate INI File").unwrap(),
+            open_button: gtk::Button::new_with_label("Load INI File").unwrap()
+        }
+    }
+}
 
 
 fn build_entry_and_label(name: String) -> (gtk::Entry, gtk::Label) {
@@ -10,39 +36,50 @@ fn build_entry_and_label(name: String) -> (gtk::Entry, gtk::Label) {
     return (entry, label);
 }
 
+
 fn build_entries_and_labels(labels: Vec<String>) -> (Vec<gtk::Entry>, Vec<gtk::Label>) {
     let n = labels.len();
     let entries: Vec<gtk::Entry> = (0..n).map(|_| {
         gtk::Entry::new().unwrap()
-    })
-        .collect();
+    }).collect();
 
     let gtk_labels: Vec<gtk::Label> = (0..n).map(|i| {
         let name = format!("{}", labels[i]);
-        gtk::Label::new(&name).unwrap()})
-        .collect();
+        gtk::Label::new(&name).unwrap()
+    }).collect();
+
     return (entries, gtk_labels);
 }
+
 
 /**
  * Builds entry boxes with a label and input field for every string label.
  *
  * @param The entry boxes and the labels of each box
  *
- * @return Tuple of (vec<Entry>, vec<Label>, vec<Box>)
+ * @return Tuple of (vec<Entry>, vec<Box>)
  **/
-fn build_boxes_from_labels(entries: &Vec<gtk::Entry>, labels: &Vec<gtk::Label>) -> Vec<gtk::Box> {
-    let n = labels.len();
-    let entry_boxes: Vec<gtk::Box> = (0..n).map(|i| {
+fn build_entry_boxes(names: &Vec<&str>) -> (Vec<gtk::Entry>, Vec<gtk::Box>) {
+    let n = names.len();
+    let labels: Vec<gtk::Label> = (0..n).map(|i| {
+        let name = format!("{}", names[i]);
+        gtk::Label::new(&name).unwrap()
+    }).collect();
+
+    let entries: Vec<gtk::Entry> = (0..n).map(|_| {
+        gtk::Entry::new().unwrap()
+    }).collect();
+
+    let boxes: Vec<gtk::Box> = (0..n).map(|i| {
         let entry_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
         entry_box.pack_start(&labels[i], false, false, 10);
         entry_box.pack_start(&entries[i], false, false, 0);
         entry_box
-    })
-        .collect();
+    }).collect();
 
-    return entry_boxes;
+    return (entries, boxes);
 }
+
 
 fn create_ini_file( _ : gtk::Button) {
     let params = Arc::new(Mutex::new(Vec::new()));
@@ -117,84 +154,90 @@ fn create_default_window(title: &str) -> gtk::Window {
 
 
 fn gui_main() {
+
     // Make sure GTK loads
     gtk::init().ok().expect("Unable to load GTK");
 
+    // Create the main display
+    let display = gtk::Box::new(gtk::Orientation::Vertical,10).unwrap();
+
     // Initialize some example INI information
-    let sections = vec![
+    let mut sample_ini = IniData::new(vec![
         ("Alpha", vec!["Temperature", "Operating System"]),
         ("Beta",  vec!["Height", "Width"])
-    ];
+    ]);
 
-    let mut labels: Vec<Vec<gtk::Label>> = Vec::new();
-    let mut entries: Vec<Vec<gtk::Entry>> = Vec::new();
-    let mut boxes: Vec<Vec<gtk::Box>> = Vec::new();
+    // Initialize the GUI with the sample INI
+    for i in (0..sample_ini.section_values_vec.len()) {
+        let (ret_entries, ret_boxes) = build_entry_boxes(&sample_ini.section_values_vec[i].1);
+        sample_ini.entries_vec.push(ret_entries);
 
-    // Build entry boxes for every section
-    for i in (0..sections.len()) {
-        let (ret_entries, ret_labels) = build_entries_and_labels(sections[i].1
-                                                                 .iter()
-                                                                 .map(|s| { s.to_string() })
-                                                                 .collect());
-        let ret_boxes = build_boxes_from_labels(&ret_entries, &ret_labels);
-        labels.push(ret_labels);
-        entries.push(ret_entries);
-        boxes.push(ret_boxes);
+        let section_label = gtk::Label::new(sample_ini.section_values_vec[i].0).unwrap();
+        let section_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
+        section_box.pack_start(&section_label, false, false, 10);
+        display.pack_start(&section_box, false, false, 0);
+
+        for j in (0..ret_boxes.len()) {
+            display.pack_start(&ret_boxes[j], false, false, 0);
+        }
     }
 
-    // Set up the button for generating the INI file
-    let num_sections = sections.len();
-    let section_names = sections.iter().map(|i| i.0 ).collect::<Vec<_>>();
-    let button = gtk::Button::new_with_label("Generate INI file").unwrap();
+    // Create a Rc (reference can be cloned) from
+    // a RefCell (which can give access to mutable data)
+    let main_ini_ref = Rc::new(RefCell::new(sample_ini));
 
-    button.connect_clicked(move |_| {
-        // Debugging info for now
-        for i in (0..num_sections) {
-            println!("[{}]", section_names[i]);
-            for j in (0..labels[i].len()) {
-                let label = labels[i][j].get_label().unwrap();
-                let input = entries[i][j].get_text().unwrap();
-                println!("{}={}", label, input);
+    {
+        // Clone the RC<RefCell<IniData>> so the closure can own it
+        let cloned_ref = main_ini_ref.clone();
+
+        // Add button click handling for the INI generator button
+        let borrowed_button = &(*main_ini_ref).borrow().generate_button;
+        &borrowed_button.connect_clicked(move |_| {
+            let ini_ref = (*cloned_ref).borrow_mut();
+
+            for i in (0..(*ini_ref).section_values_vec.len()) {
+                println!("[{}]", (*ini_ref).section_values_vec[i].0);
+                for j in (0..(*ini_ref).section_values_vec[i].1.len()) {
+                    let label = ((*ini_ref).section_values_vec[i].1)[j];
+                    let input = (*ini_ref).entries_vec[i][j].get_text().unwrap();
+                    println!("{}={}", label, input);
+                }
+                println!("");
             }
-            println!("");
-        }
-    });
+        });
 
-    // Create a button and associate it with a file chooser dialog
-    let file_button = gtk::Button::new_with_label("Find INI file").unwrap();
-    let file_window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();
-    let file_chooser =  gtk::FileChooserDialog::new("Load INI file",
-                                                    Some(&file_window), gtk::FileChooserAction::Open,
-                                                    [("Ok", gtk::ResponseType::Accept), ("Cancel", gtk::ResponseType::Cancel)]);
-    file_button.connect_clicked(move |_| {
-        file_chooser.show_all();
-        if file_chooser.run() == gtk::ResponseType::Accept as i32 {
-            let filename = file_chooser.get_filename().unwrap();
-            println!("{}", filename);
-        }
-        file_chooser.hide();
-    });
+        display.pack_start(borrowed_button, false, false, 0);
+    }
+
+    {
+        // Clone the RC<RefCell<IniData>> so the closure can own it
+        let cloned_ref = main_ini_ref.clone();
+
+        // Create a button and associate it with a file chooser dialog
+        let file_window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();
+        let file_chooser =  gtk::FileChooserDialog::new("Load INI file",
+            Some(&file_window), gtk::FileChooserAction::Open,
+            [("Ok", gtk::ResponseType::Accept), ("Cancel", gtk::ResponseType::Cancel)]);
+
+        // Add button click handling for the load INI button
+        let borrowed_button = &(*main_ini_ref).borrow().open_button;
+        borrowed_button.connect_clicked(move |_| {
+            file_chooser.show_all();
+            if file_chooser.run() == gtk::ResponseType::Accept as i32 {
+                let filename = file_chooser.get_filename().unwrap();
+
+                // TODO: Load data here using rust-ini
+                println!("{}", filename);
+            }
+            file_chooser.hide();
+        });
+
+        display.pack_start(borrowed_button, false, false, 0);
+    }
 
     // Create a button and associate it with a window for creating new INI files
     let create_ini_button = gtk::Button::new_with_label("Create INI file").unwrap();
     create_ini_button.connect_clicked(create_ini_file);
-
-
-    // Add all the boxes to the main display
-    let display = gtk::Box::new(gtk::Orientation::Vertical,10).unwrap();
-
-    for i in (0..sections.len()) {
-        let section_label = gtk::Label::new(sections[i].0).unwrap();
-        let section_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
-
-        section_box.pack_start(&section_label, false, false, 10);
-        display.pack_start(&section_box, false, false, 0);
-        for j in (0..sections[i].1.len()) {
-            display.pack_start(&boxes[i][j], false, false, 0);
-        }
-    }
-    display.pack_start(&button, false, false, 0);
-    display.pack_start(&file_button, false, false, 0);
     display.pack_start(&create_ini_button, false, false, 0);
 
     // Create and set up the main window
