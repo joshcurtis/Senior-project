@@ -96,12 +96,3 @@ impl BeagleBoneClient {
     }
 
 }
-
-const SERVER_URL: &'static str = "http://127.0.0.1:5000";
-
-fn main() {
-    let bb = BeagleBoneClient::new(SERVER_URL);
-    let files = bb.get_files();
-    let contents = bb.get_file_contents(&files[1]);
-    println!("{}", contents);
-}
