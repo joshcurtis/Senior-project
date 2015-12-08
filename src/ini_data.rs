@@ -1,7 +1,9 @@
 extern crate gtk;
+extern crate ini;
 
 use gtk::traits::*;
 use gtk_helper;
+use std::io;
 
 /**
  * Contains shared data for manipulating INIs.
@@ -22,7 +24,7 @@ impl IniData {
             section_values_vec: initial_data,
             entries_vec: Vec::new(),
             generate_button: gtk::Button::new_with_label("Generate INI File").unwrap(),
-            open_button: gtk::Button::new_with_label("Load INI File").unwrap()
+            open_button: gtk::Button::new_with_label("Edit Existing INI File").unwrap()
         }
     }
 
@@ -47,5 +49,21 @@ impl IniData {
             }
         }
         return display;
+    }
+
+    pub fn save(&self, filename: String) {
+        let mut conf = ini::Ini::new();
+        for i in 0..self.section_values_vec.len() {
+            let section_name = self.section_values_vec[i].0.clone();
+            let section = Some(section_name.to_owned());
+            let ref properties = self.section_values_vec[i].1;
+            for j in 0..self.section_values_vec.len() {
+                let key = properties[j].0.clone();
+                let value = self.entries_vec[i][j].get_text().unwrap();
+                conf.set_to(section.clone(), key.to_owned(), value.to_owned());
+            }
+        }
+        conf.write_to(&mut io::stdout()).unwrap();
+        conf.write_to_file(&filename).unwrap();
     }
 }

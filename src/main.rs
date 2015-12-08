@@ -1,14 +1,15 @@
 extern crate gtk;
+extern crate ini;
 
-mod ini_data;
 mod gtk_helper;
+mod ini_data;
 
-use std::rc::Rc;
-use std::cell::RefCell;
-use std::sync::{Arc,Mutex};
-use gtk::traits::*;
 use gtk::signal::Inhibit;
-
+use gtk::traits::*;
+use ini::Ini;
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::{Arc,Mutex};
 
 fn create_ini_file( _ : gtk::Button) {
     let params = Arc::new(Mutex::new(Vec::new()));
@@ -67,6 +68,82 @@ fn create_ini_file( _ : gtk::Button) {
     window.lock().unwrap().show_all();
 }
 
+fn edit_ini_file() {
+    // Run a file choosing dialog
+    let file_window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();
+    let file_chooser =  gtk::FileChooserDialog::new(
+        "Load INI file",
+        Some(&file_window),
+        gtk::FileChooserAction::Open,
+        [("Ok", gtk::ResponseType::Accept),
+         ("Cancel", gtk::ResponseType::Cancel)]);
+
+    // Get the INI filename
+    let filename_opt;
+    if file_chooser.run() == gtk::ResponseType::Accept as i32 {
+        let f = file_chooser.get_filename().unwrap();
+        filename_opt = Some(f.clone());
+        println!("Chosen File: {}", f);
+    } else {
+        println!("Returning to main menu");
+        file_chooser.destroy();
+        return;
+    }
+    file_chooser.destroy();
+
+    let filename = filename_opt.unwrap();
+    let conf = Ini::load_from_file(&filename).unwrap();
+    let mut ini_data = Vec::new();
+    for (section, properties) in conf.iter() {
+        let mut section_properties = Vec::new();
+        for (key, value) in properties.iter() {
+            let ref k = *key;
+            let ref v = *value;
+            section_properties.push((k.clone(),v.clone()));
+        }
+        ini_data.push((section.clone().unwrap(), section_properties));
+    }
+
+    let gtk_ini_data_arc = Arc::new(Mutex::new(ini_data::IniData::new(ini_data)));
+    let gtk_ini_data_ref = gtk_ini_data_arc.clone();
+    let mut gtk_ini_data = gtk_ini_data_arc.lock().unwrap();
+
+    let window = Arc::new(Mutex::new(create_default_window("TITLE OF INI FILE")));
+    let window_ref = window.clone();
+
+    let display = gtk::Box::new(gtk::Orientation::Vertical, 10).unwrap();
+    display.pack_start(&gtk_ini_data.get_entry_boxes(), false, false, 10);
+
+    let create_button = gtk::Button::new_with_label("Create INI File").unwrap();
+    let file_save_window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();
+    let file_save_dialog = gtk::FileChooserDialog::new(
+        "Load INI file",
+        Some(&file_save_window),
+        gtk::FileChooserAction::Save,
+        [("Save", gtk::ResponseType::Accept),
+         ("Cancel", gtk::ResponseType::Cancel)]);
+
+    create_button.connect_clicked(move |_| {
+        if file_save_dialog.run() == gtk::ResponseType::Accept as i32 {
+            let save_filename = file_save_dialog.get_filename().unwrap();
+            println!("Saving to file: {}", save_filename);
+            gtk_ini_data_ref.lock().unwrap().save(save_filename);
+
+            file_save_dialog.destroy();
+            window_ref.lock().unwrap().destroy();
+            return;
+        } else {
+            println!("Still editing {}", filename);
+        }
+        file_save_dialog.hide();
+    });
+
+    display.pack_start(&create_button, false, false, 10);
+
+    window.lock().unwrap().add(&display);
+    window.lock().unwrap().show_all();
+}
+
 fn create_default_window(title: &str) -> gtk::Window {
     let window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();
     window.set_window_position(gtk::WindowPosition::Center);
@@ -89,14 +166,12 @@ fn gui_main() {
 
     // Initialize some example INI information
     let empty = "".to_string();
-    let mut sample_ini = ini_data::IniData::new(vec![
+    let sample_ini = ini_data::IniData::new(vec![
         ("Alpha".to_string(), vec![("Temperature".to_string(), empty.clone()),
                                    ("Operating System".to_string(), empty.clone())]),
         ("Beta".to_string(),  vec![("Height".to_string(), empty.clone()),
                                    ( "Width".to_string(), empty.clone())])
     ]);
-
-    display.pack_start(&sample_ini.get_entry_boxes(), false, false, 10);
 
     // Create a Rc (reference can be cloned) from
     // a RefCell (which can give access to mutable data)
@@ -120,31 +195,13 @@ fn gui_main() {
                 println!("");
             }
         });
-
         display.pack_start(borrowed_button, false, false, 0);
     }
-
     {
-        // Clone the RC<RefCell<IniData>> so the closure can own it
-        let cloned_ref = main_ini_ref.clone();
-
-        // Create a button and associate it with a file chooser dialog
-        let file_window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();
-        let file_chooser =  gtk::FileChooserDialog::new("Load INI file",
-            Some(&file_window), gtk::FileChooserAction::Open,
-            [("Ok", gtk::ResponseType::Accept), ("Cancel", gtk::ResponseType::Cancel)]);
-
         // Add button click handling for the load INI button
         let borrowed_button = &(*main_ini_ref).borrow().open_button;
         borrowed_button.connect_clicked(move |_| {
-            file_chooser.show_all();
-            if file_chooser.run() == gtk::ResponseType::Accept as i32 {
-                let filename = file_chooser.get_filename().unwrap();
-
-                // TODO: Load data here using rust-ini
-                println!("{}", filename);
-            }
-            file_chooser.hide();
+            edit_ini_file();
         });
 
         display.pack_start(borrowed_button, false, false, 0);
