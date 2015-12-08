@@ -28,6 +28,8 @@ impl IniKeyValue {
             key: key
         };
 
+        new_instance.label.set_halign(gtk::Align::Start);
+        new_instance.label.set_margin_start(25);
         new_instance.entry.set_text(&value);
         new_instance
     }
