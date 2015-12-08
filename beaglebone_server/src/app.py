@@ -3,7 +3,7 @@ from controller import Controller
 
 app = Flask(__name__)
 controller = Controller(
-    fnames = ['alphabet.txt', 'test.ini', 'testfile.txt', 'testfile_copy.txt'],
+    fnames = ['alphabet.txt', 'sample.ini', 'test.ini', 'testfile.txt', 'testfile_copy.txt'],
     root = './test_files',
     services_commands = ['python ./test_files/greeter.py']
 )

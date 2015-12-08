@@ -1,7 +1,7 @@
 import requests, json, string
 
 url = 'http://127.0.0.1:5000'
-fnames = ['alphabet.txt', 'test.ini','testfile.txt', 'testfile_copy.txt']
+fnames = ['alphabet.txt', 'sample.ini', 'test.ini','testfile.txt', 'testfile_copy.txt']
 
 r = requests.get(url + '/files')
 assert(fnames == json.loads(r.text)['files'])
