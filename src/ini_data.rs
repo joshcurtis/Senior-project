@@ -71,8 +71,6 @@ impl IniSection {
  **/
 pub struct IniData {
     pub section_vec: Vec<IniSection>,
-    pub generate_button: gtk::Button,
-    pub open_button: gtk::Button
 }
 
 /**
@@ -82,8 +80,6 @@ impl IniData {
     pub fn new()-> IniData {
         IniData {
             section_vec: Vec::new(),
-            generate_button: gtk::Button::new_with_label("Generate INI File").unwrap(),
-            open_button: gtk::Button::new_with_label("Edit Existing INI File").unwrap()
         }
     }
 

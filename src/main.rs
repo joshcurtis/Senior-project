@@ -7,8 +7,6 @@ mod ini_data;
 use gtk::signal::Inhibit;
 use gtk::traits::*;
 use ini::Ini;
-use std::cell::RefCell;
-use std::rc::Rc;
 use std::sync::{Arc,Mutex};
 
 fn create_ini_file( _ : gtk::Button) {
@@ -182,21 +180,12 @@ fn gui_main() {
     // Create the main display
     let display = gtk::Box::new(gtk::Orientation::Vertical,10).unwrap();
 
-    // Initialize some example INI information
-    let sample_ini = ini_data::IniData::new();
-
-    // Create a Rc (reference can be cloned) from
-    // a RefCell (which can give access to mutable data)
-    let main_ini_ref = Rc::new(RefCell::new(sample_ini));
-    {
-        // Add button click handling for the load INI button
-        let borrowed_button = &(*main_ini_ref).borrow().open_button;
-        borrowed_button.connect_clicked(move |_| {
-            edit_ini_file();
-        });
-
-        display.pack_start(borrowed_button, false, false, 0);
-    }
+    // Create a button for editing existing INI files
+    let edit_button = gtk::Button::new_with_label("Edit Existing INI File").unwrap();
+    edit_button.connect_clicked(move |_| {
+        edit_ini_file();
+    });
+    display.pack_start(&edit_button, false, false, 0);
 
     // Create a button and associate it with a window for creating new INI files
     let create_ini_button = gtk::Button::new_with_label("Create INI file").unwrap();
