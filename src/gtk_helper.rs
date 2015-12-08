@@ -14,3 +14,11 @@ pub fn create_default_window(title: &str) -> gtk::Window {
 
     return window;
 }
+
+pub fn create_dropdown(items: Vec<String>) -> gtk::ComboBoxText {
+    let dropdown = gtk::ComboBoxText::new_with_entry().unwrap();
+    for s in items.iter() {
+        dropdown.append_text(&s);
+    }
+    dropdown
+}
