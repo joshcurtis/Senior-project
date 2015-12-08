@@ -1,11 +1,8 @@
 extern crate gtk;
 extern crate ini;
-extern crate hyper;
-extern crate rustc_serialize;
 
 mod gtk_helper;
 mod ini_data;
-mod beaglebone_client;
 
 use gtk::signal::Inhibit;
 use gtk::traits::*;
@@ -13,63 +10,122 @@ use ini::Ini;
 use std::sync::{Arc,Mutex};
 
 fn create_ini_file( _ : gtk::Button) {
-    let params = Arc::new(Mutex::new(Vec::new()));
-    let params_ref = params.clone();
 
-    let add_param_window = create_default_window("Add Parameter");
-    let add_param_dialog = gtk::Dialog::with_buttons("Add Parameter",
-                                                         Some(&add_param_window),
-                                                         gtk::DialogFlags::empty(),
-                                                         [("Add", gtk::ResponseType::Accept),
-                                                          ("Cancel", gtk::ResponseType::Cancel)]);
-    add_param_dialog.set_window_position(gtk::WindowPosition::Center);
+    // Create empty IniData
+    let mut ini_data = ini_data::IniData::new();
 
-    // Create a parameter entry box for creating new parameters
-    let (add_param_entry, add_param_label) = gtk_helper::build_entry_and_label("Parameter Name".to_string());
-    let param_entry_box = add_param_dialog.get_content_area();
-    param_entry_box.add(&add_param_label);
-    param_entry_box.add(&add_param_entry);
+    // Initialize the window display box
+    let display = gtk::Box::new(gtk::Orientation::Vertical, 10).unwrap();
 
-    let window = Arc::new(Mutex::new(create_default_window("Create INI File")));
-    let window_ref = window.clone();
+    // Pack the outer ini data box first
+    display.pack_start(&ini_data.outer_box, false, false, 10);
 
-    let add_param_button = gtk::Button::new_with_label("Add Parameter").unwrap();
+    // Create and clone an ARC to the IniData
+    let ini_data_arc = Arc::new(Mutex::new(ini_data));
+    let ini_data_save_ref = ini_data_arc.clone();
+    let ini_data_add_ref = ini_data_arc.clone();
 
-    let disp = gtk::Box::new(gtk::Orientation::Vertical, 10).unwrap();
-    disp.pack_start(&add_param_button, false, false, 10);
+    // Create and clone an ARC to an editing window
+    let window = Arc::new(Mutex::new(create_default_window("Creating New INI")));
+    let window_save_ref = window.clone();
+    let window_add_button_ref = window.clone();
 
-    window.lock().unwrap().add(&disp);
+    // Create a file saving button
+    let create_button = gtk::Button::new_with_label("Save INI File").unwrap();
+    create_button.connect_clicked(move |_| {
+        let file_save_window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();
+        let file_save_chooser = gtk::FileChooserDialog::new(
+            "Save INI File",
+            Some(&file_save_window),
+            gtk::FileChooserAction::Save,
+            [("Save", gtk::ResponseType::Accept),
+             ("Cancel", gtk::ResponseType::Cancel)]
+        );
 
-    let display = Arc::new(Mutex::new(disp));
-    let display_ref = display.clone();
+        if file_save_chooser.run() != gtk::ResponseType::Accept as i32 {
+            println!("Still creating new file");
+        } else {
+            let save_filename = file_save_chooser.get_filename().unwrap();
+            println!("Saving to file: {}", save_filename);
 
-    // Copy the window so it can be modified inside and outside the closure
-    add_param_button.connect_clicked(move |_| {
-        add_param_dialog.show_all();
-        if add_param_dialog.run() == gtk::ResponseType::Accept as i32 {
-            let s = add_param_entry.get_text().unwrap();
-            println!("{}", s);
-            params_ref.lock().unwrap().push(s.clone());
-
-            let (param_entries, param_labels) =  gtk_helper::build_entry_and_label(s.to_string());
-
-            let entry_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
-            entry_box.pack_start(&param_labels, false, false, 10);
-            entry_box.pack_start(&param_entries, false, false, 0);
-
-            let display = display_ref.lock().unwrap();
-            display.pack_start(&entry_box, false, false, 10);
-
-            let window = window_ref.lock().unwrap();
-            //window.add(&display);
-            window.show_all();
+            ini_data_save_ref.lock().unwrap().save(save_filename);
+            window_save_ref.lock().unwrap().destroy();
         }
-        add_param_dialog.hide();
+
+        file_save_chooser.destroy();
     });
+
+    // Create a Box with a Label and ComboBoxText with all sections
+    let section_label = gtk::Label::new("Section").unwrap();
+    let section_list = gtk::ComboBoxText::new_with_entry().unwrap();
+    let section_box_vert = gtk::Box::new(gtk::Orientation::Vertical, 0).unwrap();
+    section_box_vert.pack_start(&section_label, false, false, 0);
+    section_box_vert.pack_start(&section_list, false, false, 0);
+    let section_box_horiz = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
+    section_box_horiz.pack_start(&section_box_vert, true, true, 10);
+
+    // Create a Box with a Label and Entry for a new key
+    let key_entry = gtk::Entry::new().unwrap();
+    let key_label = gtk::Label::new("Key").unwrap();
+    let key_box = gtk::Box::new(gtk::Orientation::Vertical, 0).unwrap();
+    key_box.pack_start(&key_label, false, false, 0);
+    key_box.pack_start(&key_entry, false, false, 0);
+
+    // Create a Box with a Label and Entry for a new value
+    let value_entry = gtk::Entry::new().unwrap();
+    let value_label = gtk::Label::new("Value").unwrap();
+    let value_box = gtk::Box::new(gtk::Orientation::Vertical, 0).unwrap();
+    value_box.pack_start(&value_label, false, false, 0);
+    value_box.pack_start(&value_entry, false, false, 0);
+
+    // Create a Box with an invisible Label and Button to add the new section-key-value
+    let invis_label = gtk::Label::new("").unwrap();
+    let add_new_button = gtk::Button::new_with_label("Add Key-Value").unwrap();
+    let add_new_box = gtk::Box::new(gtk::Orientation::Vertical, 0).unwrap();
+    add_new_box.pack_start(&invis_label, false, false, 0);
+
+    // Connect a click event to the add-new button
+    add_new_button.connect_clicked(move |_| {
+        let section = section_list.get_active_text().unwrap();
+        let key = key_entry.get_text().unwrap();
+        let value = value_entry.get_text().unwrap();
+
+        // Return if the section or key is empty
+        if section == "" || key == "" { return; }
+
+        // Use a mutable reference to add the section-key-value
+        let mut ini_ref = ini_data_add_ref.lock().unwrap();
+        ini_ref.add(section.clone(), key.clone(), value.clone());
+
+        // Use a mutable reference to update the section list
+        section_list.remove_all();
+        for section in ini_ref.section_vec.iter() {
+            section_list.append_text(&section.name.clone());
+        }
+
+        // Refresh the window
+        window_add_button_ref.lock().unwrap().show_all();
+    });
+    add_new_box.pack_start(&add_new_button, false, false, 0);
+
+    // Create a Box to contain the last three boxes
+    let key_value_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
+    key_value_box.pack_start(&key_box, false, false, 10);
+    key_value_box.pack_start(&value_box, false, false, 10);
+    key_value_box.pack_start(&add_new_box, false,  false, 10);
+
+    // Add all the boxes to the display
+    display.pack_start(&section_box_horiz, false, false, 0);
+    display.pack_start(&key_value_box, false,  false, 0);
+    display.pack_start(&create_button, false, false, 10);
+
+    // Add the display and show
+    window.lock().unwrap().add(&display);
     window.lock().unwrap().show_all();
 }
 
 fn edit_ini_file() {
+
     // Run a file choosing dialog
     let file_window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();
     let file_chooser =  gtk::FileChooserDialog::new(
@@ -79,122 +135,134 @@ fn edit_ini_file() {
         [("Ok", gtk::ResponseType::Accept),
          ("Cancel", gtk::ResponseType::Cancel)]);
 
-    // Get the INI filename
-    let filename_opt;
-    if file_chooser.run() == gtk::ResponseType::Accept as i32 {
-        let f = file_chooser.get_filename().unwrap();
-        filename_opt = Some(f.clone());
-        println!("Chosen File: {}", f);
-    } else {
+    // Run the file chooser
+    if file_chooser.run() != gtk::ResponseType::Accept as i32 {
         println!("Returning to main menu");
         file_chooser.destroy();
         return;
     }
-    file_chooser.destroy();
 
-    let filename = filename_opt.unwrap();
+    // Get the INI filename
+    let filename = file_chooser.get_filename().unwrap();
+    file_chooser.destroy();
+    println!("{}", &filename);
+
+    // Read the config (INI)
     let conf = Ini::load_from_file(&filename).unwrap();
     let mut ini_data = ini_data::IniData::new();
     ini_data.load(conf);
+    let section_names = ini_data.section_vec.iter().map(|section| section.name.clone()).collect::<Vec<String>>();
 
-    let gtk_ini_data_arc = Arc::new(Mutex::new(ini_data));
-    // Reference for saving
-    let gtk_ini_data_ref = gtk_ini_data_arc.clone();
-    // Reference for adding new kv pairs
-    let ini_data_add_ref = gtk_ini_data_arc.clone();
-    let mut gtk_ini_data = gtk_ini_data_arc.lock().unwrap();
-
-    let window = Arc::new(Mutex::new(create_default_window("TITLE OF INI FILE")));
-    let window_ref = window.clone();
-    let window_add_button_ref = window.clone();
+    // Initialize the window display box
     let display = gtk::Box::new(gtk::Orientation::Vertical, 10).unwrap();
 
-    let ini_boxes_arc = Arc::new(Mutex::new(gtk_ini_data.get_entry_boxes()));
-    let ini_boxes_ref = ini_boxes_arc.clone();
-    let ini_boxes = ini_boxes_arc.lock().unwrap();
-    for section_box in ini_boxes.iter() {
-        display.pack_start(&section_box.1, false, false, 10);
-    }
+    // Pack the outer ini data box first
+    display.pack_start(&ini_data.outer_box, false, false, 10);
 
-    let create_button = gtk::Button::new_with_label("Create INI File").unwrap();
-    let file_save_window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();
-    let file_save_dialog = gtk::FileChooserDialog::new(
-        "Load INI file",
-        Some(&file_save_window),
-        gtk::FileChooserAction::Save,
-        [("Save", gtk::ResponseType::Accept),
-         ("Cancel", gtk::ResponseType::Cancel)]);
+    // Create and clone an ARC to the IniData
+    let ini_data_arc = Arc::new(Mutex::new(ini_data));
+    let ini_data_save_ref = ini_data_arc.clone();
+    let ini_data_add_ref = ini_data_arc.clone();
 
+    // Create and clone an ARC to an editing window
+    let window = Arc::new(Mutex::new(create_default_window("Editing Existing INI")));
+    let window_save_ref = window.clone();
+    let window_add_button_ref = window.clone();
+
+    // Create a file saving button
+    let create_button = gtk::Button::new_with_label("Save INI File").unwrap();
     create_button.connect_clicked(move |_| {
-        if file_save_dialog.run() == gtk::ResponseType::Accept as i32 {
-            let save_filename = file_save_dialog.get_filename().unwrap();
-            println!("Saving to file: {}", save_filename);
-            gtk_ini_data_ref.lock().unwrap().save(save_filename);
+        let file_save_window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();
+        let file_save_chooser = gtk::FileChooserDialog::new(
+            "Save INI File",
+            Some(&file_save_window),
+            gtk::FileChooserAction::Save,
+            [("Save", gtk::ResponseType::Accept),
+             ("Cancel", gtk::ResponseType::Cancel)]
+        );
 
-            file_save_dialog.destroy();
-            window_ref.lock().unwrap().destroy();
-            return;
-        } else {
+        if file_save_chooser.run() != gtk::ResponseType::Accept as i32 {
             println!("Still editing {}", filename);
+        } else {
+            let save_filename = file_save_chooser.get_filename().unwrap();
+            println!("Saving to file: {}", save_filename);
+
+            ini_data_save_ref.lock().unwrap().save(save_filename);
+            window_save_ref.lock().unwrap().destroy();
         }
-        file_save_dialog.hide();
+
+        file_save_chooser.destroy();
     });
 
-
-    //  Create labels and boxes for adding new key values
+    // Create a Box with a Label and ComboBoxText with all sections
     let section_label = gtk::Label::new("Section").unwrap();
     let section_list = gtk::ComboBoxText::new_with_entry().unwrap();
-    for section_name in gtk_ini_data.section_names().iter() {
-        section_list.append("", &section_name);
+    for name in section_names {
+        section_list.append_text(&name);
     }
 
-    let section_box = gtk::Box::new(gtk::Orientation::Vertical, 0).unwrap();
-    section_box.pack_start(&section_label, false, false, 0);
-    section_box.pack_start(&section_list, false, false, 0);
+    let section_box_vert = gtk::Box::new(gtk::Orientation::Vertical, 0).unwrap();
+    section_box_vert.pack_start(&section_label, false, false, 0);
+    section_box_vert.pack_start(&section_list, false, false, 0);
+    let section_box_horiz = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
+    section_box_horiz.pack_start(&section_box_vert, true, true, 10);
 
+    // Create a Box with a Label and Entry for a new key
     let key_entry = gtk::Entry::new().unwrap();
-    let key_label = gtk::Label::new("New Key").unwrap();
+    let key_label = gtk::Label::new("Key").unwrap();
     let key_box = gtk::Box::new(gtk::Orientation::Vertical, 0).unwrap();
     key_box.pack_start(&key_label, false, false, 0);
     key_box.pack_start(&key_entry, false, false, 0);
 
+    // Create a Box with a Label and Entry for a new value
     let value_entry = gtk::Entry::new().unwrap();
-    let value_label = gtk::Label::new("New Entry").unwrap();
+    let value_label = gtk::Label::new("Value").unwrap();
     let value_box = gtk::Box::new(gtk::Orientation::Vertical, 0).unwrap();
     value_box.pack_start(&value_label, false, false, 0);
     value_box.pack_start(&value_entry, false, false, 0);
 
-    let key_value_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
-    key_value_box.pack_start(&key_box, false, false, 0);
-    key_value_box.pack_start(&value_box, false, false, 0);
+    // Create a Box with an invisible Label and Button to add the new section-key-value
+    let invis_label = gtk::Label::new("").unwrap();
+    let add_new_button = gtk::Button::new_with_label("Add Key-Value").unwrap();
+    let add_new_box = gtk::Box::new(gtk::Orientation::Vertical, 0).unwrap();
+    add_new_box.pack_start(&invis_label, false, false, 0);
 
-    let add_button = gtk::Button::new_with_label("Add new key value pair").unwrap();
-    add_button.connect_clicked(move |_| {
+    // Connect a click event to the add-new button
+    add_new_button.connect_clicked(move |_| {
         let section = section_list.get_active_text().unwrap();
         let key = key_entry.get_text().unwrap();
         let value = value_entry.get_text().unwrap();
-        // println!("Adding {} = {} to ", key, value, section);
-        let mut ini_data = ini_data_add_ref.lock().unwrap();
-        let kv = ini_data::IniKeyValue::new(key.clone(), value.clone());
-        ini_data.add(section.clone(), key, value);
-        let ini_boxes = ini_boxes_ref.lock().unwrap();
-        for section_box in ini_boxes.iter() {
-            if section == section_box.0 {
-                section_box.1.pack_start(&kv.build_box(), false, false, 0);
-            }
+
+        // Return if the section or key is empty
+        if section == "" || key == "" { return; }
+
+        // Use a mutable reference to add the section-key-value
+        let mut ini_ref = ini_data_add_ref.lock().unwrap();
+        ini_ref.add(section.clone(), key.clone(), value.clone());
+
+        // Use a mutable reference to update the section list
+        section_list.remove_all();
+        for section in ini_ref.section_vec.iter() {
+            section_list.append_text(&section.name.clone());
         }
-        let window = window_add_button_ref.lock().unwrap();
 
-
-        window.show_all();
-
+        // Refresh the window
+        window_add_button_ref.lock().unwrap().show_all();
     });
+    add_new_box.pack_start(&add_new_button, false, false, 0);
 
-    display.pack_start(&section_box, false, false, 0);
+    // Create a Box to contain the last three boxes
+    let key_value_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
+    key_value_box.pack_start(&key_box, false, false, 10);
+    key_value_box.pack_start(&value_box, false, false, 10);
+    key_value_box.pack_start(&add_new_box, false,  false, 10);
+
+    // Add all the boxes to the display
+    display.pack_start(&section_box_horiz, false, false, 0);
     display.pack_start(&key_value_box, false,  false, 0);
-    display.pack_start(&add_button, false, false, 0);
-    display.pack_start(&create_button, false, false, 20);
+    display.pack_start(&create_button, false, false, 10);
 
+    // Add the display and show
     window.lock().unwrap().add(&display);
     window.lock().unwrap().show_all();
 }
