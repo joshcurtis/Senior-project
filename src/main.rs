@@ -330,11 +330,11 @@ fn edit_ini_file() {
     window.lock().unwrap().show_all();
 }
 
-fn load_remote_ini_file( _ : gtk::Button) {
+fn load_remote_ini_file(fname: &str) {
 
     // Create empty IniData
     let ini_str = beaglebone_client::BeagleBoneClient::new("http://127.0.0.1:5000")
-        .get_file_contents("test.ini");
+        .get_file_contents(fname);
     let ini_data = ini_data::IniData::from_str(&ini_str);
 
     // Initialize the window display box
@@ -499,9 +499,15 @@ fn gui_main() {
     display.pack_start(&create_ini_button, false, false, 0);
 
      // Load from bb
+     let client = beaglebone_client::BeagleBoneClient::new("http://127.0.0.1:5000");
+     let server_files = client.get_files();
+     let bb_files_dropdown = gtk_helper::create_dropdown(server_files);
      let bb_ini_button = gtk::Button::new_with_label("Load INI from server").unwrap();
-     bb_ini_button.connect_clicked(load_remote_ini_file);
-     display.pack_start(&bb_ini_button, false, false, 0);
+     let server_stuff = gtk::Box::new(gtk::Orientation::Horizontal, 10).unwrap();
+     server_stuff.pack_start(&bb_files_dropdown, true, true, 10);
+     server_stuff.pack_start(&bb_ini_button, true, true, 10);
+     display.pack_start(&server_stuff, false, false, 10);
+
 
     // Create and set up the main window
     let window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();
@@ -514,6 +520,11 @@ fn gui_main() {
         Inhibit(false)
     });
     window.add(&display);
+
+    bb_ini_button.connect_clicked(move |_| {
+        load_remote_ini_file("test.ini");
+    });
+
 
     // Open the window and run the GTK main
     window.show_all();
