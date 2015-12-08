@@ -25,6 +25,7 @@ class Controller:
         assert(not self.services_running)
         print('Services not implemented.')
         for service_command in self.services_commands:
+            service_command = service_command.split()
             self.services.append(Popen(service_command))
         self.services_running = True
 
