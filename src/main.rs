@@ -93,18 +93,10 @@ fn edit_ini_file() {
 
     let filename = filename_opt.unwrap();
     let conf = Ini::load_from_file(&filename).unwrap();
-    let mut ini_data = Vec::new();
-    for (section, properties) in conf.iter() {
-        let mut section_properties = Vec::new();
-        for (key, value) in properties.iter() {
-            let ref k = *key;
-            let ref v = *value;
-            section_properties.push((k.clone(),v.clone()));
-        }
-        ini_data.push((section.clone().unwrap(), section_properties));
-    }
+    let mut ini_data = ini_data::IniData::new();
+    ini_data.load(conf);
 
-    let gtk_ini_data_arc = Arc::new(Mutex::new(ini_data::IniData::new(ini_data)));
+    let gtk_ini_data_arc = Arc::new(Mutex::new(ini_data));
     let gtk_ini_data_ref = gtk_ini_data_arc.clone();
     let mut gtk_ini_data = gtk_ini_data_arc.lock().unwrap();
 
@@ -165,13 +157,7 @@ fn gui_main() {
     let display = gtk::Box::new(gtk::Orientation::Vertical,10).unwrap();
 
     // Initialize some example INI information
-    let empty = "".to_string();
-    let sample_ini = ini_data::IniData::new(vec![
-        ("Alpha".to_string(), vec![("Temperature".to_string(), empty.clone()),
-                                   ("Operating System".to_string(), empty.clone())]),
-        ("Beta".to_string(),  vec![("Height".to_string(), empty.clone()),
-                                   ( "Width".to_string(), empty.clone())])
-    ]);
+    let sample_ini = ini_data::IniData::new();
 
     // Create a Rc (reference can be cloned) from
     // a RefCell (which can give access to mutable data)
