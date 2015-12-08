@@ -31,8 +31,10 @@ impl IniData {
 
         // For each section
         for i in 0..self.section_values_vec.len() {
-            let names = self.section_values_vec[i].1.iter().map(|e| {e.0.clone()}).collect();
-            let (ret_entries, ret_boxes) = gtk_helper::build_entry_boxes(names);
+            let ref properties = self.section_values_vec[i].1;
+            let keys = properties.iter().map(|e| {e.0.clone()}).collect();
+            let values = properties.iter().map(|e| {e.1.clone()}).collect();
+            let (ret_entries, ret_boxes) = gtk_helper::build_entry_boxes_with_defaults(keys, values);
             self.entries_vec.push(ret_entries);
 
             let section_label = gtk::Label::new(&self.section_values_vec[i].0).unwrap();

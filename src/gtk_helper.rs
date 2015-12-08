@@ -38,15 +38,13 @@ pub fn build_entries_and_labels_with_defaults(labels: Vec<String>, defaults: Vec
  * @return Tuple of (vec<Entry>, vec<Box>)
  **/
 pub fn build_entry_boxes(names: Vec<String>) -> (Vec<gtk::Entry>, Vec<gtk::Box>) {
-    let n = names.len();
-    let labels: Vec<gtk::Label> = (0..n).map(|i| {
-        let name = format!("{}", names[i]);
-        gtk::Label::new(&name).unwrap()
-    }).collect();
+    let defaults = (0..names.len()).into_iter().map(|_| "".to_string()).collect();
+    return build_entry_boxes_with_defaults(names, defaults);
+}
 
-    let entries: Vec<gtk::Entry> = (0..n).map(|_| {
-        gtk::Entry::new().unwrap()
-    }).collect();
+pub fn build_entry_boxes_with_defaults(names: Vec<String>, defaults: Vec<String>) -> (Vec<gtk::Entry>, Vec<gtk::Box>) {
+    let n = names.len();
+    let (entries, labels) = build_entries_and_labels_with_defaults(names, defaults);
 
     let boxes: Vec<gtk::Box> = (0..n).map(|i| {
         let entry_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
