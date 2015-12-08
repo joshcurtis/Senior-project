@@ -119,6 +119,17 @@ impl IniData {
     }
 
     /**
+     * Constructs an IniData from a str
+     */
+    pub fn from_str(s: &str) -> IniData {
+        let conf = Ini::load_from_str(s).unwrap();
+        let mut ini = IniData::new();
+        ini.load(conf);
+        ini
+    }
+
+
+    /**
      * Uses the rust-ini crate to load INI sections, keys, and values.
      *
      * @param config Ini from the the rust-ini crate.
