@@ -522,7 +522,8 @@ fn gui_main() {
     window.add(&display);
 
     bb_ini_button.connect_clicked(move |_| {
-        load_remote_ini_file("test.ini");
+        let fname = bb_files_dropdown.get_active_text().unwrap();
+        load_remote_ini_file(&fname);
     });
 
 
