@@ -177,27 +177,6 @@ fn gui_main() {
     // a RefCell (which can give access to mutable data)
     let main_ini_ref = Rc::new(RefCell::new(sample_ini));
     {
-        // Clone the RC<RefCell<IniData>> so the closure can own it
-        let cloned_ref = main_ini_ref.clone();
-
-        // Add button click handling for the INI generator button
-        let borrowed_button = &(*main_ini_ref).borrow().generate_button;
-        &borrowed_button.connect_clicked(move |_| {
-            let ini_ref = (*cloned_ref).borrow_mut();
-
-            for i in (0..(*ini_ref).section_values_vec.len()) {
-                println!("[{}]", (*ini_ref).section_values_vec[i].0);
-                for j in (0..(*ini_ref).section_values_vec[i].1.len()) {
-                    let label = ((*ini_ref).section_values_vec[i].1)[j].clone();
-                    let input = (*ini_ref).entries_vec[i][j].get_text().unwrap();
-                    println!("{}={}", label.0, input);
-                }
-                println!("");
-            }
-        });
-        display.pack_start(borrowed_button, false, false, 0);
-    }
-    {
         // Add button click handling for the load INI button
         let borrowed_button = &(*main_ini_ref).borrow().open_button;
         borrowed_button.connect_clicked(move |_| {
