@@ -11,13 +11,12 @@ fn preprocess_line(line: &str) -> String {
     preprocessed.trim().to_string()
 }
 
-struct HAL {
+pub struct HAL {
     commands: Vec<String>
 }
 
 impl HAL {
-
-    fn new(hal_program: &str) -> HAL {
+    pub fn new(hal_program: &str) -> HAL {
         let commands: Vec<String> = hal_program
             .lines()
             .map(|x| preprocess_line(x))
@@ -30,19 +29,8 @@ impl HAL {
 
 }
 
-#[test]
-fn comments() {
-    assert_eq!(preprocess_line("# This is a comment"), "");
-    assert_eq!(preprocess_line("This is code # Comment"), "This is code")
+impl ToString for HAL {
+    fn to_string(&self) -> String {
+        self.commands.join("\n")
+    }
 }
-
-// #[test]
-// fn from_file() {
-//     let mut file = File::open("test.hal").ok().expect("Failed to open test.hal.");
-//     let mut file_contents = "".to_string();
-//     file.read_to_string(&mut file_contents);
-//     let hal = HAL::new(&file_contents);
-//     for el in hal.commands.iter() {
-//         println!("{}", el);
-//     }
-// }
