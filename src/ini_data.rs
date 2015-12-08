@@ -3,7 +3,6 @@ extern crate ini;
 
 use ini::Ini;
 use gtk::traits::*;
-use gtk_helper;
 use std::io;
 
 pub struct IniKeyValue {
@@ -20,8 +19,7 @@ impl IniKeyValue {
             key_value_box: gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap()
         };
 
-        // new_instance.entry.set_text(value.as_str());
-        new_instance.entry.set_text("Convert library required?");
+        new_instance.entry.set_text(&value);
         new_instance
     }
 
