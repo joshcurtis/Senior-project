@@ -33,7 +33,7 @@ fn create_ini_file( _ : gtk::Button) {
     let ini_data_add_ref = ini_data_arc.clone();
 
     // Create and clone an ARC to an editing window
-    let window = Arc::new(Mutex::new(create_default_window("Creating New INI")));
+    let window = Arc::new(Mutex::new(gtk_helper::create_default_window("Creating New INI")));
     let window_save_ref = window.clone();
     let window_add_button_ref = window.clone();
 
@@ -192,7 +192,7 @@ fn edit_ini_file() {
     let ini_data_add_ref = ini_data_arc.clone();
 
     // Create and clone an ARC to an editing window
-    let window = Arc::new(Mutex::new(create_default_window("Editing Existing INI")));
+    let window = Arc::new(Mutex::new(gtk_helper::create_default_window("Editing Existing INI")));
     let window_save_ref = window.clone();
     let window_add_button_ref = window.clone();
 
@@ -332,7 +332,7 @@ fn load_remote_ini_file( _ : gtk::Button) {
     let ini_data_add_ref = ini_data_arc.clone();
 
     // Create and clone an ARC to an editing window
-    let window = Arc::new(Mutex::new(create_default_window("Creating New INI")));
+    let window = Arc::new(Mutex::new(gtk_helper::create_default_window("Creating New INI")));
     let window_save_ref = window.clone();
     let window_add_button_ref = window.clone();
 
@@ -447,17 +447,6 @@ fn load_remote_ini_file( _ : gtk::Button) {
 }
 
 
-fn create_default_window(title: &str) -> gtk::Window {
-    let window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();
-    window.set_window_position(gtk::WindowPosition::Center);
-    window.set_title(title);
-    window.connect_delete_event(|window, _| {
-        window.destroy();
-        return Inhibit(true);
-    });
-
-    return window;
-}
 
 fn gui_main() {
 
