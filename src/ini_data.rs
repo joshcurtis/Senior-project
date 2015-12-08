@@ -33,16 +33,6 @@ impl IniKeyValue {
         new_instance.entry.set_text(&value);
         new_instance
     }
-
-    /**
-     * Builds a gtk::Box from the IniKeyValue.
-     **/
-    pub fn build_box(&self) -> gtk::Box {
-        let key_value_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
-        key_value_box.pack_start(&self.label, true, true, 10);
-        key_value_box.pack_start(&self.entry, true, true, 0);
-        key_value_box
-    }
 }
 
 /**
@@ -67,24 +57,8 @@ impl IniSection {
     }
 
     /**
-     * Builds a gtk::Box from an IniSection.
+     * Builds a gtk::Grid from an IniSection.
      **/
-    pub fn build_box(&self) -> gtk::Box {
-        let section_box = gtk::Box::new(gtk::Orientation::Vertical, 0).unwrap();
-        let label_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
-        let label = gtk::Label::new("").unwrap();
-        label.set_markup(&format!("<big><b>{}</b></big>", &self.name));
-
-        label_box.pack_start(&label, false, false, 10);
-        section_box.pack_start(&label_box, false, false, 5);
-
-        for pair in self.pairs.iter() {
-            let pair_box = pair.build_box();
-            section_box.pack_start(&pair_box, false, false, 0);
-        }
-        section_box
-    }
-
     pub fn build_grid(&self) -> gtk::Grid {
         let section_grid = gtk::Grid::new().unwrap();
         section_grid.insert_column(0);

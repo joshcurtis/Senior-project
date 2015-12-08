@@ -15,7 +15,7 @@ use std::sync::{Arc,Mutex};
 fn create_ini_file( _ : gtk::Button) {
 
     // Create empty IniData
-    let mut ini_data = ini_data::IniData::new();
+    let ini_data = ini_data::IniData::new();
 
     // Initialize the window display box
     let display = gtk::Box::new(gtk::Orientation::Vertical, 10).unwrap();
@@ -314,7 +314,7 @@ fn load_remote_ini_file( _ : gtk::Button) {
     // Create empty IniData
     let ini_str = beaglebone_client::BeagleBoneClient::new("http://127.0.0.1:5000")
         .get_file_contents("test.ini");
-    let mut ini_data = ini_data::IniData::from_str(&ini_str);
+    let ini_data = ini_data::IniData::from_str(&ini_str);
 
     // Initialize the window display box
     let display = gtk::Box::new(gtk::Orientation::Vertical, 10).unwrap();
