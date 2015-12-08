@@ -130,7 +130,33 @@ fn edit_ini_file() {
         file_save_dialog.hide();
     });
 
-    display.pack_start(&create_button, false, false, 10);
+    let section_label = gtk::Label::new("Section").unwrap();
+    let section_list = gtk::ComboBoxText::new_with_entry().unwrap();
+    section_list.append("", "Alpha");
+    section_list.append("", "Beta");
+    let section_box = gtk::Box::new(gtk::Orientation::Vertical, 0).unwrap();
+    section_box.pack_start(&section_label, false, false, 0);
+    section_box.pack_start(&section_list, false, false, 0);
+
+    let key_entry = gtk::Entry::new().unwrap();
+    let key_label = gtk::Label::new("New Key").unwrap();
+    let key_box = gtk::Box::new(gtk::Orientation::Vertical, 0).unwrap();
+    key_box.pack_start(&key_label, false, false, 0);
+    key_box.pack_start(&key_entry, false, false, 0);
+
+    let value_entry = gtk::Entry::new().unwrap();
+    let value_label = gtk::Label::new("New Entry").unwrap();
+    let value_box = gtk::Box::new(gtk::Orientation::Vertical, 0).unwrap();
+    value_box.pack_start(&value_label, false, false, 0);
+    value_box.pack_start(&value_entry, false, false, 0);
+
+    let key_value_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
+    key_value_box.pack_start(&key_box, false, false, 0);
+    key_value_box.pack_start(&value_box, false, false, 0);
+
+    display.pack_start(&section_box, false, false, 0);
+    display.pack_start(&key_value_box, false,  false, 0);
+    display.pack_start(&create_button, false, false, 20);
 
     window.lock().unwrap().add(&display);
     window.lock().unwrap().show_all();
