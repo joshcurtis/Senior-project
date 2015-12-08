@@ -62,6 +62,15 @@ fn create_ini_file( _ : gtk::Button) {
         file_save_chooser.destroy();
     });
 
+    // Create a server saving button
+    let save_to_server_button = gtk::Button::new_with_label("Save INI To Server").unwrap();
+    let ini_data_server_save_ref = ini_data_arc.clone();
+    save_to_server_button.connect_clicked(move |_| {
+        let ini_str = ini_data_server_save_ref.lock().unwrap().to_string();
+        let client = beaglebone_client::BeagleBoneClient::new("http://127.0.0.1:5000");
+        client.write_file_contents("test.ini", &ini_str);
+    });
+
     // Create a Box with a Label and ComboBoxText with all sections
     let section_label = gtk::Label::new("Section").unwrap();
     let section_list = gtk::ComboBoxText::new_with_entry().unwrap();
@@ -131,6 +140,7 @@ fn create_ini_file( _ : gtk::Button) {
     display.pack_start(&section_box_horiz, false, false, 0);
     display.pack_start(&key_value_box, false,  false, 0);
     display.pack_start(&create_button, false, false, 10);
+    display.pack_start(&save_to_server_button, false, false, 10);
 
     // Add the display and show
     window.lock().unwrap().add(&display);
@@ -211,6 +221,15 @@ fn edit_ini_file() {
         file_save_chooser.destroy();
     });
 
+    // Create a server saving button
+    let save_to_server_button = gtk::Button::new_with_label("Save INI To Server").unwrap();
+    let ini_data_server_save_ref = ini_data_arc.clone();
+    save_to_server_button.connect_clicked(move |_| {
+        let ini_str = ini_data_server_save_ref.lock().unwrap().to_string();
+        let client = beaglebone_client::BeagleBoneClient::new("http://127.0.0.1:5000");
+        client.write_file_contents("test.ini", &ini_str);
+    });
+
     // Create a Box with a Label and ComboBoxText with all sections
     let section_label = gtk::Label::new("Section").unwrap();
     let section_list = gtk::ComboBoxText::new_with_entry().unwrap();
@@ -283,6 +302,7 @@ fn edit_ini_file() {
     display.pack_start(&section_box_horiz, false, false, 0);
     display.pack_start(&key_value_box, false,  false, 0);
     display.pack_start(&create_button, false, false, 10);
+    display.pack_start(&save_to_server_button, false, false, 10);
 
     // Add the display and show
     window.lock().unwrap().add(&display);
@@ -339,6 +359,15 @@ fn load_remote_ini_file( _ : gtk::Button) {
         }
 
         file_save_chooser.destroy();
+    });
+
+    // Create a server saving button
+    let save_to_server_button = gtk::Button::new_with_label("Save INI To Server").unwrap();
+    let ini_data_server_save_ref = ini_data_arc.clone();
+    save_to_server_button.connect_clicked(move |_| {
+        let ini_str = ini_data_server_save_ref.lock().unwrap().to_string();
+        let client = beaglebone_client::BeagleBoneClient::new("http://127.0.0.1:5000");
+        client.write_file_contents("test.ini", &ini_str);
     });
 
     // Create a Box with a Label and ComboBoxText with all sections
@@ -410,6 +439,7 @@ fn load_remote_ini_file( _ : gtk::Button) {
     display.pack_start(&section_box_horiz, false, false, 0);
     display.pack_start(&key_value_box, false,  false, 0);
     display.pack_start(&create_button, false, false, 10);
+    display.pack_start(&save_to_server_button, false, false, 10);
 
     // Add the display and show
     window.lock().unwrap().add(&display);
