@@ -37,8 +37,8 @@ impl IniKeyValue {
      **/
     pub fn build_box(&self) -> gtk::Box {
         let key_value_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
-        key_value_box.pack_start(&self.label, false, false, 10);
-        key_value_box.pack_start(&self.entry, false, false, 0);
+        key_value_box.pack_start(&self.label, true, true, 10);
+        key_value_box.pack_start(&self.entry, true, true, 0);
         key_value_box
     }
 }
@@ -70,7 +70,8 @@ impl IniSection {
     pub fn build_box(&self) -> gtk::Box {
         let section_box = gtk::Box::new(gtk::Orientation::Vertical, 0).unwrap();
         let label_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
-        let label = gtk::Label::new(&self.name).unwrap();
+        let label = gtk::Label::new("").unwrap();
+        label.set_markup(&format!("<big><b>{}</b></big>", &self.name));
 
         label_box.pack_start(&label, false, false, 10);
         section_box.pack_start(&label_box, false, false, 5);
