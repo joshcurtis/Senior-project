@@ -79,14 +79,17 @@ impl BeagleBoneClient {
         file_res.files
     }
 
-    pub fn get_file_contents(&self, filename: &str) -> String {
+    pub fn get_file_contents(&self, filename: &str) -> Result<String, String> {
         let url = format!("{}/files/{}", self.url, filename);
         let mut res = hyper::Client::new().get(&url).send().unwrap();
-        assert_eq!(res.status, hyper::status::StatusCode::Ok);
+        match res.status {
+            hyper::status::StatusCode::Ok => {},
+            _ => return Err("Failed to read data from response".to_string())
+        }
         let mut data = "".to_string();
         res.read_to_string(&mut data).ok().expect("failed to read data from response.");
         let file_contents_res: FileContentsRes = json::decode(&data).unwrap();
-        file_contents_res.data
+        Ok(file_contents_res.data)
     }
 
     pub fn write_file_contents(&self, filename: &str, data: &str) {

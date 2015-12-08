@@ -181,7 +181,14 @@ fn edit_ini_file() {
     println!("{}", &filename);
 
     // Read the config (INI)
-    let conf = Ini::load_from_file(&filename).unwrap();
+    let conf;
+    match Ini::load_from_file(&filename) {
+        Ok(ini) => conf = ini,
+        Err(msg) => {
+            println!("Unable to parse {}\nError: {}", filename.clone(), msg);
+            return;
+        }
+    }
     let mut ini_data = ini_data::IniData::new();
     ini_data.load(conf);
     let section_names = ini_data.section_vec.iter().map(|section| section.name.clone()).collect::<Vec<String>>();
@@ -333,9 +340,26 @@ fn edit_ini_file() {
 fn load_remote_ini_file(fname: &str) {
 
     // Create empty IniData
-    let ini_str = beaglebone_client::BeagleBoneClient::new("http://127.0.0.1:5000")
+    let ini_res = beaglebone_client::BeagleBoneClient::new("http://127.0.0.1:5000")
         .get_file_contents(fname);
-    let ini_data = ini_data::IniData::from_str(&ini_str);
+
+    let ini_str;
+    match ini_res {
+        Ok(s) => ini_str = s,
+        Err(msg) => {
+            println!("Error: {}", msg);
+            return;
+        }
+    }
+
+    let ini_data;
+    match ini_data::IniData::from_str(&ini_str) {
+        Ok(ini) => ini_data = ini,
+        Err(msg) => {
+            println!("Unable to open test.ini\nError: {}", msg);
+            return;
+        }
+    }
 
     // Initialize the window display box
     let display = gtk::Box::new(gtk::Orientation::Vertical, 10).unwrap();
@@ -479,7 +503,6 @@ fn load_remote_ini_file(fname: &str) {
 
 
 fn gui_main() {
-
     // Make sure GTK loads
     gtk::init().ok().expect("Unable to load GTK");
 
