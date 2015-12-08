@@ -8,61 +8,58 @@ use std::io;
 pub struct IniKeyValue {
     pub key: String,
     pub entry: gtk::Entry,
-    pub key_value_box: gtk::Box
+    pub label: gtk::Label
 }
 
 impl IniKeyValue {
     pub fn new(key: String, value: String) -> IniKeyValue {
         let new_instance = IniKeyValue {
-            key: key,
             entry: gtk::Entry::new().unwrap(),
-            key_value_box: gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap()
+            label: gtk::Label::new(&key).unwrap(),
+            key: key
         };
 
         new_instance.entry.set_text(&value);
         new_instance
     }
 
-    pub fn build_box(&mut self) -> &gtk::Box {
-        let label = gtk::Label::new(&self.key).unwrap();
-
-        self.key_value_box.pack_start(&label, false, false, 10);
-        self.key_value_box.pack_start(&self.entry, false, false, 0);
-        &self.key_value_box
+    pub fn build_box(&self) -> gtk::Box {
+        let key_value_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
+        key_value_box.pack_start(&self.label, false, false, 10);
+        key_value_box.pack_start(&self.entry, false, false, 0);
+        key_value_box
     }
 }
 
 pub struct IniSection {
     pub section_name: String,
     pub pairs: Vec<IniKeyValue>,
-    pub section_box: gtk::Box
 }
 
 impl IniSection {
     pub fn new(name: Option<String>) -> IniSection {
-        let mut new_instance = IniSection {
-            section_name: "".to_string(), pairs: Vec::new(),
-            section_box: gtk::Box::new(gtk::Orientation::Vertical, 0).unwrap()
-        };
-
-        if name.is_some() {
-            new_instance.section_name = name.unwrap();
+        IniSection {
+            section_name: if name.is_some() { name.unwrap() } else { "".to_string() },
+            pairs: Vec::new()
         }
-        new_instance
     }
 
-    pub fn build_box(&mut self) -> &gtk::Box {
-        let label_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
-        let label = gtk::Label::new(&self.section_name).unwrap();
+    pub fn build_box(&self) -> gtk::Box {
+        let section_box = gtk::Box::new(gtk::Orientation::Vertical, 0).unwrap();
 
-        label_box.pack_start(&label, false, false, 10);
-        self.section_box.pack_start(&label_box, false, false, 5);
+        {
+            let label_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
+            let label = gtk::Label::new(&self.section_name).unwrap();
 
-        for pair in self.pairs.iter_mut() {
-            let ref pair_box = *pair.build_box();
-            self.section_box.pack_start(pair_box, false, false, 0);
+            label_box.pack_start(&label, false, false, 10);
+            section_box.pack_start(&label_box, false, false, 5);
         }
-        &self.section_box
+
+        for pair in self.pairs.iter() {
+            let pair_box = pair.build_box();
+            section_box.pack_start(&pair_box, false, false, 0);
+        }
+        section_box
     }
 }
 
@@ -101,7 +98,7 @@ impl IniData {
 
         // For each section
         for i in 0..self.section_vec.len() {
-            display.pack_start(self.section_vec[i].build_box(), false, false, 0);
+            display.pack_start(&self.section_vec[i].build_box(), false, false, 0);
         }
         return display;
     }
