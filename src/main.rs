@@ -1,8 +1,11 @@
 extern crate gtk;
 extern crate ini;
+extern crate hyper;
+extern crate rustc_serialize;
 
 mod gtk_helper;
 mod ini_data;
+mod beaglebone_client;
 
 use gtk::signal::Inhibit;
 use gtk::traits::*;
@@ -170,7 +173,7 @@ fn edit_ini_file() {
         let section = section_list.get_active_text().unwrap();
         let key = key_entry.get_text().unwrap();
         let value = value_entry.get_text().unwrap();
-        println!("Adding {} = {} to ", key, value, section);
+        // println!("Adding {} = {} to ", key, value, section);
         let mut ini_data = ini_data_add_ref.lock().unwrap();
         let kv = ini_data::IniKeyValue::new(key.clone(), value.clone());
         ini_data.add(section.clone(), key, value);

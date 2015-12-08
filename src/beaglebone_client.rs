@@ -96,3 +96,31 @@ impl BeagleBoneClient {
     }
 
 }
+
+#[test]
+fn beaglebone_client_tests() {
+    let url = "http://127.0.0.1:5000";
+    let fnames = vec![
+        "alphabet.txt",
+        "test.ini",
+        "testfile.txt",
+        "testfile_copy.txt",
+    ];
+    let alphabet = "abcdefghijklmnopqrstuvwxyz\n";
+    let client = BeagleBoneClient::new(&url);
+
+    assert_eq!(fnames, client.get_files());
+
+    assert_eq!(&alphabet, &client.get_file_contents("alphabet.txt"));
+
+    let testfile_contents = client.get_file_contents("testfile.txt");
+    let testfile_copy_contents = client.get_file_contents("testfile_copy.txt");
+    assert_eq!(&testfile_contents, &testfile_copy_contents);
+
+    let write_contents = "Hello World!";
+    client.write_file_contents("testfile.txt", write_contents);
+    assert_eq!(write_contents, &client.get_file_contents("testfile.txt"));
+
+    client.write_file_contents("testfile.txt", &testfile_contents);
+    assert_eq!(&testfile_contents, &client.get_file_contents("testfile.txt"));
+}
