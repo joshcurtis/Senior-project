@@ -1,2 +1,3 @@
 target
 beaglebone_server/src/__pycache__
+*pyc
