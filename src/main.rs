@@ -181,7 +181,14 @@ fn edit_ini_file() {
     println!("{}", &filename);
 
     // Read the config (INI)
-    let conf = Ini::load_from_file(&filename).unwrap();
+    let conf;
+    match Ini::load_from_file(&filename) {
+        Ok(ini) => conf = ini,
+        Err(msg) => {
+            println!("Unable to parse {}\nError: {}", filename.clone(), msg);
+            return;
+        }
+    }
     let mut ini_data = ini_data::IniData::new();
     ini_data.load(conf);
     let section_names = ini_data.section_vec.iter().map(|section| section.name.clone()).collect::<Vec<String>>();
