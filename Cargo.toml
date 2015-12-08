@@ -7,3 +7,4 @@ authors = ["Josh Curtis <jcurtis825@gmail.com>"]
 glib = "*"
 gtk = "*"
 rust-ini = "*"
+hyper = "*"
