@@ -120,11 +120,16 @@ impl IniData {
     /**
      * Constructs an IniData from a str
      */
-    pub fn from_str(s: &str) -> IniData {
-        let conf = Ini::load_from_str(s).unwrap();
-        let mut ini = IniData::new();
-        ini.load(conf);
-        ini
+    pub fn from_str(s: &str) -> Result<IniData, String> {
+        let res = Ini::load_from_str(s);
+        match res {
+            Ok(config) => {
+                let mut ini = IniData::new();
+                ini.load(config);
+                Ok(ini)
+            },
+            Err(e) => Err(e.msg.clone())
+        }
     }
 
 
