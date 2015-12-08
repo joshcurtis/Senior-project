@@ -99,9 +99,15 @@ fn create_ini_file( _ : gtk::Button) {
 
         // Use a mutable reference to update the section list
         section_list.remove_all();
+        section_list.append_text("");
         for section in ini_ref.section_vec.iter() {
             section_list.append_text(&section.name.clone());
         }
+
+        // Reset the key and values when adding a new
+        key_entry.set_text("");
+        value_entry.set_text("");
+
 
         // Refresh the window
         window_add_button_ref.lock().unwrap().show_all();
@@ -242,9 +248,14 @@ fn edit_ini_file() {
 
         // Use a mutable reference to update the section list
         section_list.remove_all();
+        section_list.append_text("");
         for section in ini_ref.section_vec.iter() {
             section_list.append_text(&section.name.clone());
         }
+
+        // Reset the key and values when adding a new
+        key_entry.set_text("");
+        value_entry.set_text("");
 
         // Refresh the window
         window_add_button_ref.lock().unwrap().show_all();
