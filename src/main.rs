@@ -22,8 +22,8 @@ fn create_ini_file( _ : gtk::Button) {
 
     // Pack the outer ini data box first
     let scrolled_window = gtk::ScrolledWindow::new(None, None).unwrap();
-    scrolled_window.set_min_content_width(0);
-    scrolled_window.set_min_content_height(0);
+    scrolled_window.set_min_content_width(300);
+    scrolled_window.set_min_content_height(300);
     scrolled_window.add(&ini_data.outer_box);
     display.pack_start(&scrolled_window, false, false, 0);
 
@@ -300,7 +300,11 @@ fn load_remote_ini_file( _ : gtk::Button) {
     let display = gtk::Box::new(gtk::Orientation::Vertical, 10).unwrap();
 
     // Pack the outer ini data box first
-    display.pack_start(&ini_data.outer_box, false, false, 10);
+    let scrolled_window = gtk::ScrolledWindow::new(None, None).unwrap();
+    scrolled_window.set_min_content_width(300);
+    scrolled_window.set_min_content_height(300);
+    scrolled_window.add(&ini_data.outer_box);
+    display.pack_start(&scrolled_window, false, false, 0);
 
     // Create and clone an ARC to the IniData
     let ini_data_arc = Arc::new(Mutex::new(ini_data));
