@@ -83,6 +83,26 @@ impl IniSection {
         section_box
     }
 
+    pub fn build_grid(&self) -> gtk::Grid {
+        let section_grid = gtk::Grid::new().unwrap();
+        section_grid.insert_column(0);
+
+        let label = gtk::Label::new("").unwrap();
+        label.set_markup(&format!("<big><b>{}</b></big>", &self.name));
+        section_grid.attach(&label, 0, 0, 2, 1);
+
+        for i in 0..self.pairs.len() {
+            let ref pair = self.pairs[i];
+            let ref label = pair.label;
+            let ref entry = pair.entry;
+
+            section_grid.insert_row(1);
+            section_grid.attach(label, 0, 1, 1, 1);
+            section_grid.attach(entry, 1, 1, 1, 1);
+        }
+        return section_grid;
+    }
+
     /**
      * Checks if a certain key exists in the IniSection. Returns and option with a reference
      * to the IniKeyValue.
@@ -101,7 +121,7 @@ impl IniSection {
  **/
 pub struct IniData {
     pub section_vec: Vec<IniSection>,
-    pub inner_boxes: Vec<gtk::Box>,
+    pub inner_boxes: Vec<gtk::Grid>,
     pub outer_box: gtk::Box
 }
 
@@ -150,7 +170,7 @@ impl IniData {
             }
 
             // Build a Box from the section
-            let section_box = ini_section.build_box();
+            let section_box = ini_section.build_grid();
 
             // Pack the Box in the outer_box
             self.outer_box.pack_start(&section_box, false, false, 0);
@@ -219,7 +239,10 @@ impl IniData {
             if key_not_found {
 
                 // Build a Box from the new IniKeyValue and add it to the inner box
-                self.inner_boxes[index].pack_start(&new_key_value.build_box(), false, false, 0);
+                let ref section_grid = self.inner_boxes[index];
+                section_grid.insert_row(1);
+                section_grid.attach(&new_key_value.label, 0, 1, 1, 1);
+                section_grid.attach(&new_key_value.entry, 1, 1, 1, 1);
 
                 // Push the actual IniKeyValue onto the IniSection pairs
                 self.section_vec[index].pairs.push(new_key_value);
@@ -231,17 +254,20 @@ impl IniData {
             let mut new_section = IniSection::new(Some(section.clone()));
 
             // Build a Box from the new IniKeyValue and pack it in the new section box
-            let new_section_box = new_section.build_box();
-            new_section_box.pack_start(&new_key_value.build_box(), false, false, 0);
+            let new_section_grid = new_section.build_grid();
+            new_section_grid.insert_row(1);
+            new_section_grid.attach(&new_key_value.label, 0, 1, 1, 1);
+            new_section_grid.attach(&new_key_value.entry, 1, 1, 1, 1);
 
             // Pack the new section in the outer box
-            self.outer_box.pack_start(&new_section_box, false, false, 0);
+            self.outer_box.pack_start(&new_section_grid, false, false, 0);
 
             // Push the IniKeyValue, IniSection, and inner Box
             // Done last because push moves the value
             new_section.pairs.push(new_key_value);
+
             self.section_vec.push(new_section);
-            self.inner_boxes.push(new_section_box);
+            self.inner_boxes.push(new_section_grid);
         }
     }
 
