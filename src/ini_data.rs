@@ -281,7 +281,7 @@ impl ToString for IniData {
                 .map(|x| x.to_string())
                 .collect();
             let key_vals_str = key_vals.join("\n");
-            ini_str = format!("{}{}{}", &ini_str, section_str, key_vals_str);
+            ini_str = format!("{}{}{}\n\n", &ini_str, section_str, key_vals_str);
         }
         ini_str
     }
