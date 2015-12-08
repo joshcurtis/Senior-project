@@ -3,7 +3,7 @@ extern crate rustc_serialize;
 use rustc_serialize::json;
 use std::io::Read;
 
-struct BeagleBoneClient {
+pub struct BeagleBoneClient {
     url: String,
 }
 
@@ -25,13 +25,13 @@ struct ServicesRes {
 }
 
 impl BeagleBoneClient {
-    fn new(url: &str) -> BeagleBoneClient {
+    pub fn new(url: &str) -> BeagleBoneClient {
         BeagleBoneClient {
             url: url.to_string()
         }
     }
 
-    fn services_are_running(&self) -> bool {
+    pub fn services_are_running(&self) -> bool {
         let url = format!("{}/services", self.url);
         let mut res = hyper::Client::new().get(&url).send().unwrap();
         assert_eq!(res.status, hyper::status::StatusCode::Ok);
@@ -41,25 +41,25 @@ impl BeagleBoneClient {
         services_res.services_are_running
     }
 
-    fn start_services(&self) {
+    pub fn start_services(&self) {
         let url = format!("{}/services/start", self.url);
         let res = hyper::Client::new().put(&url).send().unwrap();
         assert_eq!(res.status, hyper::status::StatusCode::Ok);
     }
 
-    fn stop_services(&self) {
+    pub fn stop_services(&self) {
         let url = format!("{}/services/stop", self.url);
         let res = hyper::Client::new().put(&url).send().unwrap();
         assert_eq!(res.status, hyper::status::StatusCode::Ok);
     }
 
-    fn reset_services(&self) {
+    pub fn reset_services(&self) {
         let url = format!("{}/services/reset", self.url);
         let res = hyper::Client::new().put(&url).send().unwrap();
         assert_eq!(res.status, hyper::status::StatusCode::Ok);
     }
 
-    fn get_services(&self) -> Vec<String> {
+    pub fn get_services(&self) -> Vec<String> {
         let url = format!("{}/services", self.url);
         let mut res = hyper::Client::new().get(&url).send().unwrap();
         assert_eq!(res.status, hyper::status::StatusCode::Ok);
@@ -69,7 +69,7 @@ impl BeagleBoneClient {
         services_res.services
     }
 
-    fn get_files(&self) -> Vec<String> {
+    pub fn get_files(&self) -> Vec<String> {
         let url = format!("{}/files", self.url);
         let mut res = hyper::Client::new().get(&url).send().unwrap();
         assert_eq!(res.status, hyper::status::StatusCode::Ok);
@@ -79,7 +79,7 @@ impl BeagleBoneClient {
         file_res.files
     }
 
-    fn get_file_contents(&self, filename: &str) -> String {
+    pub fn get_file_contents(&self, filename: &str) -> String {
         let url = format!("{}/files/{}", self.url, filename);
         let mut res = hyper::Client::new().get(&url).send().unwrap();
         assert_eq!(res.status, hyper::status::StatusCode::Ok);
@@ -89,7 +89,7 @@ impl BeagleBoneClient {
         file_contents_res.data
     }
 
-    fn write_file_contents(&self, filename: &str, data: &str) {
+    pub fn write_file_contents(&self, filename: &str, data: &str) {
         let url = format!("{}/files/{}", self.url, filename);
         let res = hyper::Client::new().put(&url).body(data).send().unwrap();
         assert_eq!(res.status, hyper::status::StatusCode::Ok);
