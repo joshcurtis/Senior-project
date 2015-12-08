@@ -86,6 +86,8 @@ impl IniSection {
     pub fn build_grid(&self) -> gtk::Grid {
         let section_grid = gtk::Grid::new().unwrap();
         section_grid.insert_column(0);
+        section_grid.set_column_spacing(10);
+        section_grid.set_column_homogeneous(true);
 
         let label = gtk::Label::new("").unwrap();
         label.set_markup(&format!("<big><b>{}</b></big>", &self.name));
