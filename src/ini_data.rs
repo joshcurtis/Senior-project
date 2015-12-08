@@ -95,7 +95,6 @@ impl IniData {
 
     pub fn get_entry_boxes(&mut self) -> gtk::Box {
         let display = gtk::Box::new(gtk::Orientation::Vertical,10).unwrap();
-
         // For each section
         for i in 0..self.section_vec.len() {
             display.pack_start(&self.section_vec[i].build_box(), false, false, 0);
@@ -118,5 +117,25 @@ impl IniData {
 
         conf.write_to(&mut io::stdout()).unwrap();
         conf.write_to_file(&filename).unwrap();
+    }
+
+    pub fn add(&mut self, section: String, key: String, value: String) {
+        let kv = IniKeyValue::new(key, value);
+        let i = self.get_index_from_section_name(&section).unwrap();
+        self.section_vec[i].pairs.push(kv);
+    }
+
+    pub fn section_names(&self) -> Vec<String> {
+        return self.section_vec.iter().map(|s| s.section_name.clone()).collect();
+    }
+
+    fn get_index_from_section_name(&self, name: &str) -> Option<usize> {
+        let names = self.section_names();
+        for i in (0..names.len()) {
+            if name == names[i] {
+                return Some(i);
+            }
+        }
+        return None;
     }
 }

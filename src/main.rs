@@ -95,12 +95,15 @@ fn edit_ini_file() {
     ini_data.load(conf);
 
     let gtk_ini_data_arc = Arc::new(Mutex::new(ini_data));
+    // Reference for saving
     let gtk_ini_data_ref = gtk_ini_data_arc.clone();
+    // Reference for adding new kv pairs
+    let ini_data_add_ref = gtk_ini_data_arc.clone();
     let mut gtk_ini_data = gtk_ini_data_arc.lock().unwrap();
 
     let window = Arc::new(Mutex::new(create_default_window("TITLE OF INI FILE")));
     let window_ref = window.clone();
-
+    let window_add_button_ref = window.clone();
     let display = gtk::Box::new(gtk::Orientation::Vertical, 10).unwrap();
     display.pack_start(&gtk_ini_data.get_entry_boxes(), false, false, 10);
 
@@ -128,10 +131,14 @@ fn edit_ini_file() {
         file_save_dialog.hide();
     });
 
+
+    //  Create labels and boxes for adding new key values
     let section_label = gtk::Label::new("Section").unwrap();
     let section_list = gtk::ComboBoxText::new_with_entry().unwrap();
-    section_list.append("", "Alpha");
-    section_list.append("", "Beta");
+    for section_name in gtk_ini_data.section_names().iter() {
+        section_list.append("", &section_name);
+    }
+
     let section_box = gtk::Box::new(gtk::Orientation::Vertical, 0).unwrap();
     section_box.pack_start(&section_label, false, false, 0);
     section_box.pack_start(&section_list, false, false, 0);
@@ -152,8 +159,24 @@ fn edit_ini_file() {
     key_value_box.pack_start(&key_box, false, false, 0);
     key_value_box.pack_start(&value_box, false, false, 0);
 
+    let add_button = gtk::Button::new_with_label("Add new key value pair").unwrap();
+    add_button.connect_clicked(move |_| {
+        let section = section_list.get_active_text().unwrap();
+        let key = key_entry.get_text().unwrap();
+        let value = value_entry.get_text().unwrap();
+        println!("[{}]\n{} = {}", section, key, value);
+        let mut ini_data = ini_data_add_ref.lock().unwrap();
+        ini_data.add(section, key, value);
+        let window = window_add_button_ref.lock().unwrap();
+
+
+        window.show_all();
+
+    });
+
     display.pack_start(&section_box, false, false, 0);
     display.pack_start(&key_value_box, false,  false, 0);
+    display.pack_start(&add_button, false, false, 0);
     display.pack_start(&create_button, false, false, 20);
 
     window.lock().unwrap().add(&display);
