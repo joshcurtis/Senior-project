@@ -105,7 +105,13 @@ fn edit_ini_file() {
     let window_ref = window.clone();
     let window_add_button_ref = window.clone();
     let display = gtk::Box::new(gtk::Orientation::Vertical, 10).unwrap();
-    display.pack_start(&gtk_ini_data.get_entry_boxes(), false, false, 10);
+
+    let ini_boxes_arc = Arc::new(Mutex::new(gtk_ini_data.get_entry_boxes()));
+    let ini_boxes_ref = ini_boxes_arc.clone();
+    let ini_boxes = ini_boxes_arc.lock().unwrap();
+    for section_box in ini_boxes.iter() {
+        display.pack_start(&section_box.1, false, false, 10);
+    }
 
     let create_button = gtk::Button::new_with_label("Create INI File").unwrap();
     let file_save_window = gtk::Window::new(gtk::WindowType::Toplevel).unwrap();
@@ -164,9 +170,16 @@ fn edit_ini_file() {
         let section = section_list.get_active_text().unwrap();
         let key = key_entry.get_text().unwrap();
         let value = value_entry.get_text().unwrap();
-        println!("[{}]\n{} = {}", section, key, value);
+        println!("Adding {} = {} to ", key, value, section);
         let mut ini_data = ini_data_add_ref.lock().unwrap();
-        ini_data.add(section, key, value);
+        let kv = ini_data::IniKeyValue::new(key.clone(), value.clone());
+        ini_data.add(section.clone(), key, value);
+        let ini_boxes = ini_boxes_ref.lock().unwrap();
+        for section_box in ini_boxes.iter() {
+            if section == section_box.0 {
+                section_box.1.pack_start(&kv.build_box(), false, false, 0);
+            }
+        }
         let window = window_add_button_ref.lock().unwrap();
 
 

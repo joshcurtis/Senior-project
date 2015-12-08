@@ -93,13 +93,12 @@ impl IniData {
         }
     }
 
-    pub fn get_entry_boxes(&mut self) -> gtk::Box {
-        let display = gtk::Box::new(gtk::Orientation::Vertical,10).unwrap();
-        // For each section
+    pub fn get_entry_boxes(&mut self) -> Vec<(String, gtk::Box)> {
+        let mut v = Vec::new();
         for i in 0..self.section_vec.len() {
-            display.pack_start(&self.section_vec[i].build_box(), false, false, 0);
+            v.push((self.section_vec[i].section_name.clone(), self.section_vec[i].build_box()));
         }
-        return display;
+        return v;
     }
 
     pub fn save(&mut self, filename: String) {
