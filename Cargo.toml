@@ -6,3 +6,4 @@ authors = ["Josh Curtis <jcurtis825@gmail.com>"]
 [dependencies]
 glib = "*"
 gtk = "*"
+hyper = "*"
