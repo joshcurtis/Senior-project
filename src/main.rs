@@ -122,62 +122,6 @@ fn create_ini_file( _ : gtk::Button) {
     // Add the display and show
     window.lock().unwrap().add(&display);
     window.lock().unwrap().show_all();
-
-
-    // let params = Arc::new(Mutex::new(Vec::new()));
-    // let params_ref = params.clone();
-    //
-    // let add_param_window = create_default_window("Add Parameter");
-    // let add_param_dialog = gtk::Dialog::with_buttons("Add Parameter",
-    //                                                      Some(&add_param_window),
-    //                                                      gtk::DialogFlags::empty(),
-    //                                                      [("Add", gtk::ResponseType::Accept),
-    //                                                       ("Cancel", gtk::ResponseType::Cancel)]);
-    // add_param_dialog.set_window_position(gtk::WindowPosition::Center);
-    //
-    // // Create a parameter entry box for creating new parameters
-    // let (add_param_entry, add_param_label) = gtk_helper::build_entry_and_label("Parameter Name".to_string());
-    // let param_entry_box = add_param_dialog.get_content_area();
-    // param_entry_box.add(&add_param_label);
-    // param_entry_box.add(&add_param_entry);
-    //
-    // let window = Arc::new(Mutex::new(create_default_window("Create INI File")));
-    // let window_ref = window.clone();
-    //
-    // let add_param_button = gtk::Button::new_with_label("Add Parameter").unwrap();
-    //
-    // let disp = gtk::Box::new(gtk::Orientation::Vertical, 10).unwrap();
-    // disp.pack_start(&add_param_button, false, false, 10);
-    //
-    // window.lock().unwrap().add(&disp);
-    //
-    // let display = Arc::new(Mutex::new(disp));
-    // let display_ref = display.clone();
-    //
-    // // Copy the window so it can be modified inside and outside the closure
-    // add_param_button.connect_clicked(move |_| {
-    //     add_param_dialog.show_all();
-    //     if add_param_dialog.run() == gtk::ResponseType::Accept as i32 {
-    //         let s = add_param_entry.get_text().unwrap();
-    //         println!("{}", s);
-    //         params_ref.lock().unwrap().push(s.clone());
-    //
-    //         let (param_entries, param_labels) =  gtk_helper::build_entry_and_label(s.to_string());
-    //
-    //         let entry_box = gtk::Box::new(gtk::Orientation::Horizontal, 0).unwrap();
-    //         entry_box.pack_start(&param_labels, false, false, 10);
-    //         entry_box.pack_start(&param_entries, false, false, 0);
-    //
-    //         let display = display_ref.lock().unwrap();
-    //         display.pack_start(&entry_box, false, false, 10);
-    //
-    //         let window = window_ref.lock().unwrap();
-    //         //window.add(&display);
-    //         window.show_all();
-    //     }
-    //     add_param_dialog.hide();
-    // });
-    // window.lock().unwrap().show_all();
 }
 
 fn edit_ini_file() {
