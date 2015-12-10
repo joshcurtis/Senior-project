@@ -105,6 +105,7 @@ fn beaglebone_client_tests() {
     let url = "http://127.0.0.1:5000";
     let fnames = vec![
         "alphabet.txt",
+        "sample.ini",
         "test.ini",
         "testfile.txt",
         "testfile_copy.txt",
