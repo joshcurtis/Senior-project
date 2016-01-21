@@ -6,6 +6,3 @@ authors = ["Josh Curtis <jcurtis825@gmail.com>"]
 [dependencies]
 glib = "*"
 gtk = "*"
-rust-ini = "*"
-hyper = "*"
-rustc-serialize = "*"
