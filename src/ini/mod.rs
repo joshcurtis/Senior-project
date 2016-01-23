@@ -1,2 +1,1 @@
-pub mod ini;
-pub mod section;
+pub mod parser;
