@@ -1,9 +1,6 @@
-mod ini;
-mod app;
-
 extern crate gtk;
-use gtk::traits::*;
-use gtk::signal::Inhibit;
+mod app;
+mod ini;
 
 fn main() {
     match run() {
