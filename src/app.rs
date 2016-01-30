@@ -10,6 +10,7 @@ pub enum Error {
 pub struct App {
     contents: gtk::Box,
     window: gtk::Window,
+    window_layout: gtk::Box,
 }
 
 impl App {
@@ -25,15 +26,20 @@ impl App {
             gtk::main_quit();
             gtk::signal::Inhibit(false)
         });
-        let contents = try!(gtk::Box::new(gtk::Orientation::Vertical, 4).ok_or(Error::CreateWidget));
-        win.add(&contents);
+        let window_layout = try!(gtk::Box::new(gtk::Orientation::Vertical, 4).ok_or(Error::CreateWidget));
+        win.add(&window_layout);
         // Menubar
         let menubar = try!(App::gen_menubar());
-        contents.add(&menubar);
+        window_layout.add(&menubar);
+        // Contents
+        let contents = try!(gtk::Box::new(gtk::Orientation::Vertical, 4).ok_or(Error::CreateWidget));
+        try!(App::fill_default_contents(&contents));
+        window_layout.add(&contents);
         //
         Ok(App {
             contents: contents,
             window: win,
+            window_layout: window_layout,
         })
     }
 
@@ -45,13 +51,27 @@ impl App {
 
     pub fn gen_menubar() -> Result<gtk::Box, Error> {
         let menubar = try!(gtk::Box::new(gtk::Orientation::Horizontal, 8).ok_or(Error::CreateWidget));
-        // File Menu
-        let file_label = try!(gtk::Label::new("File").ok_or(Error::CreateWidget));
-        menubar.pack_start(&file_label, false, false, 4);
-        // Help Menu
-        let help_label = try!(gtk::Label::new("Help").ok_or(Error::CreateWidget));
-        menubar.pack_start(&help_label, false, false, 4);
+        let size = 5; // GTK_ICON_SIZE_DND
+        let new_file = try!(gtk::Image::new_from_icon_name("document-new", size)
+                            .ok_or(Error::CreateWidget));
+        new_file.set_tooltip_text("New");
+        let open_file = try!(gtk::Image::new_from_icon_name("document-open", size)
+                             .ok_or(Error::CreateWidget));
+        open_file.set_tooltip_text("Open");
+        let save_file = try!(gtk::Image::new_from_icon_name("document-save", size)
+                             .ok_or(Error::CreateWidget));
+        save_file.set_tooltip_text("Save");
+        menubar.add(&new_file);
+        menubar.add(&open_file);
+        menubar.add(&save_file);
         //
         Ok(menubar)
+    }
+
+    pub fn fill_default_contents(contents: &gtk::Box) -> Result<(), Error> {
+        contents.destroy();
+        let text = try!(gtk::Label::new("Nothing Loaded").ok_or(Error::CreateWidget));
+        contents.add(&text);
+        Ok(())
     }
 }
