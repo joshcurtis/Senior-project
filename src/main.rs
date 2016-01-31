@@ -1,7 +1,7 @@
 extern crate gtk;
-mod app;
-mod ini;
-mod util;
+pub mod app;
+pub mod ini;
+pub mod util;
 
 fn main() {
     match run() {

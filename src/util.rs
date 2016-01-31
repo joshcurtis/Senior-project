@@ -11,7 +11,7 @@ use std::io;
 /// # Panics
 /// Panics when there is an error opening or reading from the file.
 ///
-fn from_file<T: FromStr>(fname: &str) -> Result<T, T::Err> {
+pub fn from_file<T: FromStr>(fname: &str) -> Result<T, T::Err> {
     let s = {
         let mut f = File::open(fname).unwrap();
         let mut s = String::new();
@@ -26,7 +26,7 @@ fn from_file<T: FromStr>(fname: &str) -> Result<T, T::Err> {
 /// # Failures
 /// Returns an std::io::Error if there is an error creating/opening
 /// the file or writing to it.
-fn to_file<T: ToString>(obj: &T, fname: &str) -> io::Result<()> {
+pub fn to_file<T: ToString>(obj: &T, fname: &str) -> io::Result<()> {
     let mut f = try!(File::create(fname));
     let s = obj.to_string();
     try!(f.write_all(s.as_bytes()));
