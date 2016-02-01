@@ -1,6 +1,9 @@
 extern crate gtk;
 use gtk::traits::*;
 
+use ini;
+use util;
+
 #[derive(Debug)]
 pub enum Error {
     CreateWidget,
@@ -70,8 +73,10 @@ impl App {
 
     pub fn fill_default_contents(contents: &gtk::Box) -> Result<(), Error> {
         contents.destroy();
-        let text = try!(gtk::Label::new("Nothing Loaded").ok_or(Error::CreateWidget));
-        contents.add(&text);
+        // Testing Ini
+        let config = util::from_file("test.ini").unwrap();
+        let view = ini::gui::IniGui::from(config).unwrap();
+        contents.add(view.contents());
         Ok(())
     }
 }

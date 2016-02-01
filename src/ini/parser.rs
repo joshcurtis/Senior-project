@@ -10,8 +10,7 @@ pub enum Error {
     SectionNotFound,
 }
 
-#[derive(Debug)]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Ini {
     section_names: Vec<String>,
     sections: HashMap<String, Section>,
@@ -25,12 +24,18 @@ impl Ini {
         }
     }
 
+    /// Provides an iterator over the sections in the proper order.
     pub fn iter(&self) -> IniIterator {
         IniIterator {
             idx: 0,
             ini: &self,
-            size: self.section_names.len(),
+            size: self.len(),
         }
+    }
+
+    /// The number of sections
+    pub fn len(&self) -> usize {
+        self.section_names.len()
     }
 
     pub fn section_names(&self) -> &Vec<String> {
@@ -133,8 +138,7 @@ impl<'a> Iterator for IniIterator<'a> {
     }
 }
 
-#[derive(Debug)]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Section {
     keys: Vec<String>,
     name: String,
@@ -148,6 +152,28 @@ impl Section {
             name: name.to_string(),
             vals: HashMap::new(),
         }
+    }
+
+    /// Provides an iterator over the (key, value) pairs.
+    pub fn iter(&self) -> SectionIterator {
+        SectionIterator {
+            idx: 0,
+            section: &self,
+            size: self.len(),
+        }
+    }
+
+    /// The number of (key, value) pairs.
+    pub fn len(&self) -> usize {
+        self.keys.len()
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn keys(&self) -> &Vec<String> {
+        &self.keys
     }
 
     pub fn contains_key(&self, key: &str) -> bool {
@@ -188,6 +214,33 @@ impl ToString for Section {
             let v = self.get_value(&k).unwrap();
             format!("{}{}={}\n", acc, k, v)
         })
+    }
+}
+
+pub struct SectionIterator<'a> {
+    idx: usize,
+    section: &'a Section,
+    size: usize,
+}
+
+impl<'a> Iterator for SectionIterator<'a> {
+    type Item = (&'a str, &'a str);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let i = self.idx;
+        if self.size > 0 {
+            self.idx += 1;
+            self.size -= 1;
+            let k = &self.section.keys()[i];
+            let v = self.section.get_value(k).unwrap();
+            Some((k, v))
+        } else {
+            None
+        }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (self.size, Some(self.size))
     }
 }
 
