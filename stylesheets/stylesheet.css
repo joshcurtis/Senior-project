@@ -270,7 +270,7 @@ Full-Width Styles
 
 .inner {
   position: relative;
-  max-width: 640px;
+  max-width: 800px;
   padding: 20px 10px;
   margin: 0 auto;
 }
@@ -297,12 +297,12 @@ Full-Width Styles
   list-style: none;
   float: left;
   display: inline;
-  padding: 4px;
+  padding: 4px 15px 4px 15px;
   text-decoration: none;
   color: #444;
   text-transform: uppercase;
   margin-bottom: 5px;
-  margin-right: 20px;
+  margin-right: 10px;
   background: #AFAFAF;
   background-image: url('../images/noise_texture.png');
 }
@@ -432,7 +432,7 @@ Small Device Styles
   }
 
   #nav_bar {
-    font-size: 21px;  
+    font-size: 21px;
   }
 
   .inner {
