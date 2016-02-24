@@ -39,3 +39,6 @@ return (callback.cljs$core$IFn$_invoke$arity$1 ? callback.cljs$core$IFn$_invoke$
 
 return reader.readAsText(js_file_obj);
 });
+ini_editor.utils.click_element = (function ini_editor$utils$click_element(id){
+return document.getElementById(id).click();
+});
