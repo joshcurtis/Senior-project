@@ -1,0 +1,3 @@
+{:require [machine-conf.core]
+ :init-fns [machine-conf.core/start]
+ :compiler-options {:asset-path "js/core.out"}}
