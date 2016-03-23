@@ -1,18 +1,28 @@
-# Senior Project
-Senior Project is a GUI configuration tool for 3D printers written in the Rust programming language.
+# MachineKit Editor
+Edit specifications for use with MachineKit
 
 ## Maintainers
 - Josh Curtis
 - Will Medrano
 - Shubham Gogna
 
-## Installation
-1. Install the Rust programming language (which comes with the Cargo package manager)
-2. Install the required packages
+## Requirements
+1. Java - Backend for Clojure
+2. [boot](boot-clj.com) - Build tooling for Clojure, insatll instructions [here](https://github.com/boot-clj/boot#install)
+3. Web Browser - JavaScript capable browser. Chrome, Firefox, or Safari are recommended
 
-  ```
-  sudo apt-get install libcairo2-dev libglib2.0-0 libatk1.0-dev 
-  sudo apt-get install libpango1.0-dev libgdk-pixbuf2.0-dev libgtk-3-dev
-  ```
-3. Run `cargo run`
+## Running Development Environment
+1. `boot-dev`
+2. Check it out on a web browser at [localhost:3000](localhost:3000)
+3. To connect to the browser's REPL, run `boot repl -c`, and issue the command `(start-repl)`
 
+## Generating HTML Code Documentation
+1. `boot doc`
+2. Check out the documentation html page located in the target/doc/ directory
+
+## Development Resources
+* `compojure` - [quick guide](https://learnxinyminutes.com/docs/compojure/)
+* `cljs` - [modern cljs](https://github.com/magomimmo/modern-cljs)
+
+## Resources
+* [bootswatch](https://bootswatch.com) for CSS styles
