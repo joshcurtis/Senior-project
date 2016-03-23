@@ -51,5 +51,8 @@
 (deftask doc
   "Generate HTML Code Documentation"
   []
-  (comp
-   (generate-docs {:language :clojurescript})))
+  (do
+   (generate-docs {:language :clojurescript
+                   :output-path "target/cljs-doc"})
+   (generate-docs {:language :clojure
+                   :output-path "target/clj-doc"})))

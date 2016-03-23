@@ -11,11 +11,14 @@
    ))
 
 
-(def home (hiccup/html [:html  [:body
-                                [:h1 {} "Welcome To MachineKit Config"]
-                                [:a {:href "/index.html"} "here"]]]))
+(def home
+  "HTML page (string) that is returned for /."
+  (hiccup/html [:html  [:body
+                             [:h1 {} "Welcome To MachineKit Config"]
+                             [:a {:href "/index.html"} "here"]]]))
 
 (defroutes handler
+  "compojure route handler."
   (GET "/" [] home)
   (files "/" {:root "target"})
   (resources "/" {:root "target"})
@@ -23,6 +26,8 @@
   (not-found "Page Not Found"))
 
 
-(def app (-> (var handler)
-             (wrap-rpc)
-             (site)))
+(def app
+  "compojure route handler. This is similar to handler, but adds in
+  functionality from shoreleave which allows for easy Remote Procedure Calls
+  from cljs."
+  (-> (var handler) (wrap-rpc) (site)))
