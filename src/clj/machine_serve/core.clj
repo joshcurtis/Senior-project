@@ -1,10 +1,13 @@
-(ns machine-serv.core
+(ns machine-serve.core
+  "The server for our web application. It also provides some remote function
+  calls through the shoreleave library."
   (:require
+   [machine-serve.remote]
    [compojure.core :refer [defroutes GET]]
    [compojure.handler :refer [site]]
    [compojure.route :refer [not-found files resources]]
    [hiccup.core :as hiccup]
-   [shoreleave.middleware.rpc :refer [defremote wrap-rpc]]
+   [shoreleave.middleware.rpc :refer [wrap-rpc]]
    ))
 
 
@@ -19,11 +22,6 @@
   (GET "/echo/:s" [s] s)
   (not-found "Page Not Found"))
 
-;; see machine_conf/core.cljs
-
-(defremote server-println [s]
-  (println s)
-  s)
 
 (def app (-> (var handler)
              (wrap-rpc)

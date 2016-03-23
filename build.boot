@@ -18,6 +18,7 @@
                  [org.clojars.magomimmo/shoreleave-remote-ring "0.3.1"]
                  [org.clojars.magomimmo/shoreleave-remote "0.3.1"]
                  [javax.servlet/servlet-api "2.5"]
+                 [clj-ssh "0.5.14"]
                  [reagent "0.6.0-alpha"]
                  ]
  )
@@ -38,7 +39,7 @@
   []
   (comp
    (dev-options)
-   (serve :handler 'machine-serv.core/app
+   (serve :handler 'machine-serve.core/app
           :resource-root "target"
           :reload true)
    (watch)

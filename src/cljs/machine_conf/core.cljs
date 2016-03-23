@@ -11,8 +11,6 @@
 (defonce app-state (atom {:tab "Home"}))
 (defn set-tab! [label] (swap! app-state assoc :tab label))
 
-(remote/server-println "Connected!")
-
 (defn home
   "reagent-component for home tab."
   [props]
