@@ -15,7 +15,10 @@
   [:div {} "Home Tab"])
 
 (defn app
-  ""
+  "Reagent component which describes the app. It is a tab bar followed by the
+  contents of that tab. Here are the locations of the contents:
+  \"Home\" - `machine-conf.core/home`
+  \"INI\" - `ini-editor.core/view`"
   [props]
   (let [tab (:tab @app-state)]
     [:div.app {}
@@ -30,7 +33,7 @@
         :else [:div {} "Unknown tab"])]]]))
 
 (defn ^:export start
-  "Renders the application onto the DOM element 'app'"
+  "Renders the application onto the DOM element \"app\""
   []
   (r/render-component
    [app {}]

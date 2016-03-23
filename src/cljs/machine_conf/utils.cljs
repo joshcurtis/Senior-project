@@ -1,5 +1,5 @@
 (ns machine-conf.utils
-  ""
+  "Generic utility functions."
   (:require
    [clojure.string :as string]))
 
@@ -34,11 +34,16 @@
   (vec (concat (subvec v 0 idx) (subvec v (inc idx)))))
 
 (defn save-file
+  "Saves the contents of `text` with a target filename of `filename`."
   [text filename]
+  (assert (string? text))
+  (assert (string? filename))
   (let [blob (js/Blob. #js [text] #js {"type" "text/plain;charset=utf-8"})]
     (js/saveAs blob filename)))
 
 (defn toggle-membership
+  "Given a `set s`, element `v` is removed if it is in the set, or added if it
+  is not."
   [s v]
   (assert (set? s))
   (if (contains? s v)

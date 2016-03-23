@@ -42,7 +42,8 @@
 
 (defn- from-file-list
   "Given a JavaScript FileList, a `list` of JavaScript File objects is
-  returned."
+  returned.
+  file-list - JavaScript FileList"
   [file-list]
   (let [len (.-length file-list)]
     (map #(.item file-list %1) (range len))))
@@ -91,6 +92,12 @@
 
 
 (defn list-input
+  "Renders an element that can be used to edit a vector of values.
+  # Props
+  :disabled - bool
+  :on-change - function that takes vector of new values
+  :value - vector of current value
+  :default-value - The value used when a new item is added."
   [props]
   (let [{:keys [disabled on-change value new-value]} props]
     (assert (vector? value) "value passed to list-input must be a vector.")
@@ -115,4 +122,4 @@
                               ]])
                   value)
      [:button.btn.btn-primary.btn-block
-      {:on-click #(-> value (conj new-value) on-change)} "+"]]))
+      {:on-click #(-> value (conj default-value) on-change)} "+"]]))

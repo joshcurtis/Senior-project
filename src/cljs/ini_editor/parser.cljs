@@ -1,4 +1,5 @@
 (ns ini-editor.parser
+  "Parse to and from ini files."
   (:require
    [machine-conf.utils :as utils]
    [cljs.reader :as reader]
@@ -6,7 +7,14 @@
 
 
 (defn- parse-ini-line
-  ""
+  "Helper function that parses a single line. It returns its type, as well as
+  the result in a vector tuple. Here are the possibilities:
+  [:blank nil]
+  [:metadata hashmap]
+  [:comment string]
+  [:section section-string]
+  [:key-value [key-string value-string]]
+  [:parse-error nil], and an exception is thrown in this case."
   [l]
   (let [l (string/trim l)]
     (cond
@@ -30,6 +38,14 @@
           [:parse-error nil]))))
 
 (defn- helper-update-value
+  "Updates the ini value based on its metadata. For most cases, this means
+  assigning the section, key to the new value, but for multiline, it means
+  adding the new value to the vector of old values.
+  values - hashmap: section-string -> key-string -> value
+  sec - section-string
+  k - key-string
+  v - value-string
+  metadata - hashmap"
   [values sec k v metadata]
   (let [old-val (get-in values [sec k])]
     (cond
@@ -41,6 +57,13 @@
                 (if (some? old-val) (conj old-val v) v)))))
 
 (defn parse-ini
+  "Parses the ini into an internal representation. Here are the fields of the
+  returned hashmap:
+  :key-metadata - hashmap: section-string -> key-string -> hashmap
+  :key-order - hashmap: section-string -> [key-string]
+  :section-metadata - hashmap: section-string -> hashmap
+  :section-order - [section-string]
+  :values - hashmap: section-string -> key-string -> value-string or [value-string]"
   [s]
   (loop [[l & r] (string/split-lines s)
          section "" ; string
@@ -109,6 +132,8 @@
                    values)))))) ; values
 
 (defn- comments-to-str
+  "Formats the given comment for writing to file. This involves putting \"# \"
+  at the start of each line. This function is used by `metadata-to-str`"
   [s]
   (let [lines (string/split-lines s)
         formatted (map #(str "# " %1) lines)
@@ -116,6 +141,10 @@
     (if (string/blank? s) "" (str s \newline))))
 
 (defn- metadata-to-str
+  "Converts metadata into a formatted string. This involves converting the
+  hashmap into a string and appending the string \"#! \" to each line as
+  well. For formatting purposes, each :key gets its own line. The comments are
+  handled by the `comments-to-str` function"
   [m]
   (let [comments (:comments m)
         ks (filter #(not= %1 :comments) (keys m))]
@@ -124,6 +153,11 @@
                   (map #(str "#! " {%1 (get m %1)}) ks)))))
 
 (defn- ini-key-to-str
+  "Given a section, key, and the data provided by the function `parse-ini-line`,
+  the key-value pair  is returned in string representation.
+  ini - hashmap with same fields as the return value of `parse-ini-line`.
+  section - section-string
+  k - key-string"
   [ini sec k]
   (let [meta (get-in ini [:key-metadata sec k])
         type (or (:type meta) "text")
@@ -137,6 +171,10 @@
            :else (throw (str "Unknown type"))))))
 
 (defn- ini-sec-to-str
+  "Given a section and the data provided by the function `parse-ini-line`,
+  the section  is returned in string representation.
+  ini - hashmap with same fields as the return value of `parse-ini-line`.
+  section - section-string"
   [ini sec]
   (str (metadata-to-str (get-in ini [:section-metadata sec]))
        \[ sec \]
@@ -147,6 +185,7 @@
        \newline))
 
 (defn ini-to-str
+  "Given the same structured hashmap as returned by `parse-ini-line`."
   [ini]
   (string/join \newline
                (map #(ini-sec-to-str ini %1) (:section-order ini))))

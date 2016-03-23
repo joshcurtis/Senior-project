@@ -8,7 +8,7 @@
    [machine-conf.widgets :as widgets]
    [reagent.core :as r :refer [atom]]))
 
-(defn ini-key
+(defn- ini-key
   [props]
   (let [{:keys [section key metadata value]} props
         comments (:comments metadata)
@@ -23,25 +23,26 @@
                                           %1
                                           .-target
                                           .-value
-                                          (controller/set-value! section key))
+                                          (controller/set-ini-value! section key))
                              :value value
                              :type "text"}]
 
        (= type "options") [widgets/dropdown-input
                            {:disabled disabled
                             :options (:options metadata)
-                            :on-change #(controller/set-value! section key %1)
+                            :on-change #(controller/set-ini-value! section key %1)
                             :value value}]
 
        (= type "multiline") [widgets/list-input
                              {:disabled disabled
-                              :on-change #(controller/set-value! section key %1)
-                              :value value}]
+                              :on-change #(controller/set-ini-value! section key %1)
+                              :value value
+                              :default-value ""}]
 
        :else
        [:span {} (str "Unknown:" props)])]))
 
-(defn ini-section
+(defn- ini-section
   [props]
   (let [{:keys [section
                 key-metadata
@@ -66,6 +67,14 @@
               key-order)])]]))
 
 (defn ini-editor
+  "Renders a component for editing the current ini.
+  # Props - same hashmap are present in `ini-editor/model`.
+  :key-metadata
+  :key-order
+  :section-metadata
+  :section-order
+  :values
+  :expanded?"
   [props]
   (let [{:keys [key-metadata
                 key-order
@@ -85,6 +94,7 @@
           section-order)]))
 
 (defn menubar
+  "Renders a menubar for misc. actions such as loading and saving a file."
   [props]
   (let []
     [:ul.nav.nav-pills {}

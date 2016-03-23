@@ -22,6 +22,7 @@ Edit specifications for use with MachineKit
 
 ## Development Resources
 * `compojure` - [quick guide](https://learnxinyminutes.com/docs/compojure/)
+* `cljs` - [modern cljs](https://github.com/magomimmo/modern-cljs)
 
 ## Resources
 * [bootswatch](https://bootswatch.com) for CSS styles

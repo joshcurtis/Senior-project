@@ -1,5 +1,5 @@
 (ns ini-editor.model
-  "State for ini-editor"
+  "State for the ini-editor. Codex doesn't work with `defonce` :("
   (:require
    [ini-editor.parser :as parser]
    [reagent.core :as r :refer [atom]]))
