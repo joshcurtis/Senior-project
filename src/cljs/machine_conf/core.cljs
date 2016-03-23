@@ -2,12 +2,16 @@
   ""
   (:require
    [ini-editor.core]
+   [machine-conf.remote :as remote]
    [machine-conf.widgets :as widgets]
+   [machine-conf.utils :as utils]
    [reagent.core :as r :refer [atom]]))
 
 
 (defonce app-state (atom {:tab "Home"}))
 (defn set-tab! [label] (swap! app-state assoc :tab label))
+
+(remote/server-println "Connected!")
 
 (defn home
   "reagent-component for home tab."
