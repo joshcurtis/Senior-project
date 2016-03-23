@@ -99,7 +99,7 @@
   :value - vector of current value
   :default-value - The value used when a new item is added."
   [props]
-  (let [{:keys [disabled on-change value new-value]} props]
+  (let [{:keys [disabled on-change value default-value]} props]
     (assert (vector? value) "value passed to list-input must be a vector.")
     [:span {}
      (map-indexed (fn [i v] [:div.input-group {:key i}
