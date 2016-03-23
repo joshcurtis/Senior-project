@@ -20,5 +20,8 @@ Edit specifications for use with MachineKit
 1. `boot doc`
 2. Check out the documentation html page located in the target/doc/ directory
 
+## Development Resources
+* `compojure` - [quick guide](https://learnxinyminutes.com/docs/compojure/)
+
 ## Resources
 * [bootswatch](https://bootswatch.com) for CSS styles

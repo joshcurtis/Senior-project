@@ -1,18 +1,20 @@
 (set-env!
- :source-paths #{"src/cljs"}
+ :source-paths #{"src/cljs" "src/clj"}
  :resource-paths #{"src/html"}
  :target-path #{"target"}
 
  :dependencies '[[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.8.34"]
+                 [org.clojure/clojurescript "1.7.228"]
                  [adzerk/boot-cljs "1.7.228-1"]
                  [adzerk/boot-cljs-repl "0.3.0"]
                  [adzerk/boot-reload "0.4.5"]
                  [pandeiro/boot-http "0.7.3"]
-                 [com.cemerick/piggieback "0.2.1"]     ;; needed by nREPL
-                 [weasel "0.7.0"]                      ;; needed by nREPL
+                 [com.cemerick/piggieback "0.2.1"]     ;; needed by bREPL
+                 [weasel "0.7.0"]                      ;; needed by bREPL
                  [org.clojure/tools.nrepl "0.2.12"]
                  [codox "0.9.4"]
+                 [hiccup "1.0.5"]
+                 [compojure "1.5.0"]
                  [reagent "0.6.0-alpha"]
                  ]
  )
@@ -33,7 +35,9 @@
   []
   (comp
    (dev-options)
-   (serve :dir "target")
+   (serve :handler 'machine-serv.core/handler
+          :resource-root "target"
+          :reload true)
    (watch)
    (reload)
    (cljs-repl) ;; before cljs task
