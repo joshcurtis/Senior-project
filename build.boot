@@ -3,7 +3,7 @@
  :resource-paths #{"src/html"}
  :target-path #{"target"}
 
- :dependencies '[[org.clojure/clojure "1.8.0"]
+ :dependencies '[[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.228"]
                  [adzerk/boot-cljs "1.7.228-1"]
                  [adzerk/boot-cljs-repl "0.3.0"]
@@ -15,6 +15,9 @@
                  [codox "0.9.4"]
                  [hiccup "1.0.5"]
                  [compojure "1.5.0"]
+                 [org.clojars.magomimmo/shoreleave-remote-ring "0.3.1"]
+                 [org.clojars.magomimmo/shoreleave-remote "0.3.1"]
+                 [javax.servlet/servlet-api "2.5"]
                  [reagent "0.6.0-alpha"]
                  ]
  )
@@ -35,7 +38,7 @@
   []
   (comp
    (dev-options)
-   (serve :handler 'machine-serv.core/handler
+   (serve :handler 'machine-serv.core/app
           :resource-root "target"
           :reload true)
    (watch)
