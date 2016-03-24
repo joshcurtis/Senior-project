@@ -2,6 +2,7 @@
   ""
   (:require
    [ini-editor.core]
+   [remote-manager.core]
    [machine-conf.server-interop :as server-interop]
    [machine-conf.widgets :as widgets]
    [machine-conf.utils :as utils]
@@ -20,18 +21,20 @@
   "Reagent component which describes the app. It is a tab bar followed by the
   contents of that tab. Here are the locations of the contents:
   \"Home\" - `machine-conf.core/home`
+  \"Remote\" - `remote-manager.core/view`
   \"INI\" - `ini-editor.core/view`"
   [props]
   (let [tab (:tab @app-state)]
     [:div.app {}
-     [widgets/tabs {:labels ["Home" "INI"]
+     [widgets/tabs {:labels ["Home" "Remote" "INI"]
                     :selected tab
                     :on-change #(set-tab! %1)}]
      [:div.tab-content {:style {:margin "1rem"}}
       [:div.tab-pane.active {}
       (cond
         (= tab "Home") [home {}]
-        (= tab "INI") [ini-editor.core/view]
+        (= tab "Remote") [remote-manager.core/view {}]
+        (= tab "INI") [ini-editor.core/view {}]
         :else [:div {} "Unknown tab"])]]]))
 
 (defn ^:export start

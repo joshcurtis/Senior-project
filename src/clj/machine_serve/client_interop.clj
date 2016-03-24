@@ -54,7 +54,7 @@
                       attr (.getAttrs f)
                       tp (if (.isDir attr) :dir :file)]
                   {:name name :type tp}))
-        ls)
+        ls))
 
 (defremote sftp-ls
   "Runs the ls command over the remote ssh server."

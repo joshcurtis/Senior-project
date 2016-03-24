@@ -32,7 +32,7 @@
                                      {:strict-host-key-checking :no
                                       :username username
                                       :password password})
-                      _ (ssh/connect s)]
+                      _ (ssh/connect s 10)]
                   s)
         sftp-channel (let [c (ssh/ssh-sftp session)
                            _ (if-not (ssh/connected-channel? c)
