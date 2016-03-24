@@ -2,7 +2,7 @@
   ""
   (:require
    [ini-editor.core]
-   [machine-conf.remote :as remote]
+   [machine-conf.server-interop :as server-interop]
    [machine-conf.widgets :as widgets]
    [machine-conf.utils :as utils]
    [reagent.core :as r :refer [atom]]))

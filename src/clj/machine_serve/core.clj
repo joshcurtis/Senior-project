@@ -1,8 +1,9 @@
 (ns machine-serve.core
-  "The server for our web application. It also provides some remote function
-  calls through the shoreleave library."
+  "The server for our web application. It also provides RPC through the
+  shoreleave library."
   (:require
-   [machine-serve.remote]
+   [machine-serve.client-interop :as client-interop]
+   [machine-serve.state :as state]
    [compojure.core :refer [defroutes GET]]
    [compojure.handler :refer [site]]
    [compojure.route :refer [not-found files resources]]
