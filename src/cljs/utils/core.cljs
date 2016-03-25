@@ -1,6 +1,7 @@
 (ns utils.core
   "Generic utility functions."
   (:require
+   [clojure.set]
    [clojure.string :as string]))
 
 (defn alert
