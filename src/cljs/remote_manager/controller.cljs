@@ -1,7 +1,7 @@
 (ns remote-manager.controller
   (:require
    [remote-manager.model :as model]
-   [utils.server-interop :as server-interop]))
+   [server-interop.core :as server-interop]))
 
 (defn set-hostname!
   [name]

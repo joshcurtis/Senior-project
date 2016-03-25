@@ -3,7 +3,7 @@
   (:require
    [ini-editor.core :as ini-editor]
    [remote-manager.core :as remote-manager]
-   [utils.server-interop :as server-interop]
+   [server-interop.core :as server-interop]
    [utils.widgets :as widgets]
    [utils.core :as utils]
    [reagent.core :as r :refer [atom]]))

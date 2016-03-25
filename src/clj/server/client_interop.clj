@@ -1,6 +1,6 @@
 (ns server.client-interop
   "Server side functions that can be called from clojurescript. See
-  cljs/utils/server_interop.cljs for the cljs interface."
+  cljs/server_interop/core.cljs for the cljs interface."
   (:require
    [server.state :as state]
    [clojure.string :as string]

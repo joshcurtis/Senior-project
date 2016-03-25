@@ -1,4 +1,4 @@
-(ns utils.server-interop
+(ns server-interop.core
   "Functions that run on the Clojure server. See clj/server/client_interop.clj
   for the server side implementation."
   (:require

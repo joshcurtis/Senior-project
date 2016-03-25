@@ -4,7 +4,7 @@
    [remote-manager.model :as model]
    [remote-manager.view :as view]
    [utils.core :as utils]
-   [utils.server-interop :as server-interop]))
+   [server-interop.core :as server-interop]))
 
 (defn view
   "A view that can be rendered to manage the machinekit configuration
