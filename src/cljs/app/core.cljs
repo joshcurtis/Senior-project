@@ -15,7 +15,7 @@
 (defn home
   "reagent-component for home tab."
   [props]
-  [:div {} "Home Tab"])
+  [:div {} "Welcome"])
 
 (defn app
   "Reagent component which describes the app. It is a tab bar followed by the

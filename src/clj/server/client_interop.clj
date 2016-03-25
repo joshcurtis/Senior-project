@@ -21,15 +21,22 @@
   [filename]
   (clojure.java.io/delete-file filename true))
 
+(defn- ls-filter-pred
+  "Filters out the \".\" and \"..\" directories."
+  [entry]
+  (let [name (.getFilename entry)]
+    (and (not= name ".") (not= name ".."))))
+
 (defn- format-ls
   "Used in sftp-ls to fix the return value. l is a Java vector of Class
   ChannelSftp.LsEntry, which is from the Jsch Java api."
   [ls]
-  (mapv (fn [f] (let [name (.getFilename f)
-                      attr (.getAttrs f)
-                      tp (if (.isDir attr) :dir :file)]
-                  {:name name :type tp}))
-        ls))
+  (let [ls (filter ls-filter-pred ls)]
+    (mapv (fn [f] (let [name (.getFilename f)
+                        attr (.getAttrs f)
+                        dir? (.isDir attr)]
+                    (if dir? (str name \/) name)))
+          ls)))
 
 (defremote ssh-connect!
   "Connect remotely through ssh. Returns true if successful, otherwise false."
@@ -60,7 +67,8 @@
       s)))
 
 (defremote sftp-ls
-  "Runs the ls command over the remote ssh server.
+  "Runs the ls command over the remote ssh server. Directories will end with a /
+  character.
   Note: Never pass the empty string to ssh/sftp"
   [path]
   (format-ls (ssh/sftp (:sftp-chan @state/state)

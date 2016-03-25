@@ -12,4 +12,5 @@
   takes no props."
   [props]
   [:div {}
-   [view/remote-manager {:connection @model/connection}]])
+   [view/remote-manager {:connection @model/connection
+                         :configs @model/configs}]])

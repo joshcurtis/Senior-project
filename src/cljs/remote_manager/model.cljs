@@ -8,3 +8,6 @@
                            :hostname ""
                            :username "machinekit"
                            :password "machinekit"}))
+
+(defonce configs (atom {:dirs []
+                        :contents {}}))

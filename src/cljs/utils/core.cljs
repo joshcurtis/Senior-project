@@ -56,6 +56,24 @@
     (clojure.set/difference s #{v})
     (clojure.set/union s #{v})))
 
+;; file string helpers
+
+(defn dir?
+  "Returns true if the string represents a directory. This is checked by looking
+  for the / character at the end."
+  [s]
+  (assert (string? s))
+  (string/ends-with? s \/))
+
+(defn file-ext
+  "Returns the extension of the file. If there is no extension, then the blank
+  string is returned. The extension of a file is whatever substring comes after
+  the .(dot)."
+  [s]
+  (assert (string? s))
+  (if (and (string/includes? s \.) (not (dir? s)))
+    (-> s (string/split \.) last string/lower-case)))
+
 ;; intervals that are reload friendly
 
 (defonce intervals (atom {}))
