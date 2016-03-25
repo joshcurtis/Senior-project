@@ -1,9 +1,9 @@
-(ns machine-serve.core
+(ns server.core
   "The server for our web application. It also provides RPC through the
   shoreleave library."
   (:require
-   [machine-serve.client-interop :as client-interop]
-   [machine-serve.state :as state]
+   [server.client-interop :as client-interop]
+   [server.state :as state]
    [compojure.core :refer [defroutes GET]]
    [compojure.handler :refer [site]]
    [compojure.route :refer [not-found files resources]]
@@ -18,7 +18,8 @@
                              [:h1 {} "Welcome To MachineKit Config"]
                              [:a {:href "/index.html"} "here"]]]))
 
-(defroutes handler
+;; compojure ring handler
+(defroutes static-handler
   "compojure route handler."
   (GET "/" [] home)
   (files "/" {:root "target"})
@@ -26,9 +27,9 @@
   (GET "/echo/:s" [s] s)
   (not-found "Page Not Found"))
 
-
-(def app
+;; also a ring handler, but adds shoreleave functionality
+(def handler
   "compojure route handler. This is similar to handler, but adds in
   functionality from shoreleave which allows for easy Remote Procedure Calls
   from cljs."
-  (-> (var handler) (wrap-rpc) (site)))
+  (-> (var static-handler) (wrap-rpc) (site)))

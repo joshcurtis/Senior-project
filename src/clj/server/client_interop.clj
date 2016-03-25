@@ -1,8 +1,9 @@
-(ns machine-serve.client-interop
+(ns server.client-interop
   "Server side functions that can be called from clojurescript. See
-  machine_conf/server-interopt.cljs for the cljs interface."
+  cljs/utils/server_interop.cljs for the cljs interface."
   (:require
-   [machine-serve.state :as state]
+   [server.state :as state]
+   [clojure.string :as string]
    [clj-ssh.ssh :as ssh]
    [shoreleave.middleware.rpc :refer [defremote]]))
 
@@ -19,6 +20,16 @@
   "Delete a file with the provided filename"
   [filename]
   (clojure.java.io/delete-file filename true))
+
+(defn- format-ls
+  "Used in sftp-ls to fix the return value. l is a Java vector of Class
+  ChannelSftp.LsEntry, which is from the Jsch Java api."
+  [ls]
+  (mapv (fn [f] (let [name (.getFilename f)
+                      attr (.getAttrs f)
+                      tp (if (.isDir attr) :dir :file)]
+                  {:name name :type tp}))
+        ls))
 
 (defremote ssh-connect!
   "Connect remotely through ssh. Returns true if successful, otherwise false."
@@ -44,26 +55,21 @@
   (assert (string? filename))
   (let [tmp-file (create-tmp-file "")]
     (ssh/sftp (:sftp-chan @state/state) {} :get filename tmp-file)
-    (slurp tmp-file)))
-
-(defn- format-ls
-  "Used in sftp-ls to fix the return value. l is a java vector of class
-  ChannelSftp.LsEntry"
-  [ls]
-  (mapv (fn [f] (let [name (.getFilename f)
-                      attr (.getAttrs f)
-                      tp (if (.isDir attr) :dir :file)]
-                  {:name name :type tp}))
-        ls))
+    (let [s (slurp tmp-file)]
+      (delete-file tmp-file)
+      s)))
 
 (defremote sftp-ls
-  "Runs the ls command over the remote ssh server."
+  "Runs the ls command over the remote ssh server.
+  Note: Never pass the empty string to ssh/sftp"
   [path]
-  (format-ls (ssh/sftp (:sftp-chan @state/state) {} :ls path)))
+  (format-ls (ssh/sftp (:sftp-chan @state/state)
+                       {}
+                       :ls (if (string/blank? path) "./" path))))
 
-(defremote status
-  "Get the status of the server. This involves things such as being connected,
-  username, hostname, and etc..."
+(defremote connection-status
+  "Get the connection status of the server. This involves things such as being
+  connected, username, hostname, and etc... See source code for more details."
   []
   (select-keys @state/state [:connected?
                              :hostname

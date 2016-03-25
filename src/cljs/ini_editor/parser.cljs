@@ -1,7 +1,7 @@
 (ns ini-editor.parser
   "Parse to and from ini files."
   (:require
-   [machine-conf.utils :as utils]
+   [utils.core :as utils]
    [cljs.reader :as reader]
    [clojure.string :as string]))
 

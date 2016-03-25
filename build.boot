@@ -31,7 +31,7 @@
 
 (deftask dev-options []
   (task-options! cljs {:optimizations :none :source-map true}
-                 reload {:on-jsload 'machine-conf.core/start})
+                 reload {:on-jsload 'app.core/start})
   identity)
 
 (deftask dev
@@ -39,7 +39,7 @@
   []
   (comp
    (dev-options)
-   (serve :handler 'machine-serve.core/app
+   (serve :handler 'server.core/handler
           :resource-root "target"
           :reload true)
    (watch)

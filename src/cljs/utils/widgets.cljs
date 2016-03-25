@@ -1,13 +1,13 @@
-(ns machine-conf.widgets
+(ns utils.widgets
   ""
   (:require
-   [machine-conf.utils :as utils]
+   [utils.core :as utils]
    [reagent.core :as r :refer [atom]]))
 
 (defn tabs
   "Creates notebook like tabs.
   # Props
-  `labels` - sequence of strings for labels.
+  `labels` - sequence of strings for labels
   `selected` - string, the currently selected label
   `on-change` - function that takes a label that was clicked on."
   [props]
@@ -89,7 +89,6 @@
     (assert (and (some? str-func) (some? filename) (some? element))
             "Missing props")
     [:span {:on-click #(utils/save-file (str-func) filename)} element]))
-
 
 (defn list-input
   "Renders an element that can be used to edit a vector of values.

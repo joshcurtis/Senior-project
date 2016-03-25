@@ -1,11 +1,11 @@
-(ns machine-conf.core
+(ns app.core
   ""
   (:require
-   [ini-editor.core]
-   [remote-manager.core]
-   [machine-conf.server-interop :as server-interop]
-   [machine-conf.widgets :as widgets]
-   [machine-conf.utils :as utils]
+   [ini-editor.core :as ini-editor]
+   [remote-manager.core :as remote-manager]
+   [utils.server-interop :as server-interop]
+   [utils.widgets :as widgets]
+   [utils.core :as utils]
    [reagent.core :as r :refer [atom]]))
 
 
@@ -33,8 +33,8 @@
       [:div.tab-pane.active {}
       (cond
         (= tab "Home") [home {}]
-        (= tab "Remote") [remote-manager.core/view {}]
-        (= tab "INI") [ini-editor.core/view {}]
+        (= tab "Remote") [remote-manager/view {}]
+        (= tab "INI") [ini-editor/view {}]
         :else [:div {} "Unknown tab"])]]]))
 
 (defn ^:export start

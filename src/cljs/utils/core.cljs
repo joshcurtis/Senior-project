@@ -1,7 +1,12 @@
-(ns machine-conf.utils
+(ns utils.core
   "Generic utility functions."
   (:require
    [clojure.string :as string]))
+
+(defn alert
+  "Shows an alert box with the provided arguments displayed as strings."
+  ([arg] (js/alert (str arg)))
+  ([& args] (js/alert (str args))))
 
 (defn append-line
   "Appends new-line to old-lines. If old-lines is blank or nil, then new-line is
@@ -49,3 +54,34 @@
   (if (contains? s v)
     (clojure.set/difference s #{v})
     (clojure.set/union s #{v})))
+
+;; intervals that are reload friendly
+
+(defonce intervals (atom {}))
+
+(defn active-intervals
+  "Returns a list of the ids of the currently running intervals that were
+  created by the `set-interval` function."
+  []
+  (keys @intervals))
+
+(defn clear-interval
+  "Clears the interval with the specified id. If no such id exists, then nothing
+  happens."
+  [id]
+  (assert (string? id))
+  (let [i (get @intervals id)]
+    (if (some? i) (do
+                    (js/clearInterval i)
+                    (swap! intervals dissoc id)))))
+
+(defn set-interval
+  "Calls function `f` in an interval of approximately `milliseconds`
+  milliseconds. If an interval with the given `id` already exists, then that
+  interval is cleared and a new one is created."
+  [id f milliseconds]
+  (assert (string? id))
+  (assert (fn? f))
+  (assert (some? milliseconds))
+  (clear-interval id)
+  (swap! intervals assoc id (js/setInterval f milliseconds)))

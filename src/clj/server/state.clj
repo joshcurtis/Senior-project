@@ -1,4 +1,4 @@
-(ns machine-serve.state
+(ns server.state
   "The client state and actions associated with it."
   (:require
    [clj-ssh.ssh :as ssh]))
@@ -32,7 +32,7 @@
                                      {:strict-host-key-checking :no
                                       :username username
                                       :password password})
-                      _ (ssh/connect s 10)]
+                      _ (ssh/connect s 5000)]
                   s)
         sftp-channel (let [c (ssh/ssh-sftp session)
                            _ (if-not (ssh/connected-channel? c)

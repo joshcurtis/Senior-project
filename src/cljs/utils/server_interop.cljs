@@ -1,7 +1,8 @@
-(ns machine-conf.server-interop
-  "Functions that run on the Clojure server. See also
-  machine_serve/client-interop.clj for the server side implementation."
+(ns utils.server-interop
+  "Functions that run on the Clojure server. See clj/server/client_interop.clj
+  for the server side implementation."
   (:require
+   [utils.core :as utils]
    [shoreleave.remotes.http-rpc :refer [remote-callback]]
    [cljs.reader :refer [read-string]])
   (:require-macros [shoreleave.remotes.macros :as macros]))
@@ -43,7 +44,8 @@
   [path callback]
   (remote-callback :sftp-ls [path] callback))
 
-(defn status
-  "Gets the status of the server as a hashmap."
+(defn connection-status
+  "Gets the connection status of the server as a hashmap. See
+  clj/server/client_interop.clj for more details."
   [callback]
-  (remote-callback :status [] callback))
+  (remote-callback :connection-status [] callback))

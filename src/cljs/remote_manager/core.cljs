@@ -3,8 +3,8 @@
   (:require
    [remote-manager.model :as model]
    [remote-manager.view :as view]
-   [machine-conf.utils :as utils]
-   [machine-conf.server-interop :as server-interop]))
+   [utils.core :as utils]
+   [utils.server-interop :as server-interop]))
 
 (defn view
   "A view that can be rendered to manage the machinekit configuration

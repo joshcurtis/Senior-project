@@ -3,7 +3,7 @@
   (:require
    [ini-editor.model :as model]
    [ini-editor.parser :as parser]
-   [machine-conf.utils :as utils]
+   [utils.core :as utils]
    [reagent.core :as r :refer [atom]]))
 
 (enable-console-print!)
@@ -11,8 +11,9 @@
 ;; expanding/collapsing
 
 (defn- is-important?
-  "Helper function for determining if a section is important, given it's
-  metadata. This is done by checking if it has the \"unimportant\" tag."
+  "Helper function for determining if a section is important, given its
+  metadata. This is done by checking if :tag (which is a set) contains
+  \"unimportant\"."
   [metadata]
   (let [tags (get metadata :tags #{})]
     (assert (set? tags))
@@ -21,7 +22,7 @@
 (defn expand-all!
   "All sections are added to the expanded set."
   []
-  (reset! model/expanded? (set (keys @model/values))))
+  (reset! model/expanded? (set (model/sections))))
 
 (defn toggle-expanded!
   "If the given section (string) is in the expanded set, then it is removed. If
@@ -35,7 +36,7 @@
   section is a section whose metadata does *not* include the \"unimportant\" in
   it's tags."
   []
-  (let [meta @model/section-metadata
+  (let [meta (:section-metadata @model/ini)
         important (filter #(-> %1 second is-important?) meta)
         important-set (set (map first important))]
     (swap! model/expanded?
@@ -47,7 +48,7 @@
 (defn set-ini-value!
   "The value in the provided section/key is set to the new value"
   [section key value]
-  (swap! model/values assoc-in [section key] value))
+  (swap! model/ini assoc-in [:values section key] value))
 
 (defn load-str!
   "The given ini string representation is loaded for editing. The model is
@@ -55,9 +56,13 @@
   is called."
   [s]
   (let [parsed (parser/parse-ini s)]
-    (reset! model/key-metadata (:key-metadata parsed))
-    (reset! model/key-order (:key-order parsed))
-    (reset! model/section-metadata (:section-metadata parsed))
-    (reset! model/section-order (:section-order parsed))
-    (reset! model/values (:values parsed))
-    (expand-important!)))
+    (reset! model/ini parsed)
+    (expand-important!)
+    (reset! model/loaded? true)))
+
+(defn save-str!
+  "Saves the given ini into its string representation on the users local
+  machine."
+  []
+  (assert "Use `widgets/file-save` instead")
+  nil)

@@ -4,8 +4,8 @@
    [ini-editor.controller :as controller]
    [ini-editor.model :as model]
    [ini-editor.parser :as parser]
-   [machine-conf.utils :as utils]
-   [machine-conf.widgets :as widgets]
+   [utils.core :as utils]
+   [utils.widgets :as widgets]
    [reagent.core :as r :refer [atom]]))
 
 (defn- ini-key
@@ -66,7 +66,7 @@
                                 :value (get values k)}])
               key-order)])]]))
 
-(defn ini-editor
+(defn- ini-editor-active
   "Renders a component for editing the current ini.
   # Props - same hashmap are present in `ini-editor/model`.
   :key-metadata
@@ -82,6 +82,12 @@
                 section-order
                 values
                 expanded?]} props]
+    (assert (some? key-metadata))
+    (assert (some? key-order))
+    (assert (some? section-metadata))
+    (assert (some? section-order))
+    (assert (some? values))
+    (assert (some? expanded?))
     [:div.ini-editor {:style {:margin "1rem"} }
      [:h1 {} "MachineKit INI Configuration"]
      (map (fn [section] [ini-section {:key section ;; for react/reagent
@@ -92,6 +98,20 @@
                                       :values (get values section)
                                       :expanded? (contains? expanded? section)}])
           section-order)]))
+
+(defn- ini-editor-inactive
+  [props]
+  [:div.alert.alert-warning {}
+   [:h4 {} "Nothing Loaded!"]
+   [:p {} "No MachineKit ini configuration has been loaded."]])
+
+(defn ini-editor
+  [props]
+  (let [{:keys [loaded?]} props]
+    (assert (some? loaded?))
+    (if loaded?
+      [ini-editor-active props]
+      [ini-editor-inactive props])))
 
 (defn menubar
   "Renders a menubar for misc. actions such as loading and saving a file."
