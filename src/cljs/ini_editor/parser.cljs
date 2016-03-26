@@ -176,7 +176,9 @@
   ini - hashmap with same fields as the return value of `parse-ini-line`.
   section - section-string"
   [ini sec]
-  (str (metadata-to-str (get-in ini [:section-metadata sec]))
+  (str \newline
+       (metadata-to-str (get-in ini [:section-metadata sec]))
+       \newline
        \[ sec \]
        \newline
        (string/join \newline

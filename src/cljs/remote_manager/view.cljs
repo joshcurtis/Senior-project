@@ -59,7 +59,7 @@
 (defn- render-file
   [props]
   (let [{:keys [directory filename]} props
-        full-filename (str "machinekit/" directory filename)]
+        full-filename (str "machinekit/configs/" directory filename)]
     (assert (some? directory))
     (assert (some? filename))
     [:tr.active {}

@@ -29,7 +29,7 @@
   (assert (utils/dir? dir))
   (let [callback (fn [files]
                    (swap! model/configs assoc-in [:contents dir] files))]
-    (server-interop/sftp-ls (str "machinekit/" dir) callback)))
+    (server-interop/sftp-ls (str "machinekit/configs/" dir) callback)))
 
 (defn update-configs!
   "Updates the configs based on the server."
@@ -38,7 +38,7 @@
                    (swap! model/configs assoc :dirs (filterv utils/dir? dirs))
                    (doseq [dir dirs] (update-config! dir)))]
     (clear-configs!)
-    (server-interop/sftp-ls "machinekit/" callback)))
+    (server-interop/sftp-ls "machinekit/configs/" callback)))
 
 (defn connect!
   []
@@ -67,11 +67,13 @@
          :error nil))
 
 (defn- edit-ini!
-  [s]
-  (ini-editor.controller/load-str! s))
+  [s id]
+  (assert (string? s))
+  (assert (some? id))
+  (ini-editor.controller/load-str! id s))
 
 (defn- edit-unsupported
-  [s]
+  [s id]
   (js/alert "Unsupported file type"))
 
 (def
@@ -82,5 +84,6 @@
   (assert (string? full-filename))
   (assert (string/includes? full-filename "machinekit"))
   (let [extension (utils/file-ext full-filename)
-        callback (get edit-callbacks extension edit-unsupported)]
+        callback (get edit-callbacks extension edit-unsupported)
+        callback #(callback %1 full-filename)]
     (server-interop/sftp-get full-filename callback)))

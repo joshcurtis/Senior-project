@@ -19,46 +19,60 @@
     (assert (set? tags))
     (not (contains? tags "unimportant"))))
 
+(defn- get-sections
+  "Helper function for getting the sections."
+  []
+  (get-in @model/inis [@model/selected-id :ini :section-order]))
+
 (defn expand-all!
   "All sections are added to the expanded set."
   []
-  (reset! model/expanded? (set (model/sections))))
+  (swap! model/inis assoc-in
+         [@model/selected-id :expanded?] (set (get-sections))))
 
 (defn toggle-expanded!
   "If the given section (string) is in the expanded set, then it is removed. If
   it is not in the expanded set, then it is added."
   [section]
   (assert (string? section))
-  (swap! model/expanded? utils/toggle-membership section))
+  (swap! model/inis update-in
+         [@model/selected-id :expanded?] utils/toggle-membership section))
 
 (defn expand-important!
   "Every section that is important is added to the expanded set. An important
   section is a section whose metadata does *not* include the \"unimportant\" in
   it's tags."
   []
-  (let [meta (:section-metadata @model/ini)
+  (let [selected-id @model/selected-id
+        meta (get-in @model/inis [selected-id :ini :section-metadata])
         important (filter #(-> %1 second is-important?) meta)
         important-set (set (map first important))]
-    (swap! model/expanded?
-           clojure.set/union
-           important-set)))
+    (swap! model/inis update-in
+           [selected-id :expanded?] clojure.set/union important-set)))
 
 ;; editing
 
 (defn set-ini-value!
   "The value in the provided section/key is set to the new value"
   [section key value]
-  (swap! model/ini assoc-in [:values section key] value))
+  (assert (string? section))
+  (assert (string? key))
+  (assert (some? value))
+  (swap! model/inis assoc-in
+         [@model/selected-id :ini :values section key] value))
 
 (defn load-str!
   "The given ini string representation is loaded for editing. The model is
-  updated to represent the new ini and ini-editor.controller/expand-important!
-  is called."
-  [s]
+  updated to represent the new ini And the selected id is changed to the new
+  str. ini-editor.controller/expand-important! is called."
+  [id s]
+  (assert (some? id))
+  (assert (string? s))
   (let [parsed (parser/parse-ini s)]
-    (reset! model/ini parsed)
-    (expand-important!)
-    (reset! model/loaded? true)))
+    (swap! model/inis assoc
+           id {:ini parsed :expanded? #{}})
+    (reset! model/selected-id id)
+    (expand-important!)))
 
 (defn save-str!
   "Saves the given ini into its string representation on the users local

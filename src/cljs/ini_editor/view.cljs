@@ -100,18 +100,15 @@
           section-order)]))
 
 (defn- ini-editor-inactive
-  [props]
-  [:div.alert.alert-warning {}
-   [:h4 {} "Nothing Loaded!"]
-   [:p {} "No MachineKit ini configuration has been loaded."]])
+  []
+  [:div {}])
 
 (defn ini-editor
+  "Renders a component for editing the current ini, if there is one. See
+  ini-editor.view/ini-editor-active for the props."
   [props]
-  (let [{:keys [loaded?]} props]
-    (assert (some? loaded?))
-    (if loaded?
-      [ini-editor-active props]
-      [ini-editor-inactive props])))
+  (let [{:keys [selected-id]} props]
+    (if (some? selected-id) [ini-editor-active props] [ini-editor-inactive props])))
 
 (defn menubar
   "Renders a menubar for misc. actions such as loading and saving a file."
@@ -127,10 +124,15 @@
                        {:id "file-input"
                         :file-types ".ini"
                         :element "Open"
-                        :on-change #(if (first %1)
-                                      (utils/read-file
-                                       (first %1)
-                                       controller/load-str!))}]]]
+                        :on-change
+                        (fn [file-list]
+                          (let [file (first file-list)
+                                ini-id [:local (.-name file)]]
+                            (if (some? file)
+                              (utils/read-file file
+                                               #(controller/load-str!
+                                                 ini-id
+                                                 %1)))))}]]]
        [:li {} [:a {} [widgets/file-save {:element "Save"
                                           :filename "configuration.ini"
                                           :str-func model/ini-str}]]]]]]))
