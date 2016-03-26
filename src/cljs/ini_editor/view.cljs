@@ -74,22 +74,26 @@
   :section-metadata
   :section-order
   :values
-  :expanded?"
+  :expanded?
+  :selected-id"
   [props]
   (let [{:keys [key-metadata
                 key-order
                 section-metadata
                 section-order
                 values
-                expanded?]} props]
+                expanded?
+                selected-id]} props
+        [source fname] selected-id]
     (assert (some? key-metadata))
     (assert (some? key-order))
     (assert (some? section-metadata))
     (assert (some? section-order))
     (assert (some? values))
     (assert (some? expanded?))
+    (assert (some? selected-id))
     [:div.ini-editor {:style {:margin "1rem"} }
-     [:h1 {} "MachineKit INI Configuration"]
+     [:h1 {} (str fname " from " source)]
      (map (fn [section] [ini-section {:key section ;; for react/reagent
                                       :section section
                                       :key-metadata (get key-metadata section)

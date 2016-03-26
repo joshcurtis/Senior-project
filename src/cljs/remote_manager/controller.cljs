@@ -40,6 +40,10 @@
     (clear-configs!)
     (server-interop/sftp-ls "machinekit/configs/" callback)))
 
+(utils/set-interval "update-configs-when-empty"
+                    #(if (empty? (:dirs @model/configs)) (update-configs!))
+                    2000)
+
 (defn connect!
   []
   (let [{:keys [hostname username password]} @model/connection
@@ -85,5 +89,25 @@
   (assert (string/includes? full-filename "machinekit"))
   (let [extension (utils/file-ext full-filename)
         callback (get edit-callbacks extension edit-unsupported)
-        callback #(callback %1 full-filename)]
+        callback #(callback %1 [:remote full-filename])]
     (server-interop/sftp-get full-filename callback)))
+
+
+(defn- update-c-status-helper!
+  [status]
+  (let [{:keys [connected? hostname username]} status]
+    (if connected?
+      (swap! model/connection assoc
+             :connected? connected?
+             :hostname hostname
+             :username username)
+      (swap! model/connection assoc
+             :connected? connected?))))
+
+(defn update-connection-status!
+  []
+  (server-interop/connection-status update-c-status-helper!))
+
+(utils/set-interval "update-connection-status!"
+                    update-connection-status!
+                    1000)

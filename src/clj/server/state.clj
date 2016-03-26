@@ -4,8 +4,8 @@
    [clj-ssh.ssh :as ssh]))
 
 (defonce state (atom {:connected? false
-                      :hostname nil
-                      :username nil
+                      :hostname ""
+                      :username "machinekit"
                       :agent nil
                       :session nil
                       :sftp-chan nil}))
@@ -15,8 +15,8 @@
   (let [{:keys [session sftp-chan]} @state]
     (swap! state assoc
            :connected? false
-           :hostname nil
-           :username nil
+           :hostname ""
+           :username "machinekit"
            :agent nil
            :session nil
            :sftp-chan nil)
@@ -27,6 +27,7 @@
   "Disconnects from the current ssh server if needed and the attempts to connect
   given one. An exception is thrown if this fails."
   [hostname username password]
+  (ssh-disconnect!)
   (let [agent (ssh/ssh-agent {})
         session (let [s (ssh/session agent hostname
                                      {:strict-host-key-checking :no
