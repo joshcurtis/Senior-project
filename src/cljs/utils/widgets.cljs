@@ -50,7 +50,7 @@
   `on-change` - called when a label is clicked"
   [props]
   (let [{:keys [labels selected on-change]} props]
-    [:ul.pagination
+    [:ul.pagination.pagination-sm
      (map #(pagination-tab %1 selected on-change)
           labels)]))
 

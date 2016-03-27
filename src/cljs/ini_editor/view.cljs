@@ -117,6 +117,46 @@
   (let [{:keys [selected-id]} props]
     (if (some? selected-id) [ini-editor-active props] [ini-editor-inactive props])))
 
+(defn- navbar
+  [{:keys [selected-id]}]
+  (let [target-fname (utils/fname-from-path (second selected-id))]
+    [:nav.navbar.navbar-default
+     [:div.container-fluid
+      [:div.navbar-header
+       [:button.navbar-toggle.collapsed {:type "button"
+                                         :data-toggle "collapse"
+                                         :data-target "#ini-editor-navbar"}
+        [:span.sr-only "Toggle Navigation"]
+        [:span.icon-bar]
+        [:span.icon-bar]
+        [:span.icon-bar]]
+       [:a.navbar-brand "INI"]]
+      [:div.collapse.navbar-collapse {:id "ini-editor-navbar"}
+       [:ul.nav.navbar-nav
+        [:li.dropdown
+         [:a.dropdown-toggle {:data-toggle "dropdown"
+                              :role "button"
+                              :aria-expanded "false"} "File" [:span.caret]]
+         [:ul.dropdown-menu {:role "menu"}
+          [:li [:a [widgets/file-input
+                    {:id "file-input"
+                     :file-types ".ini"
+                     :element "Open"
+                     :on-change (fn [file-list]
+                                  (let [file (first file-list)
+                                        ini-id [:local (.-name file)]]
+                                    (if (some? file)
+                                      (utils/read-file file
+                                                       #(controller/load-str!
+                                                         ini-id
+                                                         %1)))))}]]]
+          [:li [:a [widgets/file-save {:element "Save"
+                                       :filename target-fname
+                                       :str-func model/ini-str}]]]
+          ]]
+      ;; [:li [:a "Filler"]]
+        ]]]]))
+
 (defn menubar
   "Renders a menubar for misc. actions such as loading and saving a file."
   [props]
@@ -124,28 +164,7 @@
         [source fname] selected-id
         path (concat [[:a (str source)]] (string/split fname \/))]
     [:div
-     [:ul.nav.nav-pills {}
-      [:li.dropdown {}
-       [:a.dropdown-toggle {:data-toggle "dropdown"
-                            :aria-expanded false}
-        [:span {} "File"]]
-       [:ul.dropdown-menu {}
-        [:li {} [:a {} [widgets/file-input
-                        {:id "file-input"
-                         :file-types ".ini"
-                         :element "Open"
-                         :on-change
-                         (fn [file-list]
-                           (let [file (first file-list)
-                                 ini-id [:local (.-name file)]]
-                             (if (some? file)
-                               (utils/read-file file
-                                                #(controller/load-str!
-                                                  ini-id
-                                                  %1)))))}]]]
-        [:li {} [:a {} [widgets/file-save {:element "Save"
-                                           :filename "configuration.ini"
-                                           :str-func model/ini-str}]]]]]]
+     [navbar {:selected-id selected-id}]
      (let [all-ids all-ids]
        [widgets/pagination
         {:labels (map (fn [[source fname]] [(utils/fname-from-path fname) [source fname]])
