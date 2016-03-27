@@ -150,9 +150,10 @@
                                                        #(controller/load-str!
                                                          ini-id
                                                          %1)))))}]]]
-          [:li [:a [widgets/file-save {:element "Save"
-                                       :filename target-fname
-                                       :str-func model/ini-str}]]]
+          (if (some? target-fname)
+            [:li [:a [widgets/file-save {:element "Save"
+                                         :filename target-fname
+                                         :str-func model/ini-str}]]])
           ]]
       ;; [:li [:a "Filler"]]
         ]]]]))
