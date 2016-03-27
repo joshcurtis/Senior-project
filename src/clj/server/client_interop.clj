@@ -38,6 +38,11 @@
                     (if dir? (str name \/) name)))
           ls)))
 
+(defremote ssh-disconnect!
+  []
+  (state/ssh-disconnect!)
+  nil)
+
 (defremote ssh-connect!
   "Connect remotely through ssh. Returns true if successful, otherwise false."
   [hostname username password]

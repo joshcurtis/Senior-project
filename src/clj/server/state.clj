@@ -15,8 +15,6 @@
   (let [{:keys [session sftp-chan]} @state]
     (swap! state assoc
            :connected? false
-           :hostname ""
-           :username "machinekit"
            :agent nil
            :session nil
            :sftp-chan nil)
