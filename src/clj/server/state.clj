@@ -20,8 +20,10 @@
            :agent nil
            :session nil
            :sftp-chan nil)
-    (if (ssh/connected? session) (ssh/disconnect session))
-    (if (ssh/connected-channel? sftp-chan) (ssh/disconnect-channel sftp-chan))))
+    (if (and (some? session) (ssh/connected? session))
+      (ssh/disconnect session))
+    (if (and (some? sftp-chan) (ssh/connected-channel? sftp-chan))
+      (ssh/disconnect-channel sftp-chan))))
 
 (defn ssh-connect!
   "Disconnects from the current ssh server if needed and the attempts to connect

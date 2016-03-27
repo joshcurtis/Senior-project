@@ -41,7 +41,9 @@
     (server-interop/sftp-ls "machinekit/configs/" callback)))
 
 (utils/set-interval "update-configs-when-empty"
-                    #(if (empty? (:dirs @model/configs)) (update-configs!))
+                    #(if (and (:connected? @model/connection)
+                              (empty? (:dirs @model/configs)))
+                       (update-configs!))
                     2000)
 
 (defn connect!
