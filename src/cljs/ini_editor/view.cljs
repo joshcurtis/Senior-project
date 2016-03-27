@@ -6,6 +6,7 @@
    [ini-editor.parser :as parser]
    [utils.core :as utils]
    [utils.widgets :as widgets]
+   [utils.navbar :as navbar]
    [reagent.core :as r :refer [atom]]
    [clojure.string :as string]))
 
@@ -117,46 +118,35 @@
   (let [{:keys [selected-id]} props]
     (if (some? selected-id) [ini-editor-active props] [ini-editor-inactive props])))
 
-(defn- navbar
-  [{:keys [selected-id]}]
-  (let [target-fname (utils/fname-from-path (second selected-id))]
-    [:nav.navbar.navbar-default
-     [:div.container-fluid
-      [:div.navbar-header
-       [:button.navbar-toggle.collapsed {:type "button"
-                                         :data-toggle "collapse"
-                                         :data-target "#ini-editor-navbar"}
-        [:span.sr-only "Toggle Navigation"]
-        [:span.icon-bar]
-        [:span.icon-bar]
-        [:span.icon-bar]]
-       [:a.navbar-brand "INI"]]
-      [:div.collapse.navbar-collapse {:id "ini-editor-navbar"}
-       [:ul.nav.navbar-nav
-        [:li.dropdown
-         [:a.dropdown-toggle {:data-toggle "dropdown"
-                              :role "button"
-                              :aria-expanded "false"} "File" [:span.caret]]
-         [:ul.dropdown-menu {:role "menu"}
-          [:li [:a [widgets/file-input
-                    {:id "file-input"
-                     :file-types ".ini"
-                     :element "Open"
-                     :on-change (fn [file-list]
-                                  (let [file (first file-list)
-                                        ini-id [:local (.-name file)]]
-                                    (if (some? file)
-                                      (utils/read-file file
-                                                       #(controller/load-str!
-                                                         ini-id
-                                                         %1)))))}]]]
-          (if (some? target-fname)
-            [:li [:a [widgets/file-save {:element "Save"
-                                         :filename target-fname
-                                         :str-func model/ini-str}]]])
-          ]]
-      ;; [:li [:a "Filler"]]
-        ]]]]))
+(defn ini-navbar
+  ""
+  [props]
+  (let [{:keys [selected-id]} props
+        target-fname (utils/fname-from-path (second selected-id))
+        file-el [navbar/navbar-dropdown
+                 {:title "File"
+                  :key "file"
+                  :labels [
+                           [widgets/file-input
+                            {:id "file-input"
+                             :file-types ".ini"
+                             :element "Open"
+                             :on-change (fn [file-list]
+                                          (let [file (first file-list)
+                                                ini-id [:local (.-name file)]]
+                                            (if (some? file)
+                                              (utils/read-file file
+                                                               #(controller/load-str!
+                                                                 ini-id
+                                                                 %1)))))}]
+                           (if (some? target-fname)
+                             [widgets/file-save {:element "Save"
+                                                 :filename target-fname
+                                                 :str-func model/ini-str}]
+                             [:span])
+                           ]}]]
+    [navbar/navbar {:title "INI"
+                    :elements [file-el]}]))
 
 (defn menubar
   "Renders a menubar for misc. actions such as loading and saving a file."
@@ -165,12 +155,12 @@
         [source fname] selected-id
         path (concat [[:a (str source)]] (string/split fname \/))]
     [:div
-     [navbar {:selected-id selected-id}]
-     (let [all-ids all-ids]
+     [ini-navbar {:selected-id selected-id}]
+     (if (pos? (count all-ids))
        [widgets/pagination
         {:labels (map (fn [[source fname]] [(utils/fname-from-path fname) [source fname]])
                       all-ids)
          :selected selected-id
          :on-change controller/set-selected-id!}])
-     [:span [widgets/file-path {:path path}]]
+     (if (some? selected-id) [widgets/file-path {:path path}])
      ]))

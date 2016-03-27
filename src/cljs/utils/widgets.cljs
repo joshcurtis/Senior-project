@@ -94,7 +94,7 @@
   (let [{:keys [id file-types on-change element]} props]
     (assert (some? id) "No id was provided")
     (assert (some? on-change) "No on-change was provided.")
- [:span {:on-click #(utils/click-element id)}
+    [:span {:on-click #(utils/click-element id)}
      (if (some? element) element
          [:button.btn.btn-default.btn-xs {} "Upload File"])
      [:input {:id id
@@ -118,9 +118,11 @@
   happen when it is clicked."
   [props]
   (let [{:keys [str-func element filename]} props]
-    (assert (and (some? str-func) (some? filename) (some? element))
-            "Missing props")
-    [:span {:on-click #(utils/save-file (str-func) filename)} element]))
+    (assert (some? str-func))
+    (assert (some? filename))
+    (assert (some? element))
+    [:span {:on-click #(utils/save-file (str-func) filename)}
+     element]))
 
 (defn list-input
   "Renders an element that can be used to edit a vector of values.

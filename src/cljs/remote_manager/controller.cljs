@@ -112,4 +112,4 @@
 
 (utils/set-interval "update-connection-status!"
                     update-connection-status!
-                    1000)
+                    2000)
