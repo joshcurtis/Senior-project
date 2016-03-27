@@ -62,7 +62,7 @@
         full-filename (str "machinekit/configs/" directory filename)]
     (assert (some? directory))
     (assert (some? filename))
-    [:tr.active {}
+    [:tr {}
      [:td {} filename]
      [:td {} [edit-icon {:on-click #(controller/edit-file! full-filename)}]]]))
 
@@ -76,18 +76,19 @@
         loaded? (some? contents)
         contents (or contents [])]
     (assert (some? dir))
-    [:div.well {}
-     [:h3 {} dir]
-     (if loaded?
-       [:table.table.table-striped.table-hover {}
-        [:thead {}
-       [:tr {} [:th {} "File"] [:th {} "Edit"]]]
-        [:tbody {}
-         (map (fn [f] [render-file {:key f
-                                    :directory dir
-                                    :filename f}])
-              contents)]]
-       [:div {} "Loading..."])]))
+    [:div.panel.panel-default {}
+     [:div.panel-body
+      [:h3 {} dir]
+      (if loaded?
+        [:table.table.table-striped.table-hover {}
+         [:thead {}
+          [:tr {} [:th {} "File"] [:th {} "Edit"]]]
+         [:tbody {}
+          (map (fn [f] [render-file {:key f
+                                     :directory dir
+                                     :filename f}])
+               contents)]]
+        [:div {} "Loading..."])]]))
 
 
 (defn- connected

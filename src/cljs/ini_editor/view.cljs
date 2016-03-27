@@ -94,7 +94,7 @@
     (assert (some? values))
     (assert (some? expanded?))
     (assert (some? selected-id))
-    [:div.ini-editor {:style {:margin "1rem"} }
+    [:div.ini-editor.panel.pane-default {}
      (map (fn [section] [ini-section {:key section ;; for react/reagent
                                       :section section
                                       :key-metadata (get key-metadata section)

@@ -29,13 +29,14 @@
      [widgets/tabs {:labels ["Home" "Remote" "INI"]
                     :selected tab
                     :on-change #(set-tab! %1)}]
-     [:div.tab-content {:style {:margin "1rem"}}
-      [:div.tab-pane.active {}
-      (cond
-        (= tab "Home") [home {}]
-        (= tab "Remote") [remote-manager/view {}]
-        (= tab "INI") [ini-editor/view {}]
-        :else [:div {} "Unknown tab"])]]]))
+     [:div.tab-content.panel.panel-default {}
+      [:div.panel-body
+       [:div.tab-pane.active {}
+        (cond
+          (= tab "Home") [home {}]
+          (= tab "Remote") [remote-manager/view {}]
+          (= tab "INI") [ini-editor/view {}]
+          :else [:div {} "Unknown tab"])]]]]))
 
 (defn ^:export start
   "Renders the application onto the DOM element \"app\""
