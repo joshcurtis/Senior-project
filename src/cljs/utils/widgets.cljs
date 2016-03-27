@@ -22,6 +22,38 @@
                              [:a {} l]])
                   labels)]))
 
+(defn file-path
+  "Renders a widget which displays a path. Strings will be displayed in a
+  slightly faded font, while `a` tags will pop a bit.
+  # Props
+  `path` - Sequence of strings or [:a ...] which represents the path"
+  [props]
+  (let [{:keys [path]} props]
+    [:ul.breadcrumb
+     (map (fn [el] [:li.active {:key el} el])
+          path)]))
+
+(defn- pagination-tab
+  [element selected-val on-change]
+  (let [[label value] (if (vector? element) element [element element])]
+    [:li {:class (if (= selected-val value) "active")
+          :on-click #(on-change value)
+          :key value}
+     [:a label]]))
+
+(defn pagination
+  "Renders a pagination widget, ie [1 2 3 4]
+  # Props
+  `labels` - A sequence of [label value] pairs. If a string is provided instead
+             of the pair, then it will be both the label and value.
+  `selected` - the currently selected value
+  `on-change` - called when a label is clicked"
+  [props]
+  (let [{:keys [labels selected on-change]} props]
+    [:ul.pagination
+     (map #(pagination-tab %1 selected on-change)
+          labels)]))
+
 (defn dropdown-input
   "Renders a dropdown with options.
   # Props

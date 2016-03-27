@@ -65,6 +65,11 @@
   (assert (string? s))
   (string/ends-with? s \/))
 
+(defn fname-from-path
+  "Returns the filename from the path, this is the element after the last /."
+  [path]
+  (last (string/split path \/)))
+
 (defn file-ext
   "Returns the extension of the file. If there is no extension, then the blank
   string is returned. The extension of a file is whatever substring comes after

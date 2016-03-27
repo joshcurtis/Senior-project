@@ -6,7 +6,8 @@
    [ini-editor.parser :as parser]
    [utils.core :as utils]
    [utils.widgets :as widgets]
-   [reagent.core :as r :refer [atom]]))
+   [reagent.core :as r :refer [atom]]
+   [clojure.string :as string]))
 
 (defn- ini-key
   [props]
@@ -84,7 +85,8 @@
                 values
                 expanded?
                 selected-id]} props
-        [source fname] selected-id]
+        [source fname] selected-id
+        path (concat [[:a (str source)]] (string/split fname \/))]
     (assert (some? key-metadata))
     (assert (some? key-order))
     (assert (some? section-metadata))
@@ -93,7 +95,6 @@
     (assert (some? expanded?))
     (assert (some? selected-id))
     [:div.ini-editor {:style {:margin "1rem"} }
-     [:h1 {} (str fname " from " source)]
      (map (fn [section] [ini-section {:key section ;; for react/reagent
                                       :section section
                                       :key-metadata (get key-metadata section)
@@ -105,7 +106,9 @@
 
 (defn- ini-editor-inactive
   []
-  [:div {}])
+  [:div.alert.alert-dismissible.alert-warning
+   [:h4 "Nothing Loaded"]
+   [:p "No configuration has been loaded, open a file or select a remote file."]])
 
 (defn ini-editor
   "Renders a component for editing the current ini, if there is one. See
@@ -117,26 +120,37 @@
 (defn menubar
   "Renders a menubar for misc. actions such as loading and saving a file."
   [props]
-  (let []
-    [:ul.nav.nav-pills {}
-     [:li.dropdown {}
-      [:a.dropdown-toggle {:data-toggle "dropdown"
-                           :aria-expanded false}
-       [:span {} "File"]]
-      [:ul.dropdown-menu {}
-       [:li {} [:a {} [widgets/file-input
-                       {:id "file-input"
-                        :file-types ".ini"
-                        :element "Open"
-                        :on-change
-                        (fn [file-list]
-                          (let [file (first file-list)
-                                ini-id [:local (.-name file)]]
-                            (if (some? file)
-                              (utils/read-file file
-                                               #(controller/load-str!
-                                                 ini-id
-                                                 %1)))))}]]]
-       [:li {} [:a {} [widgets/file-save {:element "Save"
-                                          :filename "configuration.ini"
-                                          :str-func model/ini-str}]]]]]]))
+  (let [{:keys [selected-id all-ids]} props
+        [source fname] selected-id
+        path (concat [[:a (str source)]] (string/split fname \/))]
+    [:div
+     [:ul.nav.nav-pills {}
+      [:li.dropdown {}
+       [:a.dropdown-toggle {:data-toggle "dropdown"
+                            :aria-expanded false}
+        [:span {} "File"]]
+       [:ul.dropdown-menu {}
+        [:li {} [:a {} [widgets/file-input
+                        {:id "file-input"
+                         :file-types ".ini"
+                         :element "Open"
+                         :on-change
+                         (fn [file-list]
+                           (let [file (first file-list)
+                                 ini-id [:local (.-name file)]]
+                             (if (some? file)
+                               (utils/read-file file
+                                                #(controller/load-str!
+                                                  ini-id
+                                                  %1)))))}]]]
+        [:li {} [:a {} [widgets/file-save {:element "Save"
+                                           :filename "configuration.ini"
+                                           :str-func model/ini-str}]]]]]]
+     (let [all-ids all-ids]
+       [widgets/pagination
+        {:labels (map (fn [[source fname]] [(utils/fname-from-path fname) [source fname]])
+                      all-ids)
+         :selected selected-id
+         :on-change controller/set-selected-id!}])
+     [:span [widgets/file-path {:path path}]]
+     ]))

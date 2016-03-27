@@ -50,6 +50,11 @@
     (swap! model/inis update-in
            [selected-id :expanded?] clojure.set/union important-set)))
 
+(defn set-selected-id!
+  [id]
+  (assert (contains? @model/inis id))
+  (reset! model/selected-id id))
+
 ;; editing
 
 (defn set-ini-value!

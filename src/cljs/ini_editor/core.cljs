@@ -9,9 +9,12 @@
   app/core.cljs. This returns a reagent component that takes no props."
   [props]
   (let [selected-id @model/selected-id
-        model-ini (get @model/inis selected-id)]
+        inis @model/inis
+        all-ids (keys inis)
+        model-ini (get inis selected-id)]
     [:div {}
-     [view/menubar {}]
+     [view/menubar {:selected-id selected-id
+                    :all-ids all-ids}]
      [view/ini-editor (merge (:ini model-ini)
                              {:expanded? (:expanded? model-ini)
                               :selected-id selected-id})]]))
