@@ -60,7 +60,9 @@
      {:src "/icons/edit.png"
       :alt "Edit"
       :on-click #(on-click)
-      :style {:width "2rem" :height "2rem"}}]))
+      :style {:cursor "pointer"
+              :width "2rem"
+              :height "2rem"}}]))
 
 (defn- save-icon
   [props]
@@ -70,7 +72,9 @@
      {:src "/icons/save.png"
       :alt "Save"
       :on-click #(on-click)
-      :style {:width "2rem" :height "2rem"}}]))
+      :style {:cursor "pointer"
+              :width "2rem"
+              :height "2rem"}}]))
 
 (defn- render-file
   [props]

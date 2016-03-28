@@ -58,7 +58,7 @@
         comments (:comments metadata)]
     [:div.ini-section.panel.panel-default {}
      [:div.panel-heading {}
-      [:legend.panel-title {:stlye {:font-weight "bold"}
+      [:legend.panel-title {:style {:cursor "pointer" :font-weight "bold"}
                             :title comments
                             :on-click #(controller/toggle-expanded! section)}
        section]]

@@ -15,7 +15,8 @@
                           :role "button"
                           :aria-expanded "false"} title [:span.caret]]
      [:ul.dropdown-menu {:role "menu"}
-      (map (fn [l] [:li {:key l} [:a l]])
+      (map (fn [l] [:li {:style {:cursor "pointer"}
+                         :key l} [:a l]])
            labels)]]))
 
 (defn navbar

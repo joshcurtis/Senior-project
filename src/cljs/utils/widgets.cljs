@@ -17,7 +17,8 @@
     (assert (string? selected))
     (assert (fn? on-change))
     [:ul.nav.nav-tabs
-     (map-indexed (fn [i l] [:li {:key i
+     (map-indexed (fn [i l] [:li {:style {:cursor "pointer"}
+                                  :key i
                                   :class (if (= l selected) "active")
                                   :on-click #(on-change l)}
                              [:a {} l]])
