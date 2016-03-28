@@ -146,14 +146,13 @@
                                             (assoc value i)
                                             on-change)
                                :value v}]
-                             [:span.input-group-btn {} [:button.btn.btn-danger
-                                                        {:on-click
-                                                         #(->
-                                                           value
-                                                           (utils/remove-idx i)
-                                                           on-change)}
-                                                        "-"]
+                             [:span.input-group-btn {}
+                              [:button.btn.btn-danger
+                               {:disabled disabled
+                                :on-click #(-> value (utils/remove-idx i) on-change)}
+                               "-"]
                               ]])
                   value)
      [:button.btn.btn-primary.btn-block
-      {:on-click #(-> value (conj default-value) on-change)} "+"]]))
+      {:disabled disabled
+       :on-click #(-> value (conj default-value) on-change)} "+"]]))
