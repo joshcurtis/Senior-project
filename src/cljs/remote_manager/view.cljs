@@ -7,7 +7,7 @@
 (defn- disconnected
   [props]
   (let [{:keys [connection]} props
-        {:keys [error hostname username password]} connection]
+        {:keys [error hostname username password connection-pending?]} connection]
     [:div {}
      (if (some? error)
        [:div.alert.alert-danger {}
@@ -45,8 +45,12 @@
                                               .-value
                                               controller/set-password!)
                               :value password}]]]]
-     [:button.btn.btn-primary {:on-click controller/connect!}
-      "Connect"]]))
+     (if connection-pending?
+       [:div.progress.progress-striped.active
+        [:div.progress-bar.progress-bar-success {:style {:width "100%"}}]])
+     [:button.btn.btn-primary {:disabled connection-pending?
+                               :on-click controller/connect!}
+      (if connection-pending? "Connecting" "Connect")]]))
 
 (defn- edit-icon
   [props]
