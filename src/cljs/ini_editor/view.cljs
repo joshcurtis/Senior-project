@@ -16,8 +16,11 @@
         comments (:comments metadata)
         type (get metadata :type "text")
         disabled (get metadata :disabled false)]
-    [:div.ini-key.form-group {}
+    [:div.ini-key.form-group {:style {:margin-bottom "4rem"}}
      [:label.control-label {:title comments} key]
+     (if (some? comments) [:div.alert.alert-info {:style
+                                                  {:margin-bottom "1rem"}}
+                           comments])
      (cond
        (= type "text")
        [:input.form-control {:disabled disabled
@@ -59,7 +62,9 @@
                             :title comments
                             :on-click #(controller/toggle-expanded! section)}
        section]]
-    [:fieldset {}
+     (if (and expanded? (some? comments))
+       [:div.alert.alert-info comments])
+     [:fieldset {}
       (if expanded?
         [:div.panel-body.form-group {}
          (map (fn [k] [ini-key {:section section
