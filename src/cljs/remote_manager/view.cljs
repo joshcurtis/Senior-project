@@ -57,8 +57,18 @@
   (let [{:keys [on-click]} props]
     (assert (fn? on-click))
     [:img
-     {:src "https://cdn3.iconfinder.com/data/icons/google-material-design-icons/48/ic_mode_edit_48px-128.png"
+     {:src "/icons/edit.png"
       :alt "Edit"
+      :on-click #(on-click)
+      :style {:width "2rem" :height "2rem"}}]))
+
+(defn- save-icon
+  [props]
+  (let [{:keys [on-click]} props]
+    (assert (fn? on-click))
+    [:img
+     {:src "/icons/save.png"
+      :alt "Save"
       :on-click #(on-click)
       :style {:width "2rem" :height "2rem"}}]))
 
@@ -70,7 +80,8 @@
     (assert (some? filename))
     [:tr {}
      [:td {} filename]
-     [:td {} [edit-icon {:on-click #(controller/edit-file! full-filename)}]]]))
+     [:td {} [edit-icon {:on-click #(controller/edit-file! full-filename)}]]
+     [:td {} [save-icon {:on-click #(controller/save-file! full-filename)}]]]))
 
 (defn- render-config
   "
@@ -88,7 +99,10 @@
       (if loaded?
         [:table.table.table-striped.table-hover {}
          [:thead {}
-          [:tr {} [:th {} "File"] [:th {} "Edit"]]]
+          [:tr {}
+           [:th {} "File"]
+           [:th {} "Edit"]
+           [:th {} "Download"]]]
          [:tbody {}
           (map (fn [f] [render-file {:key f
                                      :directory dir

@@ -26,3 +26,4 @@ Edit specifications for use with MachineKit
 
 ## Resources
 * [bootswatch](https://bootswatch.com) for CSS styles
+* [icons](https://design.google.com/icons/), use 2x

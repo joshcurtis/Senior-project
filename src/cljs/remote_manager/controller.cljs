@@ -94,6 +94,14 @@
         callback #(callback %1 [:remote full-filename])]
     (server-interop/sftp-get full-filename callback)))
 
+(defn save-file!
+  [full-filename]
+  (assert (string? full-filename))
+  (assert (string/includes? full-filename "machinekit"))
+  (let [fname (utils/fname-from-path full-filename)]
+    (server-interop/sftp-get full-filename
+                             #(utils/save-file %1 fname))))
+
 
 (defn- update-c-status-helper!
   [status]
