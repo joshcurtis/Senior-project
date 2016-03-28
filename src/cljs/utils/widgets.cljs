@@ -2,6 +2,7 @@
   ""
   (:require
    [utils.core :as utils]
+   [clojure.string :as string]
    [reagent.core :as r :refer [atom]]))
 
 (defn tabs
@@ -156,3 +157,11 @@
      [:button.btn.btn-primary.btn-block
       {:disabled disabled
        :on-click #(-> value (conj default-value) on-change)} "+"]]))
+
+(defn endlines-to-divs
+  "Converts a string into a span that contains a sequence of divs, one for each
+  line of the given string."
+  [s]
+  (assert (string? s))
+  [:span (map-indexed (fn [idx s] [:div {:key idx} s])
+                      (string/split-lines s))])

@@ -20,7 +20,7 @@
      [:label.control-label {:title comments} key]
      (if (some? comments) [:div.alert.alert-info {:style
                                                   {:margin-bottom "1rem"}}
-                           comments])
+                           [widgets/endlines-to-divs comments]])
      (cond
        (= type "text")
        [:input.form-control {:disabled disabled
@@ -63,7 +63,7 @@
                             :on-click #(controller/toggle-expanded! section)}
        section]]
      (if (and expanded? (some? comments))
-       [:div.alert.alert-info comments])
+       [:div.alert.alert-info [widgets/endlines-to-divs comments]])
      [:fieldset {}
       (if expanded?
         [:div.panel-body.form-group {}
