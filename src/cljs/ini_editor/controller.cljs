@@ -12,12 +12,10 @@
 
 (defn- is-important?
   "Helper function for determining if a section is important, given its
-  metadata. This is done by checking if :tag (which is a set) contains
-  \"unimportant\"."
+  metadata. This is done by checking if :unimportant is true. If it is not
+  included, then it is assumed that important is true"
   [metadata]
-  (let [tags (get metadata :tags #{})]
-    (assert (set? tags))
-    (not (contains? tags "unimportant"))))
+  (not (get metadata :unimportant false)))
 
 (defn- get-sections
   "Helper function for getting the sections."

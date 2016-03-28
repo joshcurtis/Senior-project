@@ -101,6 +101,7 @@
               :style {:height "0px"
                       :width "0px"
                       :overflow "hidden"}
+              :value nil
               :on-change #(-> %1
                               .-target
                               .-files

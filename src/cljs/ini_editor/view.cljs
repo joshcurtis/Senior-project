@@ -14,8 +14,8 @@
   [props]
   (let [{:keys [section key metadata value]} props
         comments (:comments metadata)
-        type (or (:type metadata) "text")
-        disabled false]
+        type (get metadata :type "text")
+        disabled (get metadata :disabled false)]
     [:div.ini-key.form-group {}
      [:label.control-label {:title comments} key]
      (cond
