@@ -15,7 +15,9 @@
         [:p error]]
        [:div.alert.alert-warning {}
         [:h4 {} "Disconnected"]
-        [:p "There is currently no remote connection!"]])
+        [:p "There is currently no remote connection!"]
+        [:p "For most default MachineKit images, the default username and
+  password is \"machinekit\"."]])
      [:form.form-horizontal.well {}
       [:fieldset {}
        [:legend {} "Connect Remotely"]
