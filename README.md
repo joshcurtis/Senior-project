@@ -12,7 +12,7 @@ Edit specifications for use with MachineKit
 3. Web Browser - JavaScript capable browser. Chrome, Firefox, or Safari are recommended
 
 ## Running Development Environment
-1. `boot-dev`
+1. `boot dev`
 2. Check it out on a web browser at [localhost:3000](localhost:3000)
 3. To connect to the browser's REPL, run `boot repl -c`, and issue the command `(start-repl)`
 

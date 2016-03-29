@@ -28,7 +28,7 @@
                                               .-target
                                               .-value
                                               controller/set-hostname!)
-                              :value hostname}]]
+                              :placeholder "Printer Address"}]]
        [:div.form-group {}
         [:label.col-lg-2.control-label {} "user name"]
         [:input.form-control {:type "text"
@@ -36,7 +36,7 @@
                                               .-target
                                               .-value
                                               controller/set-username!)
-                              :value username}]]
+                              :placeholder "Username"}]]
        [:div.form-group {}
         [:label.col-lg-2.control-label {} "password"]
         [:input.form-control {:type "password"
@@ -44,7 +44,7 @@
                                               .-target
                                               .-value
                                               controller/set-password!)
-                              :value password}]]]]
+                              :placeholder "Password"}]]]]
      (if connection-pending?
        [:div.progress.progress-striped.active
         [:div.progress-bar.progress-bar-success {:style {:width "100%"}}]])

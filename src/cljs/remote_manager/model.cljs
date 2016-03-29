@@ -6,8 +6,8 @@
                            :connection-pending? false
                            :error nil
                            :hostname ""
-                           :username "machinekit"
-                           :password "machinekit"}))
+                           :username ""
+                           :password ""}))
 
 (defonce configs (atom {:dirs []
                         :contents {}}))
