@@ -123,6 +123,8 @@
     (assert (some? configs))
     [:div {}
      [:h1 {} (str username \@ hostname)]
+     [:div.well
+      "Remote configurations should be located in /home/{USER}/machinekit/configs/. Running machinekit for the first time will load the configurations onto this directory."]
      (map (fn [d] [render-config {:key d
                                   :dir d
                                   :contents (get-in configs [:contents d])}])
