@@ -83,3 +83,5 @@
   []
   (assert "Use `widgets/file-save` instead")
   nil)
+
+(defn ini-str [] (model/ini-str))

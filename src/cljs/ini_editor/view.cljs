@@ -2,7 +2,6 @@
   "Provides the view for the INI editor."
   (:require
    [ini-editor.controller :as controller]
-   [ini-editor.model :as model]
    [ini-editor.parser :as parser]
    [utils.core :as utils]
    [utils.widgets :as widgets]
@@ -75,7 +74,7 @@
 
 (defn- ini-editor-active
   "Renders a component for editing the current ini.
-  # Props - same hashmap are present in `ini-editor/model`.
+  # Props - same hashmap are present in `ini-editor.model/inis`.
   :key-metadata
   :key-order
   :section-metadata
@@ -147,7 +146,7 @@
                            (if (some? target-fname)
                              [widgets/file-save {:element "Save"
                                                  :filename target-fname
-                                                 :str-func model/ini-str}]
+                                                 :str-func controller/ini-str}]
                              [:span])
                            ]}]]
     [navbar/navbar {:title "INI"
