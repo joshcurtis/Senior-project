@@ -3,17 +3,17 @@
   (:require
    [clj-ssh.ssh :as ssh]))
 
-(defonce state (atom {:connected? false
-                      :hostname ""
-                      :username "machinekit"
-                      :agent nil
-                      :session nil
-                      :sftp-chan nil}))
+(defonce connection-state (atom {:connected? false
+                                 :hostname ""
+                                 :username "machinekit"
+                                 :agent nil
+                                 :session nil
+                                 :sftp-chan nil}))
 
 (defn ssh-disconnect!
   []
-  (let [{:keys [session sftp-chan]} @state]
-    (swap! state assoc
+  (let [{:keys [session sftp-chan]} @connection-state]
+    (swap! connection-state assoc
            :connected? false
            :agent nil
            :session nil
@@ -39,7 +39,7 @@
                            _ (if-not (ssh/connected-channel? c)
                                (ssh/connect-channel c))]
                        c)]
-    (swap! state assoc
+    (swap! connection-state assoc
            :connected? true
            :hostname hostname
            :username username

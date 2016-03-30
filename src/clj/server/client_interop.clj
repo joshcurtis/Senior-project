@@ -57,7 +57,7 @@
   (assert (string? contents))
   (assert (string? filename))
   (let [tmp-file (create-tmp-file contents)]
-    (ssh/sftp (:sftp-chan @state/state) {} :put tmp-file filename)
+    (ssh/sftp (:sftp-chan @state/connection-state) {} :put tmp-file filename)
     (delete-file tmp-file)))
 
 (defremote sftp-get
@@ -66,7 +66,7 @@
   [filename]
   (assert (string? filename))
   (let [tmp-file (create-tmp-file "")]
-    (ssh/sftp (:sftp-chan @state/state) {} :get filename tmp-file)
+    (ssh/sftp (:sftp-chan @state/connection-state) {} :get filename tmp-file)
     (let [s (slurp tmp-file)]
       (delete-file tmp-file)
       s)))
@@ -76,7 +76,7 @@
   character.
   Note: Never pass the empty string to ssh/sftp"
   [path]
-  (format-ls (ssh/sftp (:sftp-chan @state/state)
+  (format-ls (ssh/sftp (:sftp-chan @state/connection-state)
                        {}
                        :ls (if (string/blank? path) "./" path))))
 
@@ -84,6 +84,6 @@
   "Get the connection status of the server. This involves things such as being
   connected, username, hostname, and etc... See source code for more details."
   []
-  (select-keys @state/state [:connected?
-                             :hostname
-                             :username]))
+  (select-keys @state/connection-state [:connected?
+                                        :hostname
+                                        :username]))
