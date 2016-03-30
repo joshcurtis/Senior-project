@@ -12,9 +12,9 @@
   not work in this context."
   [contents]
   (let [file (java.io.File/createTempFile "cljtmpfile" ".tmp")
-        writer (clojure.java.io/writer file)]
-    (binding [*out* writer] (println contents))
-    (.getAbsolutePath file)))
+        fname (.getAbsolutePath file)]
+    (spit fname contents)
+    fname))
 
 (defn- delete-file
   "Delete a file with the provided filename"
