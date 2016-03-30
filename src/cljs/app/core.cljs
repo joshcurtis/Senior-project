@@ -25,6 +25,17 @@
           :target "_blank"}
          "Installation"]]])
 
+(defonce text (atom ""))
+
+(defn text-editor
+  [props]
+  [:pre
+   [:textarea {:value @text
+               :rows (->> @text (re-seq #"\n") count inc)
+               :style {:width "100%"
+                       :height "100%"}
+               :on-change #(reset! text (-> %1 .-target .-value))}]])
+
 (defn app
   "Reagent component which describes the app. It is a tab bar followed by the
   contents of that tab. Here are the locations of the contents:
@@ -34,7 +45,7 @@
   [props]
   (let [tab (:tab @app-state)]
     [:div.app {}
-     [widgets/tabs {:labels ["Home" "Remote" "INI"]
+     [widgets/tabs {:labels ["Home" "Remote" "INI" "Text"]
                     :selected tab
                     :on-change #(set-tab! %1)}]
      [:div.tab-content.panel.panel-default {}
@@ -44,6 +55,7 @@
           (= tab "Home") [home {}]
           (= tab "Remote") [remote-manager/view {}]
           (= tab "INI") [ini-editor/view {}]
+          (= tab "Text") [text-editor {}]
           :else [:div {} "Unknown tab"])]]]]))
 
 (defn ^:export start
