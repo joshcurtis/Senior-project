@@ -49,3 +49,8 @@
   clj/server/client_interop.clj for more details."
   [callback]
   (remote-callback :connection-status [] callback))
+
+(defn launch-mk!
+  "Launch machinekit"
+  [callback]
+  (remote-callback :launch-mk! [] callback))

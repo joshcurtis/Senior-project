@@ -115,6 +115,11 @@
         [:div {} "Loading..."])]]))
 
 
+(defn- foo
+  []
+  (.log js/console "Launching")
+  (.log js/console (controller/launch-mk!)))
+
 (defn- connected
   [props]
   (let [{:keys [connection configs]} props
@@ -132,8 +137,13 @@
      [:button.btn.btn-primary {:style {:margin-right "1rem"}
                                :on-click controller/update-configs!}
       "Refresh"]
-     [:button.btn.btn-warning {:on-click controller/disconnect!}
-      "Disconnect"]]))
+     [:button.btn.btn-warning {:style {:margin-right "1rem"}
+                               :on-click controller/disconnect!}
+      "Disconnect"]
+     [:button.btn.secondary {:on-click foo}
+     "Launch MachineKit"]
+     ]))
+
 
 (defn remote-manager
   "Renders a component for editing the machinekit configuration remotely."

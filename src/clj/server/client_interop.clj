@@ -87,3 +87,10 @@
   (select-keys @state/connection-state [:connected?
                                         :hostname
                                         :username]))
+
+
+(defremote launch-mk!
+  "Runs mklauncher, launchces machinekit, then returns all discovered machinekit
+  services"
+  []
+  (ssh/ssh (:session @state/connection-state) {:cmd "mklauncher -d ~/Desktop/"}))

@@ -72,6 +72,12 @@
          :connection-pending? false
          :error nil))
 
+(defn launch-mk!
+  []
+  (if (:connected? @model/connection)
+     (server-interop/launch-mk! #(.log js/console (:out %)))
+    "Unable to launch machinekit. No SSH connection"))
+
 (defn- edit-ini!
   [s id]
   (assert (string? s))
