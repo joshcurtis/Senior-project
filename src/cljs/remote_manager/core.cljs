@@ -6,7 +6,11 @@
    [utils.core :as utils]
    [server-interop.core :as server-interop]))
 
-(defn view
+(defn topbar
+  [props]
+  [view/topbar {}])
+
+(defn contents
   "A view that can be rendered to manage the machinekit configuration
   remotely. See machine_conf/core.cljs. This returns a reagent component that
   takes no props."

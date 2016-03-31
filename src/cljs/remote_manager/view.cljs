@@ -2,6 +2,7 @@
   "Provides the view for the remote manager."
   (:require
    [remote-manager.controller :as controller]
+   [utils.navbar :as navbar]
    [reagent.core :as r :refer [atom]]))
 
 (defn- disconnected
@@ -145,3 +146,9 @@
     (if connected?
       [connected {:connection connection :configs configs}]
       [disconnected {:connection connection}])))
+
+(defn topbar
+  [props]
+  [{:keys []} props]
+  [navbar/navbar {:title "Remote"
+                  :elements []}])

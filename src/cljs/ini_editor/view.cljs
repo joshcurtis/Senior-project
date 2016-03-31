@@ -122,7 +122,7 @@
   (let [{:keys [selected-id]} props]
     (if (some? selected-id) [ini-editor-active props] [ini-editor-inactive props])))
 
-(defn ini-navbar
+(defn topbar
   ""
   [props]
   (let [{:keys [selected-id]} props
@@ -152,14 +152,13 @@
     [navbar/navbar {:title "INI"
                     :elements [file-el]}]))
 
-(defn menubar
-  "Renders a menubar for misc. actions such as loading and saving a file."
+(defn infobar
+  "Renders information such as the available files for editing and their source/path."
   [props]
   (let [{:keys [selected-id all-ids]} props
         [source fname] selected-id
         path (concat [[:a (str source)]] (string/split fname \/))]
     [:div
-     [ini-navbar {:selected-id selected-id}]
      (if (pos? (count all-ids))
        [widgets/pagination
         {:labels (map (fn [[source fname]] [(utils/fname-from-path fname) [source fname]])

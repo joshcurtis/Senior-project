@@ -5,6 +5,7 @@
    [remote-manager.core :as remote-manager]
    [server-interop.core :as server-interop]
    [utils.widgets :as widgets]
+   [utils.navbar :as navbar]
    [utils.core :as utils]
    [reagent.core :as r :refer [atom]]))
 
@@ -25,8 +26,14 @@
           :target "_blank"}
          "Installation"]]])
 
-(defonce text (atom ""))
+(defn nil-navbar
+  "A navbar with nothing in it. Use it for placeholding"
+  [{:keys [title]}]
+  [navbar/navbar {:title (or title "")
+                  :elements []}])
 
+
+(defonce text (atom ""))
 (defn text-editor
   [props]
   [:pre
@@ -35,6 +42,16 @@
                :style {:width "100%"
                        :height "100%"}
                :on-change #(reset! text (-> %1 .-target .-value))}]])
+
+(def contents-map {"Home" [home {}]
+                   "Remote" [remote-manager/contents {}]
+                   "INI" [ini-editor/contents {}]
+                   "Text" [text-editor {}]})
+
+(def topbar-map {"Home" [nil-navbar {:title "Home"}]
+                 "Remote" [nil-navbar {:title "Remote"}]
+                 "INI" [ini-editor/topbar {}]
+                 "Text" [nil-navbar {:title "Text"}]})
 
 (defn app
   "Reagent component which describes the app. It is a tab bar followed by the
@@ -45,18 +62,14 @@
   [props]
   (let [tab (:tab @app-state)]
     [:div.app {}
+     (get topbar-map tab [nil-navbar {}])
      [widgets/tabs {:labels ["Home" "Remote" "INI" "Text"]
                     :selected tab
                     :on-change #(set-tab! %1)}]
      [:div.tab-content.panel.panel-default {}
       [:div.panel-body
        [:div.tab-pane.active {}
-        (cond
-          (= tab "Home") [home {}]
-          (= tab "Remote") [remote-manager/view {}]
-          (= tab "INI") [ini-editor/view {}]
-          (= tab "Text") [text-editor {}]
-          :else [:div {} "Unknown tab"])]]]]))
+        (get contents-map tab [:div "Unknown Tab"])]]]]))
 
 (defn ^:export start
   "Renders the application onto the DOM element \"app\""

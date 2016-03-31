@@ -4,7 +4,12 @@
    [ini-editor.model :as model]
    [ini-editor.view :as view]))
 
-(defn view
+(defn topbar
+  [props]
+  (let [selected-id @model/selected-id]
+    [view/topbar {:selected-id selected-id}]))
+
+(defn contents
   "A view that can be rendered to edit the current ini file. It is used in
   app/core.cljs. This returns a reagent component that takes no props."
   [props]
@@ -13,7 +18,7 @@
         all-ids (keys inis)
         model-ini (get inis selected-id)]
     [:div {}
-     [view/menubar {:selected-id selected-id
+     [view/infobar {:selected-id selected-id
                     :all-ids all-ids}]
      [view/ini-editor (merge (:ini model-ini)
                              {:expanded? (:expanded? model-ini)
