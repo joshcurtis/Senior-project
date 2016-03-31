@@ -53,4 +53,4 @@
 (defn launch-mk!
   "Launch machinekit"
   [callback]
-  (remote-callback :launch-mk! [] callback))
+  (remote-callback :run-ssh-command ["mklauncher -d ~/Desktop/"] callback))

@@ -88,9 +88,8 @@
                                         :hostname
                                         :username]))
 
-
-(defremote launch-mk!
-  "Runs mklauncher, launchces machinekit, then returns all discovered machinekit
-  services"
-  []
-  (ssh/ssh (:session @state/connection-state) {:cmd "mklauncher -d ~/Desktop/"}))
+(defremote run-ssh-command
+  "Runs the cmd passed as a string.
+   It returns the exit code, stdout, and stderr"
+  [cmd]
+  (ssh/ssh (:session @state/connection-state) {:cmd cmd}))
