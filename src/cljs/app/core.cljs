@@ -12,7 +12,6 @@
    [reagent.core :as r :refer [atom]]))
 
 
-
 (defn home
   "reagent-component for home tab."
   [props]
