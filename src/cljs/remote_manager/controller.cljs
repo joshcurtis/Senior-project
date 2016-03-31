@@ -4,6 +4,7 @@
    [utils.core :as utils]
    [remote-manager.model :as model]
    [ini-editor.controller]
+   [text-editor.controller]
    [server-interop.core :as server-interop]
    [clojure.string :as string]))
 
@@ -82,7 +83,9 @@
 
 (defn- edit-unsupported
   [s id]
-  (js/alert "Unsupported file type"))
+  (js/alert "Unsupported file type")
+  (text-editor.controller/load-text! id s)
+  (app.actions/set-tab! "Text"))
 
 (def
   edit-callbacks {"ini" edit-ini!})

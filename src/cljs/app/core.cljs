@@ -5,6 +5,7 @@
    [ini-editor.core :as ini-editor]
    [remote-manager.core :as remote-manager]
    [server-interop.core :as server-interop]
+   [text-editor.core :as text-editor]
    [utils.widgets :as widgets]
    [utils.navbar :as navbar]
    [utils.core :as utils]
@@ -45,12 +46,12 @@
 (def contents-map {"Home" [home {}]
                    "Remote" [remote-manager/contents {}]
                    "INI" [ini-editor/contents {}]
-                   "Text" [text-editor {}]})
+                   "Text" [text-editor/contents {}]})
 
 (def topbar-map {"Home" [nil-navbar {:title "Home"}]
                  "Remote" [nil-navbar {:title "Remote"}]
                  "INI" [ini-editor/topbar {}]
-                 "Text" [nil-navbar {:title "Text"}]})
+                 "Text" [text-editor/topbar {}]})
 
 (defn app
   "Reagent component which describes the app. It is a tab bar followed by the
