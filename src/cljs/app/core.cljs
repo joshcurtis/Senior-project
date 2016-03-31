@@ -1,6 +1,7 @@
 (ns app.core
   ""
   (:require
+   [app.actions]
    [ini-editor.core :as ini-editor]
    [remote-manager.core :as remote-manager]
    [server-interop.core :as server-interop]
@@ -10,8 +11,6 @@
    [reagent.core :as r :refer [atom]]))
 
 
-(defonce app-state (atom {:tab "Home"}))
-(defn set-tab! [label] (swap! app-state assoc :tab label))
 
 (defn home
   "reagent-component for home tab."
@@ -60,12 +59,12 @@
   \"Remote\" - `remote-manager.core/view`
   \"INI\" - `ini-editor.core/view`"
   [props]
-  (let [tab (:tab @app-state)]
+  (let [tab (:tab @app.actions/app-state)]
     [:div.app {}
      (get topbar-map tab [nil-navbar {}])
      [widgets/tabs {:labels ["Home" "Remote" "INI" "Text"]
                     :selected tab
-                    :on-change #(set-tab! %1)}]
+                    :on-change #(app.actions/set-tab! %1)}]
      [:div.tab-content.panel.panel-default {}
       [:div.panel-body
        [:div.tab-pane.active {}
