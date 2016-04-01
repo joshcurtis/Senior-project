@@ -21,6 +21,7 @@
     (assert (some? selected-id))
     [:textarea {:value text
                 :rows (->> text (re-seq #"\n") count inc)
-                :style {:width "100%"
+                :style {:resize "none"
+                        :width "100%"
                         :height "100%"}
                 :on-change #(controller/change-current-text (-> %1 .-target .-value))}]))

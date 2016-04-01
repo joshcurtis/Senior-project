@@ -7,8 +7,8 @@
 ;; hashmap: [source path] -> {:ini parsed-ini
 ;;                            :expanded? #{section-strings}
 ;; hashmap: [source path] -> string
-(defonce texts (atom {}))
-(defonce selected-id (atom nil))
+(defonce texts (atom {[:local "scratch.txt"] ""}))
+(defonce selected-id (atom [:local "scratch.txt"]))
 
 ;; Convenient helpers
 
