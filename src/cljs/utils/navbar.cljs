@@ -33,9 +33,7 @@
   (let [{:keys [title elements]} props
         navbar-id (str "navbar-" (string/lower-case
                                   (string/replace title #" " "-")))
-        elements (if (vector? elements)
-                   (reverse (into '() elements))
-                   elements)]
+        elements (seq elements)]
     (assert (string? title))
     (assert (some? elements))
     [:nav.navbar.navbar-default
