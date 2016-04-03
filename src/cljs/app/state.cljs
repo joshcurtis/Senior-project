@@ -54,3 +54,71 @@
      [:div.panel-body
       [:div.tab-pane.active {}
        (get contents-map tab [:div "Unknown Tab"])]]]))
+
+;; topbar
+
+(defn nil-navbar
+  "A navbar with nothing in it. Use it for placeholding"
+  [{:keys [title]}]
+  [navbar/navbar {:title (or title "")
+                  :elements []}])
+
+(defn alert-invalid-action
+  []
+  (js/alert "Invalid Action")
+  "")
+
+(def topbar-actions-map {"HOME" nil
+                         "Remote" nil
+                         "INI" ini-editor.core/topbar-actions
+                         "Text" nil})
+
+(defn current-topbar-actions
+  []
+  (get topbar-actions-map (:tab @app-state)))
+
+(defn topbar-action-open
+  ""
+  [id string]
+  (let [f (get (current-topbar-actions) "open")]
+    (if (fn? f)
+      (f id string)
+      (alert-invalid-action))))
+
+(defn topbar-action-save
+  "Returns a string."
+  []
+  ((get (current-topbar-actions) "save" alert-invalid-action)))
+
+(defn topbar-action-filename
+  "Returns a string."
+  []
+  ((get (current-topbar-actions) "filename" alert-invalid-action)))
+
+(defn topbar-file-menu
+  ""
+  []
+  (let [open-el [widgets/file-input {:id "file-input"
+                                     :file-types nil
+                                     :element "Open"
+                                     :on-change (fn [file-list]
+                                                  (let [file (first file-list)
+                                                        f-id [:local (.-name file)]]
+                                                    (if (some? file)
+                                                      (utils/read-file file
+                                                                       #(topbar-action-open f-id
+                                                                                            %1)))))}]
+        download-el [widgets/file-save {:element "Download"
+                                        :filename topbar-action-filename
+                                        :str-func topbar-action-save}]]
+    [navbar/navbar-dropdown {:title "File"
+                             :key "file"
+                             :labels [open-el download-el]}]))
+
+(defn render-topbar
+  ""
+  []
+  (let [app-state @app-state
+        tab (:tab app-state)]
+    [navbar/navbar {:title tab
+                    :elements [(topbar-file-menu)]}]))

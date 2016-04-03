@@ -133,8 +133,13 @@
      [:button.btn.btn-primary {:style {:margin-right "1rem"}
                                :on-click controller/update-configs!}
       "Refresh"]
-     [:button.btn.btn-warning {:on-click controller/disconnect!}
-      "Disconnect"]]))
+     [:button.btn.btn-warning {:style {:margin-right "1rem"}
+                               :on-click controller/disconnect!}
+      "Disconnect"]
+     [:button.btn.secondary {:on-click controller/launch-mk!}
+     "Launch MachineKit"]
+     ]))
+
 
 (defn remote-manager
   "Renders a component for editing the machinekit configuration remotely."
