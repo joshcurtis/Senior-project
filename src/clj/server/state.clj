@@ -10,6 +10,8 @@
                                  :session nil
                                  :sftp-chan nil}))
 
+(def timeout 15000)
+
 (defn ssh-disconnect!
   []
   (let [{:keys [session sftp-chan]} @connection-state]
@@ -33,7 +35,7 @@
                                      {:strict-host-key-checking :no
                                       :username username
                                       :password password})
-                      _ (ssh/connect s 5000)]
+                      _ (ssh/connect s timeout)]
                   s)
         sftp-channel (let [c (ssh/ssh-sftp session)
                            _ (if-not (ssh/connected-channel? c)

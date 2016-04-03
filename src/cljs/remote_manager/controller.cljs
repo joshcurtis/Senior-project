@@ -77,7 +77,8 @@
   [s id]
   (assert (string? s))
   (assert (some? id))
-  (ini-editor.controller/load-str! id s))
+  (ini-editor.controller/load-str! id s)
+  (utils/click-element "tab-navigation-INI"))
 
 (defn- edit-unsupported
   [s id]
