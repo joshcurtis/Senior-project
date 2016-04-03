@@ -1,6 +1,5 @@
 (ns remote-manager.controller
   (:require
-   [app.actions]
    [utils.core :as utils]
    [remote-manager.model :as model]
    [ini-editor.controller]
@@ -78,14 +77,12 @@
   [s id]
   (assert (string? s))
   (assert (some? id))
-  (ini-editor.controller/load-str! id s)
-  (app.actions/set-tab! "INI"))
+  (ini-editor.controller/load-str! id s))
 
 (defn- edit-unsupported
   [s id]
   (js/alert "Unsupported file type")
-  (text-editor.controller/load-text! id s)
-  (app.actions/set-tab! "Text"))
+  (text-editor.controller/load-text! id s))
 
 (def
   edit-callbacks {"ini" edit-ini!})
