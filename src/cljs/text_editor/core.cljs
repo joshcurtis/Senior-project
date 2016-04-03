@@ -4,10 +4,6 @@
    [text-editor.model :as model]
    [text-editor.view :as view]))
 
-(defn topbar
-  [props]
-  [view/topbar {}])
-
 (defn contents
   "A view that can be rendered to edit the current ini file. It is used in
   app/core.cljs. This returns a reagent component that takes no props."

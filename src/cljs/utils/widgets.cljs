@@ -9,16 +9,19 @@
   "Creates notebook like tabs.
   # Props
   `labels` - sequence of strings for labels
+  `id-prefix` - each tab will have the id {id-prefix}{label}
   `selected` - string, the currently selected label
   `on-change` - function that takes a label that was clicked on."
   [props]
-  (let [{:keys [labels selected on-change]} props]
+  (let [{:keys [labels selected on-change id-prefix]} props
+        id-prefix (or id-prefix "")]
     (assert (sequential? labels))
     (assert (string? selected))
     (assert (fn? on-change))
     [:ul.nav.nav-tabs
      (map-indexed (fn [i l] [:li {:style {:cursor "pointer"}
                                   :key i
+                                  :id (str id-prefix l)
                                   :class (if (= l selected) "active")
                                   :on-click #(on-change l)}
                              [:a {} l]])
@@ -116,15 +119,15 @@
   "Renders an element that can be used to save a file to disk.
   # Props
   `str-func` - Function that returns a string that will be downloaded.
-  `filename` - target filename to be downloaded
+  `filename` - Function that returns the target filename to be downloaded
   `element` - This component will look exactly like `element`. Downloading will
   happen when it is clicked."
   [props]
   (let [{:keys [str-func element filename]} props]
-    (assert (some? str-func))
-    (assert (some? filename))
+    (assert (fn? str-func))
+    (assert (fn? filename))
     (assert (some? element))
-    [:span {:on-click #(utils/save-file (str-func) filename)}
+    [:span {:on-click #(utils/save-file (str-func) (filename))}
      element]))
 
 (defn list-input

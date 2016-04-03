@@ -8,12 +8,6 @@
    [reagent.core :as r :refer [atom]]
    [clojure.string :as string]))
 
-(defn topbar
-  [props]
-  (let []
-    [navbar/navbar {:title "Text"
-                    :elements []}]))
-
 (defn simple-text-editor
   [props]
   (let [{:keys [selected-id text]} props]

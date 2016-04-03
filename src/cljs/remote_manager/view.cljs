@@ -146,9 +146,3 @@
     (if connected?
       [connected {:connection connection :configs configs}]
       [disconnected {:connection connection}])))
-
-(defn topbar
-  [props]
-  [{:keys []} props]
-  [navbar/navbar {:title "Remote"
-                  :elements []}])

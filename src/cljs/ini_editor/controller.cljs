@@ -85,3 +85,4 @@
   nil)
 
 (defn ini-str [] (model/ini-str))
+(defn filename [] (utils/fname-from-path (second @model/selected-id)))

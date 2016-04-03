@@ -122,36 +122,6 @@
   (let [{:keys [selected-id]} props]
     (if (some? selected-id) [ini-editor-active props] [ini-editor-inactive props])))
 
-(defn topbar
-  ""
-  [props]
-  (let [{:keys [selected-id]} props
-        target-fname (utils/fname-from-path (second selected-id))
-        file-el [navbar/navbar-dropdown
-                 {:title "File"
-                  :key "file"
-                  :labels [
-                           [widgets/file-input
-                            {:id "file-input"
-                             :file-types ".ini"
-                             :element "Open"
-                             :on-change (fn [file-list]
-                                          (let [file (first file-list)
-                                                ini-id [:local (.-name file)]]
-                                            (if (some? file)
-                                              (utils/read-file file
-                                                               #(controller/load-str!
-                                                                 ini-id
-                                                                 %1)))))}]
-                           (if (some? target-fname)
-                             [widgets/file-save {:element "Save"
-                                                 :filename target-fname
-                                                 :str-func controller/ini-str}]
-                             [:span])
-                           ]}]]
-    [navbar/navbar {:title "INI"
-                    :elements [file-el]}]))
-
 (defn infobar
   "Renders information such as the available files for editing and their source/path."
   [props]
