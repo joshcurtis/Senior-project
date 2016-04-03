@@ -116,10 +116,6 @@
         [:div {} "Loading..."])]]))
 
 
-(defn- foo
-  []
-  (controller/launch-mk!))
-
 (defn- connected
   [props]
   (let [{:keys [connection configs]} props
