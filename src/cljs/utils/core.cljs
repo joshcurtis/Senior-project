@@ -22,6 +22,11 @@
   [id]
   (.click (.getElementById js/document id)))
 
+(defn element-value
+  "The value of the DOM element with the `id`."
+  [id]
+  (.-value (.getElementById js/document id)))
+
 (defn read-file
   "`js-file-obj` must be a JavaScript `File` object and callback must be a
   function that takes a `string`. The contents of the `js-file-obj` as a

@@ -162,6 +162,17 @@
       {:disabled disabled
        :on-click #(-> value (conj default-value) on-change)} "+"]]))
 
+(defn modal
+  "Renders a modal."
+  [{:keys [header body footer]}]
+  [:div.modal {:style {:display "initial"
+                       :overflow "scroll"}}
+   [:div.modal-dialog
+    [:div.modal-content
+     [:div.modal-header header]
+     [:div.modal-body body]
+     [:div.modal-footer footer]]]])
+
 (defn endlines-to-divs
   "Converts a string into a span that contains a sequence of divs, one for each
   line of the given string."
