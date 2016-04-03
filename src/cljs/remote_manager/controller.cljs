@@ -115,6 +115,13 @@
         callback #(callback %1 [:remote full-filename])]
     (server-interop/sftp-get full-filename callback)))
 
+(defn upload-file!
+  [full-filename contents]
+  (assert (string? full-filename))
+  (assert (string/includes? full-filename "machinekit"))
+  (let []
+    (server-interop/sftp-put contents full-filename)))
+
 (defn save-file!
   [full-filename]
   (assert (string? full-filename))

@@ -2,6 +2,7 @@
   ""
   (:require
    [app.state]
+   [app.topbar]
    [ini-editor.core :as ini-editor]
    [remote-manager.core :as remote-manager]
    [server-interop.core :as server-interop]
@@ -21,7 +22,7 @@
         tab-labels (:tab-labels app-state)
         tab (:tab app-state)]
     [:div.app {}
-     [app.state/render-topbar {}]
+     [app.topbar/render-topbar {}]
      [widgets/tabs {:labels tab-labels
                     :id-prefix "tab-navigation-"
                     :selected tab
