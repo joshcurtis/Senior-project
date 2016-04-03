@@ -129,10 +129,28 @@
                                :key "file"
                                :labels dropdowns}])))
 
+(defn topbar-help-menu
+  ""
+  []
+  (let [valid-options (into #{} (keys (current-topbar-actions)))
+        about-el [:a {:href "https://github.com/joshcurtis/Senior-project"
+                      :target "_blank"} "Source Code"]
+        dropdowns [
+                   about-el
+                   ]
+        should-show? true ; only show if there is a non-nil in dropdowns
+        ]
+    (if should-show?
+      [navbar/navbar-dropdown {:title "Help"
+                               :key "help"
+                               :labels dropdowns}])))
+
+
 (defn render-topbar
   ""
   []
   (let [app-state @app-state
         tab (:tab app-state)]
     [navbar/navbar {:title tab
-                    :elements [(topbar-file-menu)]}]))
+                    :elements [(topbar-file-menu)
+                               (topbar-help-menu)]}]))
