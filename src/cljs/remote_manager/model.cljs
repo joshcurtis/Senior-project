@@ -11,3 +11,7 @@
 
 (defonce configs (atom {:dirs []
                         :contents {}}))
+
+(defn remote-configs
+  []
+  (:dirs @configs))

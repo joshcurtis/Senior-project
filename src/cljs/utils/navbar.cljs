@@ -38,7 +38,8 @@
         [:span.icon-bar]
         [:span.icon-bar]
         [:span.icon-bar]]
-       [:a.navbar-brand title]]
+       [:a.navbar-brand {:style {:cursor "default"}}
+        title]]
       [:div.collapse.navbar-collapse {:id navbar-id}
        [:ul.nav.navbar-nav
         elements]]]]))

@@ -68,6 +68,10 @@
   (js/alert "Invalid Action")
   "")
 
+;; topbar-actions may define these functions:
+;; "save" -> returns a string
+;; "filename" -> returns a string
+;; "open" -> takes an id and a string
 (def topbar-actions-map {"HOME" nil
                          "Remote" nil
                          "INI" ini-editor.core/topbar-actions
@@ -98,7 +102,8 @@
 (defn topbar-file-menu
   ""
   []
-  (let [open-el [widgets/file-input {:id "file-input"
+  (let [valid-options (into #{} (keys (current-topbar-actions)))
+        open-el [widgets/file-input {:id "file-input"
                                      :file-types nil
                                      :element "Open"
                                      :on-change (fn [file-list]
@@ -110,10 +115,19 @@
                                                                                             %1)))))}]
         download-el [widgets/file-save {:element "Download"
                                         :filename topbar-action-filename
-                                        :str-func topbar-action-save}]]
-    [navbar/navbar-dropdown {:title "File"
-                             :key "file"
-                             :labels [open-el download-el]}]))
+                                        :str-func topbar-action-save}]
+        dropdowns [
+                   (if (contains? valid-options "save") open-el)
+                   (if (and (contains? valid-options "save")
+                            (contains? valid-options "filename"))
+                     download-el)
+                   ]
+        should-show? (some some? dropdowns) ; only show if there is a non-nil in dropdowns
+        ]
+    (if should-show?
+      [navbar/navbar-dropdown {:title "File"
+                               :key "file"
+                               :labels dropdowns}])))
 
 (defn render-topbar
   ""
