@@ -1,13 +1,13 @@
 (ns ini-editor.core
   "Provides functionality for editing ini files."
   (:require
+   [ini-editor.controller :as controller]
    [ini-editor.model :as model]
    [ini-editor.view :as view]))
 
-(defn topbar
-  [props]
-  (let [selected-id @model/selected-id]
-    [view/topbar {:selected-id selected-id}]))
+(def topbar-actions {"open" controller/load-str!
+                     "save" controller/ini-str
+                     "filename" controller/filename})
 
 (defn contents
   "A view that can be rendered to edit the current ini file. It is used in
