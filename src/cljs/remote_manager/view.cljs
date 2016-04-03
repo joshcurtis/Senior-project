@@ -118,8 +118,7 @@
 
 (defn- foo
   []
-  (.log js/console "Launching")
-  (.log js/console (controller/launch-mk!)))
+  (controller/launch-mk!))
 
 (defn- connected
   [props]
