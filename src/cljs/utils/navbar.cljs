@@ -5,6 +5,14 @@
    [reagent.core :as r :refer [atom]]
    [clojure.string :as string]))
 
+(defn- coerce-to-a
+  "If el is an :a tag, then it remains the same, else it is
+  nexted under an :a tag."
+  [el]
+  (if (and (vector? el) (= (first el) :a))
+    el
+    [:a el]))
+
 (defn navbar-dropdown
   ""
   [props]
@@ -16,7 +24,7 @@
                           :aria-expanded "false"} title [:span.caret]]
      [:ul.dropdown-menu {:role "menu"}
       (map (fn [l] [:li {:style {:cursor "pointer"}
-                         :key l} [:a l]])
+                         :key l} (coerce-to-a l)])
            labels)]]))
 
 (defn navbar
@@ -25,7 +33,9 @@
   (let [{:keys [title elements]} props
         navbar-id (str "navbar-" (string/lower-case
                                   (string/replace title #" " "-")))
-        elements (into '() elements)]
+        elements (if (vector? elements)
+                   (reverse (into '() elements))
+                   elements)]
     (assert (string? title))
     (assert (some? elements))
     [:nav.navbar.navbar-default
