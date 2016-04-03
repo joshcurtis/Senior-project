@@ -122,44 +122,13 @@
   (let [{:keys [selected-id]} props]
     (if (some? selected-id) [ini-editor-active props] [ini-editor-inactive props])))
 
-(defn ini-navbar
-  ""
-  [props]
-  (let [{:keys [selected-id]} props
-        target-fname (utils/fname-from-path (second selected-id))
-        file-el [navbar/navbar-dropdown
-                 {:title "File"
-                  :key "file"
-                  :labels [
-                           [widgets/file-input
-                            {:id "file-input"
-                             :file-types ".ini"
-                             :element "Open"
-                             :on-change (fn [file-list]
-                                          (let [file (first file-list)
-                                                ini-id [:local (.-name file)]]
-                                            (if (some? file)
-                                              (utils/read-file file
-                                                               #(controller/load-str!
-                                                                 ini-id
-                                                                 %1)))))}]
-                           (if (some? target-fname)
-                             [widgets/file-save {:element "Save"
-                                                 :filename target-fname
-                                                 :str-func controller/ini-str}]
-                             [:span])
-                           ]}]]
-    [navbar/navbar {:title "INI"
-                    :elements [file-el]}]))
-
-(defn menubar
-  "Renders a menubar for misc. actions such as loading and saving a file."
+(defn infobar
+  "Renders information such as the available files for editing and their source/path."
   [props]
   (let [{:keys [selected-id all-ids]} props
         [source fname] selected-id
         path (concat [[:a (str source)]] (string/split fname \/))]
     [:div
-     [ini-navbar {:selected-id selected-id}]
      (if (pos? (count all-ids))
        [widgets/pagination
         {:labels (map (fn [[source fname]] [(utils/fname-from-path fname) [source fname]])

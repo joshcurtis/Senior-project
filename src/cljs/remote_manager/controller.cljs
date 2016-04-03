@@ -3,6 +3,7 @@
    [utils.core :as utils]
    [remote-manager.model :as model]
    [ini-editor.controller]
+   [text-editor.controller]
    [server-interop.core :as server-interop]
    [clojure.string :as string]))
 
@@ -82,11 +83,13 @@
   [s id]
   (assert (string? s))
   (assert (some? id))
-  (ini-editor.controller/load-str! id s))
+  (ini-editor.controller/load-str! id s)
+  (utils/click-element "tab-navigation-INI"))
 
 (defn- edit-unsupported
   [s id]
-  (js/alert "Unsupported file type"))
+  (js/alert "Unsupported file type")
+  (text-editor.controller/load-text! id s))
 
 (def
   edit-callbacks {"ini" edit-ini!})

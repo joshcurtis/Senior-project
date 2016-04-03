@@ -87,7 +87,6 @@
   (select-keys @state/connection-state [:connected?
                                         :hostname
                                         :username]))
-
 (defremote run-ssh-command
   "Runs the cmd passed as a string.
    It returns the exit code, stdout, and stderr"

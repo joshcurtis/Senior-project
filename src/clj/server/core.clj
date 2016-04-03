@@ -4,6 +4,7 @@
   (:require
    [server.client-interop :as client-interop]
    [server.state :as state]
+   [server.mdns :as mdns]
    [compojure.core :refer [defroutes GET]]
    [compojure.handler :refer [site]]
    [compojure.route :refer [not-found files resources]]
