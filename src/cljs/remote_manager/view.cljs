@@ -136,7 +136,7 @@
      [:button.btn.btn-warning {:style {:margin-right "1rem"}
                                :on-click controller/disconnect!}
       "Disconnect"]
-     [:button.btn.secondary {:on-click foo}
+     [:button.btn.secondary {:on-click controller/launch-mk!}
      "Launch MachineKit"]
      ]))
 
