@@ -73,13 +73,6 @@
          :connection-pending? false
          :error nil))
 
-(defn launch-mk!
-  []
-  (.log js/console "Trying to launch machinekit")
-  (if (:connected? @model/connection)
-     (server-interop/launch-mk! log-launch-mk)
-    "Unable to launch machinekit. No SSH connection"))
-
 (defn- log-launch-mk
   "Output should be a map with the keys :exit, :err, and :out.
   :exit contains the return code
@@ -90,6 +83,12 @@
     (if (some? out)
       (.log js/console out))))
 
+(defn launch-mk!
+  []
+  (.log js/console "Trying to launch machinekit")
+  (if (:connected? @model/connection)
+     (server-interop/launch-mk! log-launch-mk)
+    "Unable to launch machinekit. No SSH connection"))
 
 (defn- edit-ini!
   [s id]

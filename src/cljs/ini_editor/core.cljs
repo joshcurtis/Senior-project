@@ -3,11 +3,13 @@
   (:require
    [ini-editor.controller :as controller]
    [ini-editor.model :as model]
-   [ini-editor.view :as view]))
+   [ini-editor.view :as view]
+   [clojure.string :as string]))
 
 (def topbar-actions {"open" controller/load-str!
                      "save" controller/ini-str
-                     "filename" controller/filename})
+                     "filename" controller/filename
+                     "filename-filter" #(string/ends-with? %1 ".ini")})
 
 (defn contents
   "A view that can be rendered to edit the current ini file. It is used in
