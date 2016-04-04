@@ -84,6 +84,17 @@
   (if (and (string/includes? s \.) (not (dir? s)))
     (-> s (string/split \.) last string/lower-case)))
 
+
+;;
+
+(defonce unique-int-counter (atom 0))
+
+(defn unique-int
+  "Returns a unique integer at every call. The current implementation starts at
+  0 and counts upward."
+  []
+  (swap! unique-int-counter inc))
+
 ;; intervals that are reload friendly
 
 (defonce intervals (atom {}))

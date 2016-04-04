@@ -11,7 +11,7 @@
   [el]
   (if (and (vector? el) (= (first el) :a))
     el
-    [:a el]))
+    [:a {:style {:display "flex"}} el]))
 
 (defn navbar-dropdown
   ""

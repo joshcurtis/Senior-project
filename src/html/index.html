@@ -3,10 +3,15 @@
   <head>
     <script src="js/jquery-1.11.0.js"></script>
     <script src="js/jquery-migrate-1.2.1.js"></script>
-    <link rel="stylesheet" href="css/bootstrap.css" type="text/css">
+    <link id="bootstrap-style" rel="stylesheet" href="css/bootstrap-flatly.css" type="text/css">
     <script src="js/bootstrap.js"></script>
     <script src="js/FileSaver.js"></script>
     <script src="js/Chart.js"></script>
+    <script>
+      function changeStyle(sheet){
+      document.getElementById('bootstrap-style').setAttribute('href', sheet);
+      }
+    </script>
     <title>MachineKit Configuration</title>
   </head>
   <body>
