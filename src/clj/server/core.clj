@@ -10,22 +10,19 @@
    [compojure.route :refer [not-found files resources]]
    [hiccup.core :as hiccup]
    [shoreleave.middleware.rpc :refer [wrap-rpc]]
+   [ring.util.response :as resp]
    ))
-
-
-(def home
-  "HTML page (string) that is returned for /."
-  (hiccup/html [:html  [:body
-                             [:h1 {} "Welcome To MachineKit Config"]
-                             [:a {:href "/index.html"} "here"]]]))
 
 ;; compojure ring handler
 (defroutes static-handler
-  "compojure route handler."
-  (GET "/" [] home)
+  "Compojure route handler.
+  1. Redirects ./ to ./index.html
+  2. Points file requests to target folder
+  3. Points resource requests to target folder
+  4. Page Not Found route"
+  (GET "/" [] (resp/redirect "index.html"))
   (files "/" {:root "target"})
   (resources "/" {:root "target"})
-  (GET "/echo/:s" [s] s)
   (not-found "Page Not Found"))
 
 ;; also a ring handler, but adds shoreleave functionality
