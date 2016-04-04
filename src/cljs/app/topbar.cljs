@@ -3,6 +3,7 @@
    [app.state :as state]
    [remote-manager.model]
    [remote-manager.controller]
+   [text-editor.core]
    [utils.core :as utils]
    [utils.widgets :as widgets]
    [utils.navbar :as navbar]
@@ -26,8 +27,9 @@
 ;; "filename" -> returns a string
 ;; "filename-filter" -> returns true if mimetype is right for filename, ie *.ini
 ;; "open" -> takes an id and a string
-(def topbar-actions-map {"HOME" nil
+(def topbar-actions-map {"Home" nil
                          "Remote" nil
+                         "Monitor" nil
                          "INI" ini-editor.core/topbar-actions
                          "Text" text-editor.core/topbar-actions})
 
