@@ -2,7 +2,13 @@
   "Provides functionality for editing ini files."
   (:require
    [text-editor.model :as model]
+   [text-editor.controller :as controller]
    [text-editor.view :as view]))
+
+(def topbar-actions {"open" controller/load-text!
+                     "save" model/text-str
+                     "filename" "scratch.txt"
+                     "filename-filter" (constantly true)})
 
 (defn contents
   "A view that can be rendered to edit the current ini file. It is used in

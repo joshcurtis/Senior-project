@@ -29,7 +29,7 @@
 (def topbar-actions-map {"HOME" nil
                          "Remote" nil
                          "INI" ini-editor.core/topbar-actions
-                         "Text" nil})
+                         "Text" text-editor.core/topbar-actions})
 
 (defn current-topbar-actions
   []
