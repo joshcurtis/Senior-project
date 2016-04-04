@@ -100,8 +100,8 @@
 
 (defn- edit-unsupported
   [s id]
-  (js/alert "Unsupported file type")
-  (text-editor.controller/load-text! id s))
+  (text-editor.controller/load-text! id s)
+  (utils/click-element "tab-navigation-Text"))
 
 (def
   edit-callbacks {"ini" edit-ini!})
