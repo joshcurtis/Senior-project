@@ -36,7 +36,7 @@
         elements (seq elements)]
     (assert (string? title))
     (assert (some? elements))
-    [:nav.navbar.navbar-default
+    [:nav.navbar.navbar-default {:style {:border-radius 0}}
      [:div.container-fluid
       [:div.navbar-header
        [:button.navbar-toggle.collapsed {:type "button"
