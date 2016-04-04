@@ -173,6 +173,50 @@
      [:div.modal-body body]
      [:div.modal-footer footer]]]])
 
+;; http://blog.ducky.io/reagent-docs/0.6.0-SNAPSHOT/reagent.core.html#var-create-class
+(def ^{:private true} line-plot-component
+  (r/create-class
+   {
+    :get-initial-state (fn [arg] {:id (str "lpc-" (utils/unique-int))
+                                  :canvas nil})
+    :component-did-mount (fn [this]
+                            (let [state (r/state this)
+                                  id (:id state)
+                                  el (.getElementById js/document id)
+                                  ctx (.getContext el "2d")
+                                  chart (js/Chart. ctx)
+                                  props (r/props this)
+                                  data (-> props :data clj->js)
+                                  options (-> props :options clj->js)]
+                              (.Line chart data options)
+                              (r/set-state this {:canvas ctx})))
+    :component-did-update (fn [this]
+                            (let [state (r/state this)
+                                  ctx (:canvas state)
+                                  chart (js/Chart. ctx)
+                                  props (r/props this)
+                                  data (-> props :data clj->js)
+                                  options (-> props :options clj->js)]
+                              (.Line chart data options)))
+    :render (fn [this]
+              (let [props (r/props this)
+                    state (r/state this)
+                    canvas-props (merge (select-keys props [:width :height])
+                                        (select-keys state [:id]))]
+                [:canvas canvas-props]))
+    }))
+
+(defn line-plot
+  "Renders a line plot use Chart.js and a canvas.
+  http://www.chartjs.org/docs/#line-chart
+  # Props
+  `width` - width of the canvas
+  `height` - height of the canvas
+  `data` - Chart.js Line compatible data, see link.
+  `options` - Chart.js options, see link. If the chart updates often, set :animation to false"
+  [props]
+  [line-plot-component props])
+
 (defn endlines-to-divs
   "Converts a string into a span that contains a sequence of divs, one for each
   line of the given string."
