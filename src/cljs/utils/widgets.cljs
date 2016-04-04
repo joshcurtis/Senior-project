@@ -181,7 +181,8 @@
   (r/create-class
    {
     :get-initial-state (fn [arg] {:id (str "lpc-" (utils/unique-int))
-                                  :canvas nil})
+                                  :canvas nil
+                                  :legend "<span></span>"})
     :component-did-mount (fn [this]
                             (let [state (r/state this)
                                   id (:id state)
@@ -191,8 +192,8 @@
                                   props (r/props this)
                                   data (-> props :data clj->js)
                                   options (-> props :options clj->js)]
-                              (.Line chart data options)
-                              (r/set-state this {:canvas ctx})))
+                              (r/set-state this {:canvas ctx
+                                                 :legend (.generateLegend (.Line chart data options))})))
     :component-did-update (fn [this]
                             (let [state (r/state this)
                                   ctx (:canvas state)
@@ -204,9 +205,13 @@
     :render (fn [this]
               (let [props (r/props this)
                     state (r/state this)
+                    legend? (:legend props)
+                    legend (if legend? (:legend state) "")
                     canvas-props (merge (select-keys props [:width :height])
                                         (select-keys state [:id]))]
-                [:canvas canvas-props]))
+                [:div
+                 [:canvas canvas-props]
+                 [:div {:dangerouslySetInnerHTML {:__html legend}}]]))
     }))
 
 (defn line-plot
@@ -215,6 +220,7 @@
   # Props
   `width` - width of the canvas
   `height` - height of the canvas
+  `legend` - true or false, whether to draw the legend
   `data` - Chart.js Line compatible data, see link.
   `options` - Chart.js options, see link. If the chart updates often, set
               :animation to false"
