@@ -35,10 +35,11 @@
 (defn update-configs!
   "Updates the configs based on the server."
   []
-  (let [callback (fn [dirs]
-                   (swap! model/configs assoc :dirs (filterv utils/dir? (into ["/"] dirs)))
-                   (swap! model/configs assoc-in [:contents "/"] (filterv (complement utils/dir?) dirs))
-                   (doseq [dir dirs] (if (utils/dir? dir) (update-config! dir))))]
+  (let [valid-dir #(or (utils/dir? %) (= "" %))
+        callback (fn [dirs]
+                   (swap! model/configs assoc :dirs (filterv valid-dir (into [""] dirs)))
+                   (swap! model/configs assoc-in [:contents ""] (filterv (complement utils/dir?) dirs))
+                   (doseq [dir dirs] (if (valid-dir dir) (update-config! dir))))]
     (clear-configs!)
     (server-interop/sftp-ls "machinekit/configs/" callback)))
 

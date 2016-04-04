@@ -100,7 +100,7 @@
     (assert (some? dir))
     [:div.panel.panel-default {}
      [:div.panel-body
-      [:h3 {} dir]
+      [:h3 {} (if (= dir "") "." dir)]
       (if loaded?
         [:table.table.table-striped.table-hover {}
          [:thead {}
@@ -125,7 +125,7 @@
     [:div {}
      [:h1 {} (str username \@ hostname)]
      [:div.well
-      "Remote configurations should be located in /home/{USER}/machinekit/configs/. Running machinekit for the first time will load the configurations onto this directory."]
+      (str "Remote configurations should be located in /home/" username "/machinekit/configs/. Running machinekit for the first time will load the configurations onto this directory.")]
      (map (fn [d] [render-config {:key d
                                   :dir d
                                   :contents (get-in configs [:contents d])}])
