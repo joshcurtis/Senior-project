@@ -126,21 +126,26 @@
                                :labels dropdowns}])))
 
 
+(defn map-do
+  "Not lazy version of map."
+  [f coll]
+  (doall (map f coll)))
+
 (defn- remote-open-modal-helper
   [dir contents]
   (let [contents (filter topbar-action-filename-filter contents)]
     [:div {:key dir}
      [:h3 dir]
      [:div.list-group
-      (map #(vector :a.list-group-item {:key %1
-                                        :on-click (fn []
-                                                    (do
-                                                      (close-modal!)
-                                                      (remote-manager.controller/edit-file!
-                                                       (str "machinekit/configs/" dir %1))))
-                                        :style {:cursor "pointer"}}
-                    %1)
-           contents)]]))
+      (map-do #(vector :a.list-group-item {:key %1
+                                           :on-click (fn []
+                                                       (do
+                                                         (close-modal!)
+                                                         (remote-manager.controller/edit-file!
+                                                          (str "machinekit/configs/" dir %1))))
+                                           :style {:cursor "pointer"}}
+                       %1)
+              contents)]]))
 
 
 (defn remote-open-modal
@@ -153,7 +158,7 @@
         [:h2 "Remote Open"]
 
         body
-        [:div (map #(remote-open-modal-helper %1 (get contents %1)) dirs)]
+        [:div (map-do #(remote-open-modal-helper %1 (get contents %1)) dirs)]
 
         footer
         [:div
@@ -181,16 +186,16 @@
                                                  path (topbar-action-save))
                                                 (close-modal!))}
           "Upload"]]]]
-      (map #(vector :a.list-group-item {:key %1
-                                        :on-click (fn []
-                                                    (let [fname %1
-                                                          path (str "machinekit/configs/" dir fname)]
-                                                      (close-modal!)
-                                                      (remote-manager.controller/upload-file!
-                                                       path (topbar-action-save))))
-                                        :style {:cursor "pointer"}}
-                    %1)
-           contents)]]))
+      (map-do #(vector :a.list-group-item {:key %1
+                                           :on-click (fn []
+                                                       (let [fname %1
+                                                             path (str "machinekit/configs/" dir fname)]
+                                                         (close-modal!)
+                                                         (remote-manager.controller/upload-file!
+                                                          path (topbar-action-save))))
+                                           :style {:cursor "pointer"}}
+                       %1)
+              contents)]]))
 
 
 (defn remote-save-modal
@@ -203,7 +208,7 @@
         [:h2 "Remote Upload"]
 
         body
-        [:div (map #(remote-save-modal-helper %1 (get contents %1)) dirs)]
+        [:div (map-do #(remote-save-modal-helper %1 (get contents %1)) dirs)]
 
         footer
         [:div
