@@ -17,13 +17,12 @@
        [:div.alert.alert-warning {}
         [:h4 {} "Disconnected"]
         [:p "There is currently no remote connection!"]
-        [:p "For most default MachineKit images, the default username and
-  password is \"machinekit\"."]])
+        [:p "For most default MachineKit images, the default username and password is \"machinekit\"."]])
      [:form.form-horizontal.well {}
       [:fieldset {}
        [:legend {} "Connect Remotely"]
        [:div.form-group {}
-        [:label.col-lg-2.control-label {} "hostname"]
+        [:label.col-lg-2 {:style {:text-align "left"}}  "hostname"]
         [:input.form-control {:type "text"
                               :on-change #(-> %1
                                               .-target
@@ -31,7 +30,7 @@
                                               controller/set-hostname!)
                               :placeholder "Printer Address"}]]
        [:div.form-group {}
-        [:label.col-lg-2.control-label {} "user name"]
+        [:label.col-lg-2 {:style {:text-align "left"}}  "user name"]
         [:input.form-control {:type "text"
                               :on-change #(-> %1
                                               .-target
@@ -39,7 +38,7 @@
                                               controller/set-username!)
                               :placeholder "Username"}]]
        [:div.form-group {}
-        [:label.col-lg-2.control-label {} "password"]
+        [:label.col-lg-2 {:style {:text-align "left"}} "password"]
         [:input.form-control {:type "password"
                               :on-change #(-> %1
                                               .-target
