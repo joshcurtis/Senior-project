@@ -18,6 +18,10 @@
          id text)
   (reset! model/selected-id id))
 
+(defn set-selected-id!
+  [id]
+  (reset! model/selected-id id))
+
 ;; editing
 
 (defn change-current-text

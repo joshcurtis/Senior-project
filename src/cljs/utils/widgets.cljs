@@ -42,6 +42,7 @@
   [element selected-val on-change]
   (let [[label value] (if (vector? element) element [element element])]
     [:li {:class (if (= selected-val value) "active")
+          :style {:cursor (if (= selected-val value) "default" "pointer")}
           :on-click #(on-change value)
           :key value}
      [:a label]]))
@@ -154,7 +155,9 @@
                              [:span.input-group-btn {}
                               [:button.btn.btn-danger
                                {:disabled disabled
-                                :on-click #(-> value (utils/remove-idx i) on-change)}
+                                :on-click #(-> value
+                                               (utils/remove-idx i)
+                                               on-change)}
                                "-"]
                               ]])
                   value)
@@ -213,9 +216,33 @@
   `width` - width of the canvas
   `height` - height of the canvas
   `data` - Chart.js Line compatible data, see link.
-  `options` - Chart.js options, see link. If the chart updates often, set :animation to false"
+  `options` - Chart.js options, see link. If the chart updates often, set
+              :animation to false"
   [props]
   [line-plot-component props])
+
+(defn infosection
+  "Renders information such as the available files for editing and their source/path.
+  # Props
+  `selected-id` - [source filepath] or nil
+  `all-ids` - seq of [source filepath] or nil
+  `on-change-id` - fn [[source filepath]]"
+  [{:keys [selected-id all-ids on-change-id]}]
+  {:pre [(or (vector? selected-id) (nil? selected-id))
+         (or (sequential? all-ids) (nil? all-ids))
+         (fn? on-change-id)]}
+  [:div
+   (if (pos? (count all-ids))
+     [pagination
+      {:labels (map (fn [[source fname]]
+                      [(utils/fname-from-path fname) [source fname]])
+                    all-ids)
+       :selected selected-id
+       :on-change on-change-id}])
+   (if (some? selected-id) [file-path {:path (concat
+                                              [[:a (str (first selected-id))]]
+                                              (string/split (second selected-id)
+                                                            \/))}])])
 
 (defn endlines-to-divs
   "Converts a string into a span that contains a sequence of divs, one for each

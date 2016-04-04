@@ -119,21 +119,9 @@
   "Renders a component for editing the current ini, if there is one. See
   ini-editor.view/ini-editor-active for the props."
   [props]
-  (let [{:keys [selected-id]} props]
-    (if (some? selected-id) [ini-editor-active props] [ini-editor-inactive props])))
-
-(defn infobar
-  "Renders information such as the available files for editing and their source/path."
-  [props]
-  (let [{:keys [selected-id all-ids]} props
-        [source fname] selected-id
-        path (concat [[:a (str source)]] (string/split fname \/))]
+  (let [{:keys [selected-id all-ids]} props]
     [:div
-     (if (pos? (count all-ids))
-       [widgets/pagination
-        {:labels (map (fn [[source fname]] [(utils/fname-from-path fname) [source fname]])
-                      all-ids)
-         :selected selected-id
-         :on-change controller/set-selected-id!}])
-     (if (some? selected-id) [widgets/file-path {:path path}])
-     ]))
+     [widgets/infosection {:selected-id selected-id
+                           :all-ids all-ids
+                           :on-change-id controller/set-selected-id!}]
+     (if (some? selected-id) [ini-editor-active props] [ini-editor-inactive props])]))

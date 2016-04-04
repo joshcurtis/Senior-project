@@ -15,6 +15,7 @@
   app/core.cljs. This returns a reagent component that takes no props."
   [props]
   [view/simple-text-editor {:selected-id @model/selected-id
+                            :all-ids (keys @model/texts)
                             :text (model/text-str)}])
 
 (defn text-as-str
