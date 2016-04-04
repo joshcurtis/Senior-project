@@ -1,6 +1,7 @@
 (ns app.core
   ""
   (:require
+   [app.devtools-setup]
    [app.state]
    [app.topbar]
    [ini-editor.core :as ini-editor]

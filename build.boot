@@ -13,6 +13,7 @@
                  [weasel "0.7.0"]                      ;; needed by bREPL
                  [org.clojure/tools.nrepl "0.2.12"]
                  [codox "0.9.4"]
+                 [binaryage/devtools "0.6.0"]
                  [hiccup "1.0.5"]
                  [compojure "1.5.0"]
                  [org.clojars.magomimmo/shoreleave-remote-ring "0.3.1"]
