@@ -13,6 +13,7 @@
 ;; Convenient helpers
 
 (defn text-str
-  "Convert the current model into an string."
+  "Convert the current model into an string. nil is returned if there is no text
+  that is currently being edited."
   []
   (get @texts @selected-id))
