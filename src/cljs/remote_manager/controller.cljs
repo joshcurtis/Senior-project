@@ -75,22 +75,47 @@
          :connection-pending? false
          :error nil))
 
-(defn- log-launch-mk
+(defn- log-ssh-cmd
   "Output should be a map with the keys :exit, :err, and :out.
   :exit contains the return code
   :err contains stderr
   :out contains stdout"
   [output]
   (let [{:keys [exit err out]} output]
+    (if (some? err)
+      (.log js/console err))
     (if (some? out)
       (.log js/console out))))
+
+
+
+(def test-str
+  "resolved log tcp://beaglebone.local:49152
+  all for now
+  all for now
+  all for now
+  resolved file ftp://beaglebone.local:47975
+  resolved status tcp://beaglebone.local:56839
+  resolved error tcp://beaglebone.local:64314
+  resolved command tcp://beaglebone.local:53123
+  resolved preview tcp://beaglebone.local:49153
+  resolved previewstatus tcp://beaglebone.local:49154")
+
+(defn- update-mk-services!
+  "Run to parse the ~/Desktop/services.log file
+  and update what machinekit services are available"
+  []
+  (server-interop/sftp-get "./Desktop/services.log" #(.log js/console %)))
 
 (defn launch-mk!
   []
   (.log js/console "Trying to launch machinekit")
   (if (:connected? @model/connection)
-     (server-interop/launch-mk! log-launch-mk)
-    "Unable to launch machinekit. No SSH connection"))
+    (do
+      (server-interop/watch-mk-services! log-ssh-cmd)
+      (server-interop/launch-mk! log-ssh-cmd)
+      (js/setInterval update-mk-services! 1000)
+    "Unable to launch machinekit. No SSH connection")))
 
 (defn- edit-ini!
   [s id]

@@ -50,7 +50,13 @@
   [callback]
   (remote-callback :connection-status [] callback))
 
+(defn watch-mk-services!
+  "Watch mk"
+  [callback]
+  (remote-callback :run-ssh-command
+                   ["sh ~/Desktop/resolve.sh"] callback))
+
 (defn launch-mk!
   "Launch machinekit"
   [callback]
-  (remote-callback :run-ssh-command ["mklauncher -d ~/Desktop/"] callback))
+  (remote-callback :run-ssh-command ["sh ~/Desktop/run.sh"] callback))
