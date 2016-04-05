@@ -17,8 +17,12 @@
 (defn plot-temperatures [temperatures times]
   (let [data (map (fn [[k v]] (assoc v :x times))
                   temperatures)]
-    [widgets/line-plot {:data data
-                        :layout {:title "Temperatures"}}]))
+    [widgets/line-plot {:width "100%"
+                        :height "100%"
+                        :data data
+                        :layout {:title "Temperatures"
+                                 :xaxis {:title "Time Elapsed (s)"}
+                                 :yaxis {:title "Temperature (C)"}}}]))
 
 (defn contents
   "A view that can be rendered to monitor the machinekit configuration. It is
