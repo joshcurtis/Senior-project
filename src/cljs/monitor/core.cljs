@@ -7,16 +7,20 @@
 
 (def topbar-actions {})
 
-(def default-measurements {:time [0]
-                       :extruders [[280] [300] [320]]})
-
-(defonce measurements (atom default-measurements))
-
-(defn reset-measurements! []
-  (reset! measurements default-measurements))
-
 (defn rand-temp [bias]
   (+ bias (rand 40)))
+
+(defn default-measurements
+  []
+  {:time [0]
+   :extruders [[(rand-temp 280)]
+               [(rand-temp 300)]
+               [(rand-temp 320)]]})
+
+(defonce measurements (atom (default-measurements)))
+
+(defn reset-measurements! []
+  (reset! measurements (default-measurements)))
 
 (defn update-measurements [measurements]
   (let [t (:time measurements)
@@ -27,7 +31,7 @@
                        (conj b (rand-temp 300))
                        (conj c (rand-temp 320))])))
 
-(def update-interval 1000)
+(def update-interval 3000)
 
 (utils/set-interval "update-measurements"
                     #(swap! measurements update-measurements)
