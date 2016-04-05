@@ -17,8 +17,8 @@
 (defn plot-temperatures [temperatures times]
   (let [data (map (fn [[k v]] (assoc v :x times))
                   temperatures)]
-    [widgets/line-plot {:width "100%"
-                        :height "100%"
+    [widgets/line-plot {:style {:width "100%"
+                                :height "512px"}
                         :data data
                         :layout {:title "Temperatures"
                                  :xaxis {:title "Time Elapsed (s)"}
@@ -29,12 +29,25 @@
   used in app/core.cljs. This returns a reagent component that takes no props."
   [props]
   (let [measurements @model/measurements
-        {:keys [times temperatures]} measurements]
+        {:keys [times temperatures]} measurements
+        is-monitoring? @model/is-monitoring?]
     [:div
      [:div
       [plot-temperatures temperatures times]]
+     (if is-monitoring?
+       [:div
+        [:h3 "Temperatures"]
+        [:table.table.table-striped.table-hover
+         [:thead
+          [:tr
+           [:th "Name"]
+           [:th "Temperature (C)"]]]
+         [:tbody
+          (map (fn [[k v]] [:tr {:key k}
+                            [:td k] [:td (-> v :y last str)]])
+               temperatures)]]])
      [:div
-      [:button.btn {:class (if @model/is-monitoring? "btn-warning" "btn-primary")
+      [:button.btn {:class (if is-monitoring? "btn-warning" "btn-primary")
                     :on-click controller/toggle-monitoring!}
-       (if @model/is-monitoring? "Stop Monitoring" "Start Monitoring")]
+       (if is-monitoring? "Stop Monitoring" "Start Monitoring")]
       [:button.btn.btn-default {:on-click controller/reset-measurements!} "Reset"]]]))
