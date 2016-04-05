@@ -96,10 +96,36 @@
   all for now
   resolved file ftp://beaglebone.local:47975
   resolved status tcp://beaglebone.local:56839
+  resolved status tcp://beaglebone.local:54321
   resolved error tcp://beaglebone.local:64314
   resolved command tcp://beaglebone.local:53123
   resolved preview tcp://beaglebone.local:49153
   resolved previewstatus tcp://beaglebone.local:49154")
+
+(defn parse-service
+  "Takes a line of the form
+   str service address
+   and returns a vector containing the service and address.
+
+   The address should have the form
+   protocol:ip_address:port
+
+   Example Usage:
+   (parse-resolved-service resolved command tcp://beaglebone.local:53123) ->
+   [:command \"53123\"]"
+  [line]
+  (let [[_ service address] (string/split line " ")
+        [_ _ port] (string/split address ":")]
+    [(keyword service) port]))
+
+(defn parse-resolve-log
+  "Takes a log of output from the resolve.py script
+  and returns a dictionary of available services with their ports"
+  [log]
+  (let [lines (->> log string/split-lines (map string/trim))
+        services-lines (filter #(string/starts-with? % "resolved") lines)
+        service-ports (mapcat parse-service services-lines)]
+    (apply hash-map service-ports)))
 
 (defn- update-mk-services!
   "Run to parse the ~/Desktop/services.log file
