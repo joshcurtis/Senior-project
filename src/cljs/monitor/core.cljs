@@ -27,11 +27,11 @@
                        (conj b (rand-temp 300))
                        (conj c (rand-temp 320))])))
 
-(utils/set-interval "m"
-                    #(swap! measurements update-measurements)
-                    1000)
+(def update-interval 1000)
 
-(def topbar-actions {})
+(utils/set-interval "update-measurements"
+                    #(swap! measurements update-measurements)
+                    update-interval)
 
 (defn contents
   "A view that can be rendered to monitor the machinekit configuration. It is
