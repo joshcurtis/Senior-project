@@ -17,9 +17,10 @@
      [widgets/infosection {:selected-id selected-id
                            :all-ids all-ids
                            :on-change-id controller/set-selected-id!}]
-     [:textarea {:value text
-                 :rows (->> text (re-seq #"\n") count inc)
-                 :style {:resize "none"
-                         :width "100%"
-                         :height "100%"}
-                 :on-change #(controller/change-current-text (-> %1 .-target .-value))}]]))
+     [:pre
+      [:textarea {:value text
+                  :rows (->> text (re-seq #"\n") count inc)
+                  :style {:resize "none"
+                          :width "100%"
+                          :height "100%"}
+                  :on-change #(controller/change-current-text (-> %1 .-target .-value))}]]]))

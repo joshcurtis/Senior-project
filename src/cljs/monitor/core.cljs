@@ -7,52 +7,44 @@
 
 (def topbar-actions {})
 
-(defn add-tmp [q temp]
-  (-> q
-      pop
-      (conj temp)))
+(def default-measurements {:time [0]
+                       :extruders [[280] [300] [320]]})
 
-(def tmp (into #queue [] (map #(str %1 "s") (range 15))))
-(defonce t (atom (into [] tmp)))
-(defonce ext (atom [tmp tmp tmp]))
+(defonce measurements (atom default-measurements))
 
-(defn rand-temp [[exta extb extc]]
-  (let [a (rand 1)
-        b (rand 2)
-        c (rand 3)]
-    [(add-tmp exta a)
-     (add-tmp extb b)
-     (add-tmp extc c)]))
+(defn reset-measurements! []
+  (reset! measurements default-measurements))
 
-(utils/set-interval "temperature"
-                    #(let [a (rand 1)
-                           b (rand 1)
-                           c (rand 1)]
-                       (swap! ext rand-temp))
-                    2000)
+(defn rand-temp [bias]
+  (+ bias (rand 40)))
+
+(defn update-measurements [measurements]
+  (let [t (:time measurements)
+        [a b c] (:extruders measurements)]
+    (assoc measurements
+           :time (conj t (inc (last t)))
+           :extruders [(conj a (rand-temp 280))
+                       (conj b (rand-temp 300))
+                       (conj c (rand-temp 320))])))
+
+(utils/set-interval "m"
+                    #(swap! measurements update-measurements)
+                    1000)
+
+(def topbar-actions {})
 
 (defn contents
   "A view that can be rendered to monitor the machinekit configuration. It is
   used in app/core.cljs. This returns a reagent component that takes no props."
   [props]
-  (let [t @t
-        ext @ext]
+  (let [measurements @measurements
+        {:keys [time extruders]} measurements]
     [:div
-     [widgets/line-plot {:width 512
-                         :height 256
-                         :options {:animation false
-                                   :bezierCurve true}
-                         :data {:labels t
-                                :datasets [{:label "EXT01 Temperature"
-                                            :fillColor "rgba(255, 0, 0, 0.1)"
-                                            :pointHighlightFill "#FF0000"
-                                            :data (get ext 0)}
-                                           {:label "EXT02 Temperature"
-                                            :fillColor "rgba(0, 255, 0, 0.1)"
-                                            :pointHighlightFill "#00FF00"
-                                            :data (get ext 1)}
-                                           {:label "EXT03 Temperature"
-                                            :fillColor "rgba(0, 0, 255, 0.1)"
-                                            :pointHighlightFill "#0000FF"
-                                            :data (get ext 2)}]}}]
-   ]))
+     [widgets/line-plot {:data (mapv (fn [i] {:x time
+                                              :y (get extruders i)
+                                              :name (str "Extruder-" (inc i))
+                                              :mode "lines"})
+                                     (range 3))
+                         :layout {:title "Extruder Temperatures"}}]
+     [:button.btn.btn-default {:on-click reset-measurements!}
+      "Reset"]]))
