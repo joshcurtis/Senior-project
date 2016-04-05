@@ -60,6 +60,11 @@
   [s]
   ((get (current-topbar-actions) "filename-filter" (constantly true)) s))
 
+(defn topbar-action-close
+  "Calls the close function."
+  []
+  ((get (current-topbar-actions) "close" identity)))
+
 (defn topbar-file-menu
   ""
   []
@@ -77,11 +82,16 @@
         download-el [widgets/file-save {:element "Download"
                                         :filename topbar-action-filename
                                         :str-func topbar-action-save}]
+        close-el [:a {:key "close"
+                      :on-click topbar-action-close}
+                  "Close"]
         dropdowns [
                    (if (contains? valid-options "save") open-el)
                    (if (and (contains? valid-options "save")
                             (contains? valid-options "filename"))
                      download-el)
+                   (if (contains? valid-options "close")
+                     close-el)
                    ]
         should-show? (some some? dropdowns) ; only show if there is a non-nil in dropdowns
         ]

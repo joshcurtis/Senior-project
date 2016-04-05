@@ -7,20 +7,22 @@
 
 (defn default-measurements []
   {:initial-time (utils/time-seconds)
-   :times []
+   :times [0.0]
    :temperatures {"Extruder-0" {:mode "lines"
                                 :name "Extruder-0"
-                                :y []}
+                                :y [nil]}
                   "Extruder-1" {:mode "lines"
                                 :name "Extruder-1"
-                                :y []}
+                                :y [nil]}
                   "Extruder-2" {:mode "lines"
                                 :name "Extruder-2"
-                                :y []}}})
+                                :y [nil]}}})
 
 
 (defonce measurements
   (atom (default-measurements)))
+
+(defonce is-monitoring? (atom true))
 
 (defn rand-temp
   [bias range]

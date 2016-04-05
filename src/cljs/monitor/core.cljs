@@ -27,5 +27,10 @@
   (let [measurements @model/measurements
         {:keys [times temperatures]} measurements]
     [:div
-     [plot-temperatures temperatures times]
-     [:button.btn.btn-default {:on-click controller/reset-measurements!} "Reset"]]))
+     [:div
+      [plot-temperatures temperatures times]]
+     [:div
+      [:button.btn {:class (if @model/is-monitoring? "btn-warning" "btn-primary")
+                    :on-click controller/toggle-monitoring!}
+       (if @model/is-monitoring? "Stop Monitoring" "Start Monitoring")]
+      [:button.btn.btn-default {:on-click controller/reset-measurements!} "Reset"]]]))

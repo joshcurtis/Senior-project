@@ -8,6 +8,7 @@
 
 (def topbar-actions {"open" controller/load-str!
                      "save" controller/ini-str
+                     "close" controller/close-selected!
                      "filename" controller/filename
                      "filename-filter" #(string/ends-with? %1 ".ini")})
 
