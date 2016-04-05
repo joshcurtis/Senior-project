@@ -3,52 +3,29 @@
   (:require
    [utils.widgets :as widgets]
    [utils.core :as utils]
+   [monitor.controller :as controller]
+   [monitor.model :as model]
    [reagent.core :as r :refer [atom]]))
 
 (def topbar-actions {})
 
-(defn rand-temp [bias]
-  (+ bias (rand 40)))
-
-(defn default-measurements
-  []
-  {:time [0]
-   :extruders [[(rand-temp 280)]
-               [(rand-temp 300)]
-               [(rand-temp 320)]]})
-
-(defonce measurements (atom (default-measurements)))
-
-(defn reset-measurements! []
-  (reset! measurements (default-measurements)))
-
-(defn update-measurements [measurements]
-  (let [t (:time measurements)
-        [a b c] (:extruders measurements)]
-    (assoc measurements
-           :time (conj t (inc (last t)))
-           :extruders [(conj a (rand-temp 280))
-                       (conj b (rand-temp 300))
-                       (conj c (rand-temp 320))])))
-
 (def update-interval 3000)
-
-(utils/set-interval "update-measurements"
-                    #(swap! measurements update-measurements)
+(utils/set-interval "monitor.controller/update-measurements!"
+                    controller/update-measurements!
                     update-interval)
+
+(defn plot-temperatures [temperatures times]
+  (let [data (map (fn [[k v]] (assoc v :x times))
+                  temperatures)]
+    [widgets/line-plot {:data data
+                        :layout {:title "Temperatures"}}]))
 
 (defn contents
   "A view that can be rendered to monitor the machinekit configuration. It is
   used in app/core.cljs. This returns a reagent component that takes no props."
   [props]
-  (let [measurements @measurements
-        {:keys [time extruders]} measurements]
+  (let [measurements @model/measurements
+        {:keys [times temperatures]} measurements]
     [:div
-     [widgets/line-plot {:data (mapv (fn [i] {:x time
-                                              :y (get extruders i)
-                                              :name (str "Extruder-" (inc i))
-                                              :mode "lines"})
-                                     (range 3))
-                         :layout {:title "Extruder Temperatures"}}]
-     [:button.btn.btn-default {:on-click reset-measurements!}
-      "Reset"]]))
+     [plot-temperatures temperatures times]
+     [:button.btn.btn-default {:on-click controller/reset-measurements!} "Reset"]]))

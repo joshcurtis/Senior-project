@@ -178,9 +178,15 @@
      [:div.modal-footer footer]]]])
 
 ;; wraps a Plotly
-;; https://plot.ly/javascript/line-charts/#basic-line-plot
-;; not handled, changing :layout
+;; ;; not handled, changing :layout
 (def line-plot
+  "Renders a line line plot Plotly Documentation -
+  https://plot.ly/javascript/line-charts/#basic-line-plot Note: Changing layout
+  is not supported. Will have to delete and recreate component to update layout.
+  # Props
+  `data` - see Plotly documentation
+  `layout` - see Plotly documentation
+  ... - All other props are passed to the div"
   (r/create-class
    {
     :get-initial-state (fn [this]
@@ -213,8 +219,9 @@
                                (r/set-state this {:data data
                                                   :layout layout})))
     :render (fn [this]
-              (let [{:keys [id]} (r/state this)]
-                [:div {:id id}]))
+              (let [{:keys [id]} (r/state this)
+                    div-props (assoc (r/props this) :id id)]
+                [:div div-props]))
     }))
 
 (defn infosection
