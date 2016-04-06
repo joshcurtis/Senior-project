@@ -15,9 +15,9 @@
 
 (defn rand-measurements []
   {"t" (- (utils/time-seconds) @model/initial-time)
-   "Ext-0" (rand-interval 280 320)
-   "Ext-1" (rand-interval 260 360)
-   "Ext-2" (rand-interval 240 250)})
+   "Ext-0" (rand-interval 180 220)
+   "Ext-1" (rand-interval 100 180)
+   "Ext-2" (rand-interval 90 110)})
 
 (utils/set-interval "rand-update"
                     #(controller/update-measurements! (rand-measurements))
