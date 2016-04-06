@@ -61,7 +61,8 @@
    (watch)
    (reload)
    (cljs-repl) ;; before cljs task
-   (cljs :optimizations :advanced)
+   (cljs :optimizations :advanced
+         :compiler-options {:externs ["src/html/js/externs.js"]})
    (target :dir #{"target"})))
 
 (deftask doc
