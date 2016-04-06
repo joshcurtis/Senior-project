@@ -87,21 +87,6 @@
     (if (some? out)
       (.log js/console out))))
 
-
-
-(def test-str
-  "resolved log tcp://beaglebone.local:49152
-  all for now
-  all for now
-  all for now
-  resolved file ftp://beaglebone.local:47975
-  resolved status tcp://beaglebone.local:56839
-  resolved status tcp://beaglebone.local:54321
-  resolved error tcp://beaglebone.local:64314
-  resolved command tcp://beaglebone.local:53123
-  resolved preview tcp://beaglebone.local:49153
-  resolved previewstatus tcp://beaglebone.local:49154")
-
 (defn parse-service
   "Takes a line of the form
    str service address
@@ -131,7 +116,7 @@
   "Run to parse the ~/Desktop/services.log file
   and update what machinekit services are available"
   []
-  (server-interop/sftp-get "./Desktop/services.log" #(.log js/console %)))
+  (server-interop/sftp-get "./Desktop/services.log" #(reset! model/services (parse-resolve-log %))))
 
 (defn launch-mk!
   []
@@ -141,6 +126,7 @@
       (server-interop/watch-mk-services! log-ssh-cmd)
       (server-interop/launch-mk! log-ssh-cmd)
       (js/setInterval update-mk-services! 1000)
+      ;;(js/setInterval #(.log js/console (str @model/services)) 2000)
     "Unable to launch machinekit. No SSH connection")))
 
 (defn- edit-ini!

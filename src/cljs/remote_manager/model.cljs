@@ -11,3 +11,5 @@
 
 (defonce configs (atom {:dirs []
                         :contents {}}))
+
+(defonce services (atom {}))
