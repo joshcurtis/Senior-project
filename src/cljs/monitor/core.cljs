@@ -27,12 +27,21 @@
   "A view that can be rendered to monitor the machinekit configuration. It is
   used in app/core.cljs. This returns a reagent component that takes no props."
   [props]
-  (let [monitor @model/monitor
+  (let [is-monitoring? @model/is-monitoring?
+        monitor @model/monitor
         {:keys [all-components measurements history groups]} monitor
         temperature-group (:temperatures groups)
         times (get history "t")]
     [:div
      ;; temperature plot
+     [:div
+      [:button.btn {:class (if is-monitoring? "btn-primary" "btn-secondary")
+                    :on-click controller/toggle-monitoring!
+                    :style {:margin-right "1rem"}}
+       (if is-monitoring? "Pause Monitoring" "Resume Monitoring")]
+      [:button.btn.btn-warning {:on-click controller/clear-history!
+                                :style {:margin-right "1rem"}}
+       "Clear History"]]
      [widgets/line-plot {:style {:width "100%"
                                  :height "512px"}
                          :data (map (fn [k] {:mode "lines"

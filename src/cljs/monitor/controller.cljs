@@ -5,17 +5,24 @@
    [monitor.model :as model]
    [reagent.core :as r :refer [atom]]))
 
-(defn enable-monitoring
+(defn enable-monitoring!
   []
   (reset! model/is-monitoring? true))
 
-(defn disable-monitoring
+(defn disable-monitoring!
   []
   (reset! model/is-monitoring? false))
 
-(defn toggle-monitoring
+(defn toggle-monitoring!
   []
   (swap! model/is-monitoring? not))
+
+(defn clear-history!
+  []
+  "Clears the history which deletes all data points. The time elapsed is also
+  reset."
+  (reset! model/initial-time (utils/time-seconds))
+  (swap! model/monitor model/clear-history))
 
 (defn update-measurements!
   "This function only applies if model/is-monitoring? is true. If it is false,
