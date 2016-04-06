@@ -183,16 +183,17 @@
 
 (defn- remote-save-modal-helper
   [dir contents]
-  (let [contents (filter topbar-action-filename-filter contents)]
+  (let [contents (filter topbar-action-filename-filter contents)
+        text-input-id (str "rsmhfn-" dir)]
     [:div {:key dir}
      [:h3 dir]
      [:div.list-group
       [:a.list-group-item
        [:div.input-group
-        [:input.form-control {:id "rsmhfn"
+        [:input.form-control {:id text-input-id
                               :type "text"}]
         [:span.input-group-btn
-         [:button.btn.btn-primary {:on-click #(let [fname (utils/element-value "rsmhfn")
+         [:button.btn.btn-primary {:on-click #(let [fname (utils/element-value text-input-id)
                                                     path (str "machinekit/configs/" dir fname)]
                                                 (remote-manager.controller/upload-file!
                                                  path (topbar-action-save))
