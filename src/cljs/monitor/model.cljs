@@ -4,50 +4,69 @@
    [utils.core :as utils]
    [reagent.core :as r :refer [atom]]))
 
-
-(defn default-measurements []
-  {:initial-time (utils/time-seconds)
-   :times [0.0]
-   :temperatures {"Extruder-0" {:mode "lines"
-                                :name "Extruder-0"
-                                :y [nil]}
-                  "Extruder-1" {:mode "lines"
-                                :name "Extruder-1"
-                                :y [nil]}
-                  "Extruder-2" {:mode "lines"
-                                :name "Extruder-2"
-                                :y [nil]}}})
-
-
-(defonce measurements
-  (atom (default-measurements)))
+(defonce initial-time (atom (utils/time-seconds)))
 
 (defonce is-monitoring? (atom true))
 
-(defn rand-temp
-  [bias range]
-  (+ bias (rand range)))
+(defonce monitor (atom {:all-components ["Axis-0-x" "Axis-0-y" "Axis-0-z" "Axis-0-a"
+                                         "Axis-1-x" "Axis-1-y" "Axis-1-z" "Axis-1-a"
+                                         "Axis-2-x" "Axis-2-y" "Axis-2-z" "Axis-2-a"
+                                         "Axis-3-x" "Axis-3-y" "Axis-3-z" "Axis-3-a"
+                                         "Ext-0" "Ext-1" "Ext-2"]
+                        :measurements {"t" nil
+                                       "Axis-0-x" nil
+                                       "Axis-0-y" nil
+                                       "Axis-0-z" nil
+                                       "Axis-0-a" nil
+                                       "Axis-1-x" nil
+                                       "Axis-1-y" nil
+                                       "Axis-1-z" nil
+                                       "Axis-1-a" nil
+                                       "Axis-2-x" nil
+                                       "Axis-2-y" nil
+                                       "Axis-2-z" nil
+                                       "Axis-2-a" nil
+                                       "Axis-3-x" nil
+                                       "Axis-3-y" nil
+                                       "Axis-3-z" nil
+                                       "Axis-3-a" nil
+                                       "Ext-0" nil
+                                       "Ext-1" nil
+                                       "Ext-2" nil}
+                        :history {"t" '()
+                                  "Axis-0-x" '()
+                                  "Axis-0-y" '()
+                                  "Axis-0-z" '()
+                                  "Axis-0-a" '()
+                                  "Axis-1-x" '()
+                                  "Axis-1-y" '()
+                                  "Axis-1-z" '()
+                                  "Axis-1-a" '()
+                                  "Axis-2-x" '()
+                                  "Axis-2-y" '()
+                                  "Axis-2-z" '()
+                                  "Axis-2-a" '()
+                                  "Axis-3-x" '()
+                                  "Axis-3-y" '()
+                                  "Axis-3-z" '()
+                                  "Axis-3-a" '()
+                                  "Ext-0" '()
+                                  "Ext-1" '()
+                                  "Ext-2" '()}
+                        :groups {:temperatures ["Ext-0" "Ext-1" "Ext-2"]}}))
 
-(defn retrieve-measurements []
-  {:temperatures {"Extruder-0" (rand-temp 170 20)
-                  "Extruder-1" (rand-temp 200 20)
-                  "Extruder-2" (rand-temp 180 40)}})
+(defn update-measurements
+  "Updates the `:measurements` `monitor` to be `measurements`. The measurements will
+  also be conj'd to `:history`."
+  [monitor measurements]
+  (assoc monitor
+         :measurements measurements
+         :history (merge-with conj (:history monitor) measurements)))
 
-(defn conj-to-y
-  [m v]
-  (update m :y conj v))
-
-(defn conj-temperatures
-  [temperatures measured-temps]
-  (let []
-    (apply hash-map
-           (mapcat (fn [[k v]] [k (conj-to-y v (get measured-temps k))])
-                   temperatures))))
-
-(defn conj-measurements [measurements measured]
-  (let [t (- (utils/time-seconds) (:initial-time measurements))
-        times (:times measurements)
-        temperatures (:temperatures measurements)]
-    (assoc measurements
-           :times (conj times t)
-           :temperatures (conj-temperatures temperatures (:temperatures measured)))))
+(defn clear-history
+  "Resets the history to have nothing."
+  [monitor]
+  (let [ks (-> monitor :history keys)]
+    (assoc monitor :history
+           (mapcat #(vector %1 '())
+                   ks))))
