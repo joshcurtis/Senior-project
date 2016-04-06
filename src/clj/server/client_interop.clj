@@ -5,6 +5,7 @@
    [server.state :as state]
    [clojure.string :as string]
    [clj-ssh.ssh :as ssh]
+   [zeromq.zmq :as zmq]
    [shoreleave.middleware.rpc :refer [defremote]]))
 
 (defn- create-tmp-file
@@ -96,3 +97,19 @@
   [cmd]
   (locking state/ssh-lock
     (ssh/ssh (:session @state/connection-state) {:cmd cmd})))
+
+(def config-port 53260)
+
+(defremote test-socket
+  "Socket testing functionality"
+  [data]
+  (let [endpoint (str "tcp://" (:hostname @state/connection-state) ":" config-port)
+        context (zmq/zcontext)]
+    (with-open [dealer (doto  (zmq/socket context :dealer)
+                         (zmq/connect endpoint))]
+      (zmq/set-identity dealer (.getBytes "Josh"))
+      (zmq/send dealer (.getBytes data))
+      (println endpoint))))
+
+(test-socket "AD")
+(println "UH")

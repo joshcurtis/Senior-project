@@ -10,6 +10,8 @@
                                  :session nil
                                  :sftp-chan nil}))
 
+(defonce sockets (atom {}))
+
 (def timeout 15000)
 
 (defonce ssh-lock (Object.))

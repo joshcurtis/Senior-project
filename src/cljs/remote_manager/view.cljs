@@ -132,11 +132,14 @@
      [:button.btn.btn-primary {:style {:margin-right "1rem"}
                                :on-click controller/update-configs!}
       "Refresh"]
-     [:button.btn.btn-warning {:style {:margin-right "1rem"}
+     [:button.btn.btn-warning {
                                :on-click controller/disconnect!}
       "Disconnect"]
-     [:button.btn.secondary {:on-click controller/launch-mk!}
-     "Launch MachineKit"]
+     [:button.btn.secondary {:style {:margin-right "1rem"}
+                             :on-click controller/launch-mk!}
+      "Launch MachineKit"]
+     [:button.btn.btn-info {:on-click controller/test-socket}
+     "Test Socket"]
      ]))
 
 
