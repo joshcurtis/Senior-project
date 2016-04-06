@@ -31,6 +31,8 @@
                                   keys
                                   first))))
 
+(defn filename [] (utils/fname-from-path (second @model/selected-id)))
+
 ;; editing
 
 (defn change-current-text

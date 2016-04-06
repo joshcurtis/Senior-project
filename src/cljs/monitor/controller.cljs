@@ -5,21 +5,29 @@
    [monitor.model :as model]
    [reagent.core :as r :refer [atom]]))
 
-(defn update-measurements!
-  "Updates the measurements if model/is-monitoring? atom has a value of true."
+(defn enable-monitoring!
   []
-  (if @model/is-monitoring?
-      (swap! model/measurements
-             model/conj-measurements (model/retrieve-measurements))))
-
-(defn reset-measurements! []
-  (reset! model/measurements (model/default-measurements)))
-
-(defn start-monitoring! []
   (reset! model/is-monitoring? true))
 
-(defn stop-monitoring! []
+(defn disable-monitoring!
+  []
   (reset! model/is-monitoring? false))
 
-(defn toggle-monitoring! []
+(defn toggle-monitoring!
+  []
   (swap! model/is-monitoring? not))
+
+(defn clear-history!
+  []
+  "Clears the history which deletes all data points. The time elapsed is also
+  reset."
+  (reset! model/initial-time (utils/time-seconds))
+  (swap! model/monitor model/clear-history))
+
+(defn update-measurements!
+  "This function only applies if model/is-monitoring? is true. If it is false,
+  nothing will happen. Updates the measurements of monitor, as well as adding
+  the values to the history."
+  [measurements]
+  (if @model/is-monitoring?
+    (swap! model/monitor model/update-measurements measurements)))
