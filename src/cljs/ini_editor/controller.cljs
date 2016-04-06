@@ -77,6 +77,15 @@
     (reset! model/selected-id id)
     (expand-important!)))
 
+(defn close-selected!
+  "Closes the currently selected ini file that is being edited."
+  []
+  (let [selected-id @model/selected-id]
+    (reset! model/selected-id nil)
+    (reset! model/selected-id (-> (swap! model/inis dissoc selected-id)
+                                  keys
+                                  first))))
+
 (defn save-str!
   "Saves the given ini into its string representation on the users local
   machine."

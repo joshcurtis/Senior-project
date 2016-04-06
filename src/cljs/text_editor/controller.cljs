@@ -22,6 +22,15 @@
   [id]
   (reset! model/selected-id id))
 
+(defn close-selected!
+  "Closes the text that is being edited."
+  []
+  (let [selected-id @model/selected-id]
+    (reset! model/selected-id nil)
+    (reset! model/selected-id (-> (swap! model/texts dissoc selected-id)
+                                  keys
+                                  first))))
+
 ;; editing
 
 (defn change-current-text

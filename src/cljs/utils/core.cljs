@@ -9,6 +9,11 @@
   ([arg] (js/alert (str arg)))
   ([& args] (js/alert (str args))))
 
+(defn time-seconds
+  "Returns a timestamp, in seconds."
+  []
+  (-> js/Date .now (/ 1000.0)))
+
 (defn append-line
   "Appends new-line to old-lines. If old-lines is blank or nil, then new-line is
   returned"

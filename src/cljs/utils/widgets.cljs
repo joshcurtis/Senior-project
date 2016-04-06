@@ -3,6 +3,7 @@
   (:require
    [utils.core :as utils]
    [clojure.string :as string]
+   [clojure.data]
    [reagent.core :as r :refer [atom]]))
 
 (defn tabs
@@ -176,56 +177,52 @@
      [:div.modal-body body]
      [:div.modal-footer footer]]]])
 
-;; http://blog.ducky.io/reagent-docs/0.6.0-SNAPSHOT/reagent.core.html#var-create-class
-(def ^{:private true} line-plot-component
+;; wraps a Plotly
+;; ;; not handled, changing :layout
+(def line-plot
+  "Renders a line line plot Plotly Documentation -
+  https://plot.ly/javascript/line-charts/#basic-line-plot Note: Changing layout
+  is not supported. Will have to delete and recreate component to update layout.
+  # Props
+  `data` - see Plotly documentation
+  `layout` - see Plotly documentation
+  ... - All other props are passed to the div"
   (r/create-class
    {
-    :get-initial-state (fn [arg] {:id (str "lpc-" (utils/unique-int))
-                                  :canvas nil
-                                  :legend "<span></span>"})
+    :get-initial-state (fn [this]
+                         (let [props (r/props this)
+                               id (or (:id props)
+                                      (str "line-plot-" (utils/unique-int)))]
+                           {:id id
+                            :plot nil
+                            :data nil
+                            :layout nil}))
     :component-did-mount (fn [this]
-                            (let [state (r/state this)
-                                  id (:id state)
-                                  el (.getElementById js/document id)
-                                  ctx (.getContext el "2d")
-                                  chart (js/Chart. ctx)
-                                  props (r/props this)
-                                  data (-> props :data clj->js)
-                                  options (-> props :options clj->js)]
-                              (r/set-state this {:canvas ctx
-                                                 :legend (.generateLegend (.Line chart data options))})))
-    :component-did-update (fn [this]
-                            (let [state (r/state this)
-                                  ctx (:canvas state)
-                                  chart (js/Chart. ctx)
-                                  props (r/props this)
-                                  data (-> props :data clj->js)
-                                  options (-> props :options clj->js)]
-                              (.Line chart data options)))
+                           (let [{:keys [id]} (r/state this)
+                                 {:keys [data layout]} (r/props this)
+                                 plot (.newPlot js/Plotly
+                                                id
+                                                (clj->js data)
+                                                (clj->js layout))]
+                             (r/set-state this {:plot plot
+                                                :data data
+                                                :layout layout})))
+    :component-will-update (fn [this _]
+                             (let [state (r/state this)
+                                   {:keys [id plot]} state
+                                   el (.getElementById js/document id)
+                                   old-data (:data state)
+                                   old-layout (:layout state)
+                                   {:keys [data layout]} (r/props this)]
+                               (aset el "data" (clj->js data))
+                               (.redraw js/Plotly el)
+                               (r/set-state this {:data data
+                                                  :layout layout})))
     :render (fn [this]
-              (let [props (r/props this)
-                    state (r/state this)
-                    legend? (:legend props)
-                    legend (if legend? (:legend state) "")
-                    canvas-props (merge (select-keys props [:width :height])
-                                        (select-keys state [:id]))]
-                [:div
-                 [:canvas canvas-props]
-                 [:div {:dangerouslySetInnerHTML {:__html legend}}]]))
+              (let [{:keys [id]} (r/state this)
+                    div-props (assoc (r/props this) :id id)]
+                [:div div-props]))
     }))
-
-(defn line-plot
-  "Renders a line plot use Chart.js and a canvas.
-  http://www.chartjs.org/docs/#line-chart
-  # Props
-  `width` - width of the canvas
-  `height` - height of the canvas
-  `legend` - true or false, whether to draw the legend
-  `data` - Chart.js Line compatible data, see link.
-  `options` - Chart.js options, see link. If the chart updates often, set
-              :animation to false"
-  [props]
-  [line-plot-component props])
 
 (defn infosection
   "Renders information such as the available files for editing and their source/path.

@@ -3,56 +3,51 @@
   (:require
    [utils.widgets :as widgets]
    [utils.core :as utils]
+   [monitor.controller :as controller]
+   [monitor.model :as model]
    [reagent.core :as r :refer [atom]]))
 
 (def topbar-actions {})
 
-(defn add-tmp [q temp]
-  (-> q
-      pop
-      (conj temp)))
+(def update-interval 3000)
+(utils/set-interval "monitor.controller/update-measurements!"
+                    controller/update-measurements!
+                    update-interval)
 
-(def tmp (into #queue [] (map #(str %1 "s") (range 15))))
-(defonce t (atom (into [] tmp)))
-(defonce ext (atom [tmp tmp tmp]))
-
-(defn rand-temp [[exta extb extc]]
-  (let [a (rand 1)
-        b (rand 2)
-        c (rand 3)]
-    [(add-tmp exta a)
-     (add-tmp extb b)
-     (add-tmp extc c)]))
-
-(utils/set-interval "temperature"
-                    #(let [a (rand 1)
-                           b (rand 1)
-                           c (rand 1)]
-                       (swap! ext rand-temp))
-                    2000)
+(defn plot-temperatures [temperatures times]
+  (let [data (map (fn [[k v]] (assoc v :x times))
+                  temperatures)]
+    [widgets/line-plot {:style {:width "100%"
+                                :height "512px"}
+                        :data data
+                        :layout {:title "Temperatures"
+                                 :xaxis {:title "Time Elapsed (s)"}
+                                 :yaxis {:title "Temperature (C)"}}}]))
 
 (defn contents
   "A view that can be rendered to monitor the machinekit configuration. It is
   used in app/core.cljs. This returns a reagent component that takes no props."
   [props]
-  (let [t @t
-        ext @ext]
+  (let [measurements @model/measurements
+        {:keys [times temperatures]} measurements
+        is-monitoring? @model/is-monitoring?]
     [:div
-     [widgets/line-plot {:width 512
-                         :height 256
-                         :options {:animation false
-                                   :bezierCurve true}
-                         :data {:labels t
-                                :datasets [{:label "EXT01 Temperature"
-                                            :fillColor "rgba(255, 0, 0, 0.1)"
-                                            :pointHighlightFill "#FF0000"
-                                            :data (get ext 0)}
-                                           {:label "EXT02 Temperature"
-                                            :fillColor "rgba(0, 255, 0, 0.1)"
-                                            :pointHighlightFill "#00FF00"
-                                            :data (get ext 1)}
-                                           {:label "EXT03 Temperature"
-                                            :fillColor "rgba(0, 0, 255, 0.1)"
-                                            :pointHighlightFill "#0000FF"
-                                            :data (get ext 2)}]}}]
-   ]))
+     [:div
+      [plot-temperatures temperatures times]]
+     (if is-monitoring?
+       [:div
+        [:h3 "Temperatures"]
+        [:table.table.table-striped.table-hover
+         [:thead
+          [:tr
+           [:th "Name"]
+           [:th "Temperature (C)"]]]
+         [:tbody
+          (map (fn [[k v]] [:tr {:key k}
+                            [:td k] [:td (-> v :y last str)]])
+               temperatures)]]])
+     [:div
+      [:button.btn {:class (if is-monitoring? "btn-warning" "btn-primary")
+                    :on-click controller/toggle-monitoring!}
+       (if is-monitoring? "Stop Monitoring" "Start Monitoring")]
+      [:button.btn.btn-default {:on-click controller/reset-measurements!} "Reset"]]]))
