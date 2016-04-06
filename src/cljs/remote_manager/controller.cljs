@@ -121,15 +121,20 @@
   (assert (string? full-filename))
   (assert (string/includes? full-filename "machinekit"))
   (let []
-    (server-interop/sftp-put contents full-filename)))
+    (server-interop/sftp-put contents full-filename update-configs!)))
 
-(defn save-file!
+(defn download-file!
   [full-filename]
   (assert (string? full-filename))
   (assert (string/includes? full-filename "machinekit"))
   (let [fname (utils/fname-from-path full-filename)]
     (server-interop/sftp-get full-filename
                              #(utils/save-file %1 fname))))
+
+(defn delete-file!
+  [full-filename]
+  {:pre [(string? full-filename)]}
+  (server-interop/sftp-rm full-filename update-configs!))
 
 
 (defn- update-c-status-helper!

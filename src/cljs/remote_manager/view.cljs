@@ -76,6 +76,18 @@
               :width "2rem"
               :height "2rem"}}]))
 
+(defn- delete-icon
+  [props]
+  (let [{:keys [on-click]} props]
+    (assert (fn? on-click))
+    [:img
+     {:src "/icons/delete.png"
+      :alt "Delete"
+      :on-click #(on-click)
+      :style {:cursor "pointer"
+              :width "2rem"
+              :height "2rem"}}]))
+
 (defn- render-file
   [props]
   (let [{:keys [directory filename]} props
@@ -85,7 +97,8 @@
     [:tr {}
      [:td {} filename]
      [:td {} [edit-icon {:on-click #(controller/edit-file! full-filename)}]]
-     [:td {} [save-icon {:on-click #(controller/save-file! full-filename)}]]]))
+     [:td {} [save-icon {:on-click #(controller/download-file! full-filename)}]]
+     [:td {} [delete-icon {:on-click #(controller/delete-file! full-filename)}]]]))
 
 (defn- render-config
   "
@@ -106,7 +119,8 @@
           [:tr {}
            [:th {} "File"]
            [:th {} "Edit"]
-           [:th {} "Download"]]]
+           [:th {} "Download"]
+           [:th {} "Delete"]]]
          [:tbody {}
           (map (fn [f] [render-file {:key f
                                      :directory dir
