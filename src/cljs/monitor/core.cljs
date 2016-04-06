@@ -51,7 +51,7 @@
                                     temperature-group)
                          :layout {:title "Temperatures"
                                   :xaxis {:title "Time Elapsed (s)"}
-                                  :yaxis {:title "Temperature (C)"}}}]
+                                  :yaxis {:title "Temperature (C°)"}}}]
      ;; all table
      [:table.table.table-striped.table-hover
       [:thead
