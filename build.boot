@@ -50,6 +50,20 @@
    (cljs)
    (target :dir #{"target"})))
 
+(deftask release
+  "Launch Immediate Feedback Development Environment"
+  []
+  (comp
+   (dev-options)
+   (serve :handler 'server.core/handler
+          :resource-root "target"
+          :reload true)
+   (watch)
+   (reload)
+   (cljs-repl) ;; before cljs task
+   (cljs :optimizations :advanced)
+   (target :dir #{"target"})))
+
 (deftask doc
   "Generate HTML Code Documentation"
   []
