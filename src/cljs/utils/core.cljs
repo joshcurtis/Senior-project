@@ -4,6 +4,10 @@
    [clojure.set]
    [clojure.string :as string]))
 
+(defonce mt (.-protobuf js/machinetalk))
+(defonce container (.-Container (.-message mt)))
+(defonce container-types (.-ContainerType (.-message mt)))
+
 (defn alert
   "Shows an alert box with the provided arguments displayed as strings."
   ([arg] (js/alert (str arg)))
@@ -178,3 +182,12 @@
       (log err))
     (if (some? out)
       (log out))))
+
+(defn encode-buffer
+  "TODO: Handle more data"
+  [type]
+  (let [encoded (.encode container type)
+        limit (.-limit encoded)
+        buffer (.-view encoded)
+        sliced (map #(aget buffer %) (range 3))]
+    sliced))

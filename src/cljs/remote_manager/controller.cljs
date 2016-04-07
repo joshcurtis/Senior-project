@@ -7,35 +7,10 @@
    [server-interop.core :as server-interop]
    [clojure.string :as string]))
 
-(defonce pi 3.14)
 (defonce mt (.-protobuf js/machinetalk))
-(defonce container (.-Container (.-message mt)))
 (defonce container-types (.-ContainerType (.-message mt)))
 (defonce MT_PING (.-MT_PING container-types))
 (defonce MT_SHUTDOWN (.-MT_SHUTDOWN container-types))
-
-(defn update-services!
-  [log]
-  (utils/log "Updating")
-  (utils/log (str "Log: " log))
-  (utils/log (utils/parse-resolve-log log))
-  (reset! model/services (utils/parse-resolve-log log)))
-
-(defn update-mk-services!
-  "Run to parse the ~/Desktop/services.log file
-  and update what machinekit services are available"
-  []
-  (server-interop/sftp-get "/home/machinekit/Desktop/services.log" update-services!))
-
-(defn encode-buffer
-  "TODO: Move to utils
-   Handle more data"
-  [type]
-  (let [encoded (.encode container type)
-        limit (.-limit encoded)
-        buffer (.-view encoded)
-        sliced (map #(aget buffer %) (range 3))]
-    sliced))
 
 (defn set-hostname!
   [name]
@@ -79,7 +54,17 @@
                        (update-configs!))
                     2000)
 
-(defn try-to-lauch-resolver
+(defn update-services!
+  [log]
+  (reset! model/services (utils/parse-resolve-log log)))
+
+(defn update-mk-services!
+  "Run to parse the ~/Desktop/services.log file
+  and update what machinekit services are available"
+  []
+  (server-interop/sftp-get "/home/machinekit/Desktop/services.log" update-services!))
+
+(defn try-to-launch-resolver!
   []
     (if (:connected? @model/connection)
       (do
@@ -97,7 +82,7 @@
                                                    :connection-pending? false
                                                    :error nil)
                                             (update-configs!)
-                                            (try-to-lauch-resolver)
+                                            (try-to-launch-resolver!)
                                             )
                              (swap! model/connection assoc
                                     :connected? false
@@ -126,16 +111,11 @@
   (utils/log "Services: ")
   (utils/log (str @model/services)))
 
-
-
 (defn launch-mk!
   []
-  (utils/log "Trying to launch machinekit")
   (if (:connected? @model/connection)
-    (do
-      (utils/log "launching machinekit")
-      (server-interop/launch-mk! utils/log-ssh-cmd)
-    "Unable to launch machinekit. No SSH connection")))
+    (server-interop/launch-mk! utils/log-ssh-cmd)
+    (utils/log "Unable to launch machinekit. No SSH connection")))
 
 (defn shutdown-mk!
   []
@@ -143,13 +123,13 @@
   (if (:connected? @model/connection)
     (do
       (utils/log "Shutting down mk")
-      (server-interop/send-data (encode-buffer MT_PING) #(utils/log %)))
+      (server-interop/send-data (utils/encode-buffer MT_SHUTDOWN) #(utils/log %)))
     "Unable to shutdown machinekit. Not connected"))
 
 (defn test-socket
   []
   (utils/log "Testing socket")
-  (server-interop/send-data (encode-buffer MT_PING) #(utils/log %)))
+  (server-interop/send-data (utils/encode-buffer MT_PING) #(utils/log %)))
 
 (defn- edit-ini!
   [s id]
@@ -194,7 +174,6 @@
   [full-filename]
   {:pre [(string? full-filename)]}
   (server-interop/sftp-rm full-filename update-configs!))
-
 
 (defn- update-c-status-helper!
   [status]
