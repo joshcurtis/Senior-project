@@ -14,6 +14,8 @@
 (defonce MT_PING (.-MT_PING container-types))
 (defonce MT_SHUTDOWN (.-MT_SHUTDOWN container-types))
 
+(enable-console-print!)
+
 (defn encode-buffer
   "TODO: Move to utils
    Handle more data"
@@ -82,7 +84,11 @@
     (swap! model/connection assoc
            :connection-pending? true
            :error nil)
-    (server-interop/ssh-connect! hostname username password callback)))
+    (server-interop/ssh-connect! hostname username password callback)
+    (if (:connected? @model/connection)
+      (do
+        (server-interop/watch-mk-services! log-ssh-cmd)
+        (utils/set-interval "update-services" update-mk-services! 5000)))))
 
 (defn disconnect!
   []
@@ -141,7 +147,7 @@
   "Run to parse the ~/Desktop/services.log file
   and update what machinekit services are available"
   []
-  (server-interop/get-service-log update-services!))
+  ( "/home/machinekit/Desktop/services.log" update-services!))
 
 (defn- print-available-services
   []
@@ -152,16 +158,15 @@
   (.log js/console "Services: ")
   (.log js/console (str @model/services)))
 
+(js/alert "Reloaded")
+
 (defn launch-mk!
   []
   (.log js/console "Trying to launch machinekit")
   (if (:connected? @model/connection)
     (do
-      (server-interop/watch-mk-services! log-ssh-cmd)
       (server-interop/launch-mk! log-ssh-cmd)
-      (utils/set-interval "update-services" update-mk-services! 2000)
-      (utils/set-interval "log-available-services" log-available-services 2000))
-    "Unable to launch machinekit. No SSH connection"))
+    "Unable to launch machinekit. No SSH connection")))
 
 (defn shutdown-mk!
   []
