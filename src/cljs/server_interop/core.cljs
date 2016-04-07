@@ -65,9 +65,9 @@
 (defn launch-mk!
   "Launch machinekit"
   [callback]
-  (remote-callback :run-ssh-command ["sh ~/Desktop/run.sh"] callback))
+  (remote-callback :run-ssh-command ["mklauncher ~/Desktop -d"] callback))
 
-(defn test-socket
+(defn send-data
   "Function for quickly testing zmq functionality"
   [data callback]
-  (remote-callback :test-socket [data] callback))
+  (remote-callback :send-data [data] callback))

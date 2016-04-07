@@ -130,6 +130,7 @@
 
 
 (defn- connected
+  ;; TODO fix repetition of ':margin-right "1rem"'
   [props]
   (let [{:keys [connection configs]} props
         {:keys [username hostname]} connection]
@@ -146,14 +147,14 @@
      [:button.btn.btn-primary {:style {:margin-right "1rem"}
                                :on-click controller/update-configs!}
       "Refresh"]
-     [:button.btn.btn-warning {
+     [:button.btn.btn-warning {:style {:margin-right "1rem"}
                                :on-click controller/disconnect!}
       "Disconnect"]
      [:button.btn.secondary {:style {:margin-right "1rem"}
                              :on-click controller/launch-mk!}
       "Launch MachineKit"]
-     [:button.btn.btn-info {:on-click controller/test-socket}
-     "Test Socket"]
+     [:button.btn.btn-danger {:on-click controller/shutdown-mk!}
+     "Shutdown MachineKit"]
      ]))
 
 

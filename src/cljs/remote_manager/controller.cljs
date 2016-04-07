@@ -11,8 +11,8 @@
 (defonce mt (.-protobuf js/machinetalk))
 (defonce container (.-Container (.-message mt)))
 (defonce container-types (.-ContainerType (.-message mt)))
-(defonce PING (.-MT_PING container-types))
-(defonce PING_BUF (.encode container PING))
+(defonce MT_PING (.-MT_PING container-types))
+(defonce MT_SHUTDOWN (.-MT_SHUTDOWN container-types))
 
 (defn encode-buffer
   "TODO: Move to utils
@@ -129,11 +129,29 @@
         service-ports (mapcat parse-service services-lines)]
     (apply hash-map service-ports)))
 
-(defn- update-mk-services!
+
+(defn update-services!
+  [log]
+  (println "Jesus fucking christ")
+  (println log)
+  (println (parse-resolve-log log))
+  (reset! model/services (parse-resolve-log log)))
+
+(defn update-mk-services!
   "Run to parse the ~/Desktop/services.log file
   and update what machinekit services are available"
   []
-  (server-interop/sftp-get "./Desktop/services.log" #(reset! model/services (parse-resolve-log %))))
+  (server-interop/sftp-get "/home/machinekit/Desktop/services.log"
+                           #(println %)))
+
+(defn- print-available-services
+  []
+  (println @model/services))
+
+(defn- log-available-services
+  []
+  (.log js/console "Services: ")
+  (.log js/console (str @model/services)))
 
 (defn launch-mk!
   []
@@ -141,15 +159,24 @@
   (if (:connected? @model/connection)
     (do
       (server-interop/watch-mk-services! log-ssh-cmd)
-      (server-interop/launch-mk! log-ssh-cmd)
-      (js/setInterval update-mk-services! 1000)
-      ;;(js/setInterval #(.log js/console (str @model/services)) 2000)
-      "Unable to launch machinekit. No SSH connection")))
+      ;; (server-interop/launch-mk! log-ssh-cmd)
+      (utils/set-interval "update-mk-services" update-mk-services! 2000))
+      ;;(utils/set-interval "log-available-services" log-available-services 2000))
+    "Unable to launch machinekit. No SSH connection"))
+
+(defn shutdown-mk!
+  []
+  (.log js/console "Shuting down machinekit")
+  (if (:connected? @model/connection)
+    (do
+      (.log js/console "Shutting down mk")
+      (server-interop/send-data (encode-buffer MT_PING) #(.log js/console %)))
+    "Unable to shutdown machinekit. Not connected"))
 
 (defn test-socket
   []
   (.log js/console "Testing socket")
-  (server-interop/test-socket (encode-buffer 210) #(.log js/console %)))
+  (server-interop/send-data (encode-buffer MT_PING) #(.log js/console %)))
 
 (defn- edit-ini!
   [s id]
