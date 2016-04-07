@@ -72,15 +72,12 @@
 (defn launch-mk!
   "Launch machinekit"
   [callback]
-  (run-ssh-command "sh /home/machinekit/Desktop/run.sh" callback))
+  (run-ssh-command  "sh /home/machinekit/Desktop/launch.sh" callback))
 
 (defn cleanup!
-  "
-  BROKEN killps probably isn't defined in the ssh environment
-  TODO: Fix
-  Convenience method for programming to cleanup processes that may be existing"
+  "Cleanup running processes"
   [callback]
-  (run-ssh-command "killps resolve.py && killps mklauncher" callback))
+  (run-ssh-command "sh /home/machinekit/Desktop/cleanup.sh" callback))
 
 (defn send-data
   "Function for quickly testing zmq functionality"

@@ -68,7 +68,7 @@
   []
     (if (:connected? @model/connection)
       (do
-        (utils/log "Launching resolver")
+        (utils/log "launching resolver")
         (server-interop/watch-mk-services! utils/log-ssh-cmd)
         (utils/set-interval "update-services" update-mk-services! 2000))
       (utils/log "Resolver not started")))
@@ -96,7 +96,8 @@
 (defn disconnect!
   []
   (utils/clear-interval "update-services")
-  (server-interop/ssh-disconnect!)
+  (utils/clear-interval "debug-state")
+  (server-interop/cleanup! server-interop/ssh-disconnect!)
   (swap! model/connection assoc
          :connected? false
          :connection-pending? false
@@ -203,7 +204,7 @@
 
 (defn debug-state
   [timeout]
-  (utils/set-interval "log state" log-state timeout))
+  (utils/set-interval "debug-state" log-state timeout))
 
 (debug-state 10000)
 
