@@ -193,5 +193,3 @@
 (utils/set-interval "update-connection-status!"
                     update-connection-status!
                     2000)
-
-(js/alert "Reloaded")

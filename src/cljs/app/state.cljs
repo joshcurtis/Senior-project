@@ -18,6 +18,13 @@
 
 ;; contents
 
+
+(defonce current-theme (atom "flatly"))
+
+(defn change-theme! [theme]
+  (reset! current-theme theme)
+  (js/changeStyle (str "css/bootstrap-" theme ".css")))
+
 (defn home
   "reagent-component for home tab."
   [props]
@@ -29,7 +36,28 @@
          {:href
           "https://github.com/machinekit/machinekit-docs/blob/master/machinekit-documentation/getting-started/getting-started-platform.asciidoc"
           :target "_blank"}
-         "Installation"]]])
+         "Installation"]]
+   [:h2 "Theme"]
+   [widgets/dropdown-input {:disabled false
+                            :options ["flatly"
+                                      "cerulean"
+                                      "paper"
+                                      "slate"
+                                      "yeti"
+                                      "cosmo"
+                                      "journal"
+                                      "readable"
+                                      "spacelab"
+                                      "cyborg"
+                                      "lumen"
+                                      "sandstone"
+                                      "superhero"
+                                      "darkly"
+                                      "metro"
+                                      "simplex"
+                                      "united"]
+                            :value @current-theme
+                            :on-change change-theme!}]])
 
 (def contents-map {"Home" [home {}]
                    "Remote" [remote-manager.core/contents {}]
