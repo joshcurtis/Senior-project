@@ -9,11 +9,12 @@
   converted into a js-array.  Why is this a constant? You can use a list, and
   new items will be put at the front and the plot will be drawn backwards. You
   can use a vector, and items will be pushed back. I don't know which is more
-  efficient considering memory, conj'ing, and js conversion."  [])
+  efficient considering memory, conj'ing, and js conversion."
+  [])
 
 (defonce initial-time (atom (utils/time-seconds)))
 
-(defonce is-monitoring? (atom true))
+(defonce is-monitoring? (atom false))
 
 (defonce monitor (atom {:all-components ["Axis-0-x" "Axis-0-y" "Axis-0-z" "Axis-0-a"
                                          "Axis-1-x" "Axis-1-y" "Axis-1-z" "Axis-1-a"
