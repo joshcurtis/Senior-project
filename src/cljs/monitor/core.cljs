@@ -5,6 +5,7 @@
    [utils.core :as utils]
    [monitor.controller :as controller]
    [monitor.model :as model]
+   [remote-manager.model]
    [reagent.core :as r :refer [atom]]))
 
 (def topbar-actions {})
@@ -23,7 +24,17 @@
                     #(controller/update-measurements! (rand-measurements))
                     1000)
 
-(defn contents
+(defn contents-inactive
+  []
+  [:div.jumbotron
+   [:h1 "Not Connected"]
+   [:p "The application is not connected to a BeagleBone."]
+   [:p "Connect in the"
+    [:a {:on-click #(utils/click-element "tab-navigation-Remote")
+         :style {:cursor "pointer"}} " remote"]
+    " tab."]])
+
+(defn contents-active
   "A view that can be rendered to monitor the machinekit configuration. It is
   used in app/core.cljs. This returns a reagent component that takes no props."
   [props]
@@ -63,3 +74,9 @@
                      [:td k]
                      [:td (get measurements k)]])
             all-components)]]]))
+
+(defn contents
+  [props]
+  (if (:connected? @remote-manager.model/connection)
+    [contents-active]
+    [contents-inactive]))
