@@ -27,7 +27,6 @@
   []
   (server-interop/sftp-get "/home/machinekit/Desktop/services.log" update-services!))
 
-
 (defn encode-buffer
   "TODO: Move to utils
    Handle more data"

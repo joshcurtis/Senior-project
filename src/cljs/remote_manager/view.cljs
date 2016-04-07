@@ -28,7 +28,9 @@
                                               .-target
                                               .-value
                                               controller/set-hostname!)
-                              :placeholder "Printer Address"}]]
+                              :placeholder "Printer Address"
+                              :value "192.168.0.101"
+                              }]]
        [:div.form-group {}
         [:label.col-lg-2 {:style {:text-align "left"}}  "user name"]
         [:input.form-control {:type "text"
@@ -36,7 +38,9 @@
                                               .-target
                                               .-value
                                               controller/set-username!)
-                              :placeholder "Username"}]]
+                              :placeholder "Username"
+                              :value "machinekit"
+                              }]]
        [:div.form-group {}
         [:label.col-lg-2 {:style {:text-align "left"}} "password"]
         [:input.form-control {:type "password"

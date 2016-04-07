@@ -78,7 +78,6 @@
   (remote-callback :run-ssh-command
                    ["killps resolve.py && killps mklauncher"] callback))
 
-
 (defn send-data
   "Function for quickly testing zmq functionality"
   [data callback]
