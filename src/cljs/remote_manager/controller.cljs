@@ -13,8 +13,6 @@
 (defonce container-types (.-ContainerType (.-message mt)))
 (defonce PING (.-MT_PING container-types))
 (defonce PING_BUF (.encode container PING))
-(defonce encoder (js/TextEncoder. "utf-8"))
-(defonce decoder (js/TextDecoder. "utf-8"))
 
 (defn encode-buffer
   "TODO: Move to utils
@@ -22,11 +20,9 @@
   [type]
   (let [encoded (.encode container type)
         limit (.-limit encoded)
-        buffer (.-buffer encoded)]
-    (.log js/console encoded)
-    (.log js/console limit)
-    (.log js/console buffer)
-    (.slice buffer 0 limit)))
+        buffer (.-view encoded)
+        sliced (map #(aget buffer %) (range 3))]
+    sliced))
 
 (defn set-hostname!
   [name]
@@ -153,7 +149,7 @@
 (defn test-socket
   []
   (.log js/console "Testing socket")
-  (server-interop/test-socket (.decode decoder (encode-buffer 210)) #(.log js/console %)))
+  (server-interop/test-socket (encode-buffer 210) #(.log js/console %)))
 
 (defn- edit-ini!
   [s id]
