@@ -120,6 +120,11 @@
                     (js/clearInterval i)
                     (swap! intervals dissoc id)))))
 
+(defn clear-all-intervals
+  "Clears all intervals."
+  []
+  (map clear-interval (active-intervals)))
+
 (defn set-interval
   "Calls function `f` in an interval of approximately `milliseconds`
   milliseconds. If an interval with the given `id` already exists, then that
