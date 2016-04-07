@@ -31,6 +31,11 @@ Edit specifications for use with MachineKit
 * `compojure` - [quick guide](https://learnxinyminutes.com/docs/compojure/)
 * `cljs` - [modern cljs](https://github.com/magomimmo/modern-cljs)
 
+## Adding Javascript
+1. Place files under `src/html/js/`
+2. Add them with the other `js` files in `src/html/index.html`
+3. Add definitions of variables to be used under `src/html/js/externs.js`
+
 ## Resources
 * [bootswatch](https://bootswatch.com) for CSS styles
 * [icons](https://design.google.com/icons/), use 2x

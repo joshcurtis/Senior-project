@@ -9,45 +9,57 @@
 
 (def topbar-actions {})
 
-(def update-interval 3000)
-(utils/set-interval "monitor.controller/update-measurements!"
-                    controller/update-measurements!
-                    update-interval)
+(defn rand-interval [min max]
+  (let [diff (- max min)]
+    (+ min (rand diff))))
 
-(defn plot-temperatures [temperatures times]
-  (let [data (map (fn [[k v]] (assoc v :x times))
-                  temperatures)]
-    [widgets/line-plot {:style {:width "100%"
-                                :height "512px"}
-                        :data data
-                        :layout {:title "Temperatures"
-                                 :xaxis {:title "Time Elapsed (s)"}
-                                 :yaxis {:title "Temperature (C)"}}}]))
+(defn rand-measurements []
+  {"t" (- (utils/time-seconds) @model/initial-time)
+   "Ext-0" (rand-interval 180 220)
+   "Ext-1" (rand-interval 100 180)
+   "Ext-2" (rand-interval 90 110)})
+
+(utils/set-interval "rand-update"
+                    #(controller/update-measurements! (rand-measurements))
+                    1000)
 
 (defn contents
   "A view that can be rendered to monitor the machinekit configuration. It is
   used in app/core.cljs. This returns a reagent component that takes no props."
   [props]
-  (let [measurements @model/measurements
-        {:keys [times temperatures]} measurements
-        is-monitoring? @model/is-monitoring?]
+  (let [is-monitoring? @model/is-monitoring?
+        monitor @model/monitor
+        {:keys [all-components measurements history groups]} monitor
+        temperature-group (:temperatures groups)
+        times (get history "t")]
     [:div
+     ;; temperature plot
      [:div
-      [plot-temperatures temperatures times]]
-     (if is-monitoring?
-       [:div
-        [:h3 "Temperatures"]
-        [:table.table.table-striped.table-hover
-         [:thead
-          [:tr
-           [:th "Name"]
-           [:th "Temperature (C)"]]]
-         [:tbody
-          (map (fn [[k v]] [:tr {:key k}
-                            [:td k] [:td (-> v :y last str)]])
-               temperatures)]]])
-     [:div
-      [:button.btn {:class (if is-monitoring? "btn-warning" "btn-primary")
-                    :on-click controller/toggle-monitoring!}
-       (if is-monitoring? "Stop Monitoring" "Start Monitoring")]
-      [:button.btn.btn-default {:on-click controller/reset-measurements!} "Reset"]]]))
+      [:button.btn {:class (if is-monitoring? "btn-primary" "btn-secondary")
+                    :on-click controller/toggle-monitoring!
+                    :style {:margin-right "1rem"}}
+       (if is-monitoring? "Pause Monitoring" "Resume Monitoring")]
+      [:button.btn.btn-warning {:on-click controller/clear-history!
+                                :style {:margin-right "1rem"}}
+       "Clear History"]]
+     [widgets/line-plot {:style {:width "100%"
+                                 :height "512px"}
+                         :data (map (fn [k] {:mode "lines"
+                                             :name k
+                                             :x times
+                                             :y (get history k)})
+                                    temperature-group)
+                         :layout {:title "Temperatures"
+                                  :xaxis {:title "Time Elapsed (s)"}
+                                  :yaxis {:title "Temperature (C°)"}}}]
+     ;; all table
+     [:table.table.table-striped.table-hover
+      [:thead
+       [:tr
+        [:th "Name"]
+        [:th "Value"]]]
+      [:tbody
+       (map (fn [k] [:tr {:key k}
+                     [:td k]
+                     [:td (get measurements k)]])
+            all-components)]]]))

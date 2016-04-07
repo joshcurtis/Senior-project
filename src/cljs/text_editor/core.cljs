@@ -8,7 +8,7 @@
 (def topbar-actions {"open" controller/load-text!
                      "save" model/text-str
                      "close" controller/close-selected!
-                     "filename" "scratch.txt"
+                     "filename" controller/filename
                      "filename-filter" (constantly true)})
 
 (defn contents

@@ -24,11 +24,11 @@
 
 (defn sftp-put
   "Puts a file through sftp. It is required that the server is connected through
-  ssh."
-  [contents filename]
+  ssh. If callback is not nil, then it will be called upon completion."
+  [contents filename callback]
   (assert (string? contents))
   (assert (string? filename))
-  (remote-callback :sftp-put [contents filename] identity))
+  (remote-callback :sftp-put [contents filename] (or callback identity)))
 
 (defn sftp-get
   "Gets the contents of a file through sftp. It is required that the server is
@@ -43,6 +43,12 @@
   keys :name and :type is passed to callback."
   [path callback]
   (remote-callback :sftp-ls [path] callback))
+
+(defn sftp-rm
+  "Runs the ls command over the remote ssh server. If callback is a not nil,
+  then it will be called once the action is complete."
+  [path callback]
+  (remote-callback :sftp-rm [path] (or callback identity)))
 
 (defn connection-status
   "Gets the connection status of the server as a hashmap. See

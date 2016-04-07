@@ -86,6 +86,14 @@
                          {}
                          :ls (if (string/blank? path) "./" path)))))
 
+(defremote sftp-rm
+  "Runs the rm command over the remote ssh server."
+  [path]
+  (locking state/ssh-lock
+    (ssh/sftp (:sftp-chan @state/connection-state)
+              {}
+              :rm path)))
+
 (defremote connection-status
   "Get the connection status of the server. This involves things such as being
   connected, username, hostname, and etc... See source code for more details."
