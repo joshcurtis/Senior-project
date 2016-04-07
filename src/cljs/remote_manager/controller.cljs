@@ -7,6 +7,23 @@
    [server-interop.core :as server-interop]
    [clojure.string :as string]))
 
+(defonce pi 3.14)
+(defonce mt (.-protobuf js/machinetalk))
+(defonce container (.-Container (.-message mt)))
+(defonce container-types (.-ContainerType (.-message mt)))
+(defonce PING (.-MT_PING container-types))
+(defonce PING_BUF (.encode container PING))
+
+(defn encode-buffer
+  "TODO: Move to utils
+   Handle more data"
+  [type]
+  (let [encoded (.encode container type)
+        limit (.-limit encoded)
+        buffer (.-view encoded)
+        sliced (map #(aget buffer %) (range 3))]
+    sliced))
+
 (defn set-hostname!
   [name]
   (swap! model/connection assoc :hostname name))
@@ -127,7 +144,12 @@
       (server-interop/launch-mk! log-ssh-cmd)
       (js/setInterval update-mk-services! 1000)
       ;;(js/setInterval #(.log js/console (str @model/services)) 2000)
-    "Unable to launch machinekit. No SSH connection")))
+      "Unable to launch machinekit. No SSH connection")))
+
+(defn test-socket
+  []
+  (.log js/console "Testing socket")
+  (server-interop/test-socket (encode-buffer 210) #(.log js/console %)))
 
 (defn- edit-ini!
   [s id]

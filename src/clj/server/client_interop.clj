@@ -5,7 +5,10 @@
    [server.state :as state]
    [clojure.string :as string]
    [clj-ssh.ssh :as ssh]
-   [shoreleave.middleware.rpc :refer [defremote]]))
+   [zeromq.zmq :as zmq]
+   [shoreleave.middleware.rpc :refer [defremote]])
+  (:import
+   [org.apache.commons.codec.binary Hex]))
 
 (defn- create-tmp-file
   "TODO: Get rid of the endline. Using the print instead of println function did
@@ -104,3 +107,21 @@
   [cmd]
   (locking state/ssh-lock
     (ssh/ssh (:session @state/connection-state) {:cmd cmd})))
+
+
+(def config-port 53082)
+
+(defremote test-socket
+  "Socket testing functionality"
+  [data]
+  (let [endpoint (str "tcp://" (:hostname @state/connection-state) ":" config-port)
+        context (zmq/zcontext)
+        identity (.getBytes "Josh")
+        hexstr (string/join (map #(format "%02X" %) data))
+        buffer (Hex/decodeHex (.toCharArray hexstr))
+        ]
+    (with-open [dealer (doto  (zmq/socket context :dealer)
+                         (zmq/connect endpoint))]
+      (zmq/set-identity dealer identity)
+      (zmq/send dealer buffer)
+      hexstr)))

@@ -66,3 +66,8 @@
   "Launch machinekit"
   [callback]
   (remote-callback :run-ssh-command ["sh ~/Desktop/run.sh"] callback))
+
+(defn test-socket
+  "Function for quickly testing zmq functionality"
+  [data callback]
+  (remote-callback :test-socket [data] callback))

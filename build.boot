@@ -22,6 +22,7 @@
                  [clj-ssh "0.5.14"]
                  [org.zeromq/cljzmq "0.1.4"]
                  [reagent "0.6.0-alpha"]
+                 [commons-codec/commons-codec "1.10"]
                  ]
  )
 
