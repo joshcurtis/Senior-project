@@ -69,7 +69,15 @@
 (defn launch-mk!
   "Launch machinekit"
   [callback]
-  (remote-callback :run-ssh-command ["mklauncher ~/Desktop -d"] callback))
+  (remote-callback :run-ssh-command
+                   ["sh ~/Desktop/run.sh"] callback))
+
+(defn cleanup!
+  "Convenience method for programming to cleanup processes that may be existing"
+  [callback]
+  (remote-callback :run-ssh-command
+                   ["killps resolve.py && killps mklauncher"] callback))
+
 
 (defn send-data
   "Function for quickly testing zmq functionality"

@@ -14,40 +14,12 @@
 (defonce MT_PING (.-MT_PING container-types))
 (defonce MT_SHUTDOWN (.-MT_SHUTDOWN container-types))
 
-(enable-console-print!)
-
-
-(defn parse-service
-  "Takes a line of the form
-   str service address
-   and returns a vector containing the service and address.
-
-   The address should have the form
-   protocol:ip_address:port
-
-   Example Usage:
-   (parse-resolved-service resolved command tcp://beaglebone.local:53123) ->
-   [:command \"53123\"]"
-  [line]
-  (let [[_ service address] (string/split line " ")
-        [_ _ port] (string/split address ":")]
-    [(keyword service) port]))
-
-(defn parse-resolve-log
-  "Takes a log of output from the resolve.py script
-  and returns a dictionary of available services with their ports"
-  [log]
-  (let [lines (->> log string/split-lines (map string/trim))
-        services-lines (filter #(string/starts-with? % "resolved") lines)
-        service-ports (mapcat parse-service services-lines)]
-    (apply hash-map service-ports)))
-
 (defn update-services!
   [log]
-  (println "Updating")
-  (println (str "Log: " log))
-  (println (parse-resolve-log log))
-  (reset! model/services (parse-resolve-log log)))
+  (utils/log "Updating")
+  (utils/log (str "Log: " log))
+  (utils/log (utils/parse-resolve-log log))
+  (reset! model/services (utils/parse-resolve-log log)))
 
 (defn update-mk-services!
   "Run to parse the ~/Desktop/services.log file
@@ -55,17 +27,6 @@
   []
   (server-interop/sftp-get "/home/machinekit/Desktop/services.log" update-services!))
 
-(defn- log-ssh-cmd
-  "Output should be a map with the keys :exit, :err, and :out.
-  :exit contains the return code
-  :err contains stderr
-  :out contains stdout"
-  [output]
-  (let [{:keys [exit err out]} output]
-    (if (some? err)
-      (.log js/console err))
-    (if (some? out)
-      (.log js/console out))))
 
 (defn encode-buffer
   "TODO: Move to utils
@@ -123,11 +84,10 @@
   []
     (if (:connected? @model/connection)
       (do
-        (.log js/console "Launching resolver")
-        (utils/clear-interval "update-services")
-        (server-interop/watch-mk-services! log-ssh-cmd)
-        (utils/set-interval "update-services" update-mk-services! 5000))
-      (.log js/console "Resolver not started")))
+        (utils/log "Launching resolver")
+        (server-interop/watch-mk-services! utils/log-ssh-cmd)
+        (utils/set-interval "update-services" update-mk-services! 2000))
+      (utils/log "Resolver not started")))
 
 (defn connect!
   []
@@ -151,7 +111,8 @@
 
 (defn disconnect!
   []
-  (server-interop/ssh-disconnect!)
+  (utils/clear-interval "update-services")
+  (server-interop/cleanup! server-interop/ssh-disconnect!)
   (swap! model/connection assoc
          :connected? false
          :connection-pending? false
@@ -163,32 +124,33 @@
 
 (defn- log-available-services
   []
-  (.log js/console "Services: ")
-  (.log js/console (str @model/services)))
+  (utils/log "Services: ")
+  (utils/log (str @model/services)))
 
-(js/alert "Reloaded")
+
 
 (defn launch-mk!
   []
-  (.log js/console "Trying to launch machinekit")
+  (utils/log "Trying to launch machinekit")
   (if (:connected? @model/connection)
     (do
-      (server-interop/launch-mk! log-ssh-cmd)
+      (utils/log "launching machinekit")
+      (server-interop/launch-mk! utils/log-ssh-cmd)
     "Unable to launch machinekit. No SSH connection")))
 
 (defn shutdown-mk!
   []
-  (.log js/console "Shuting down machinekit")
+  (utils/log "Shuting down machinekit")
   (if (:connected? @model/connection)
     (do
-      (.log js/console "Shutting down mk")
-      (server-interop/send-data (encode-buffer MT_PING) #(.log js/console %)))
+      (utils/log "Shutting down mk")
+      (server-interop/send-data (encode-buffer MT_PING) #(utils/log %)))
     "Unable to shutdown machinekit. Not connected"))
 
 (defn test-socket
   []
-  (.log js/console "Testing socket")
-  (server-interop/send-data (encode-buffer MT_PING) #(.log js/console %)))
+  (utils/log "Testing socket")
+  (server-interop/send-data (encode-buffer MT_PING) #(utils/log %)))
 
 (defn- edit-ini!
   [s id]
@@ -253,3 +215,5 @@
 (utils/set-interval "update-connection-status!"
                     update-connection-status!
                     2000)
+
+(js/alert "Reloaded")
