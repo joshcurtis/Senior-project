@@ -120,6 +120,11 @@
                     (js/clearInterval i)
                     (swap! intervals dissoc id)))))
 
+(defn clear-all-intervals
+  "Clears all intervals."
+  []
+  (map clear-interval (active-intervals)))
+
 (defn set-interval
   "Calls function `f` in an interval of approximately `milliseconds`
   milliseconds. If an interval with the given `id` already exists, then that
@@ -130,3 +135,46 @@
   (assert (some? milliseconds))
   (clear-interval id)
   (swap! intervals assoc id (js/setInterval f milliseconds)))
+
+(defn parse-service
+  "Takes a line of the form
+   str service address
+   and returns a vector containing the service and address.
+
+   The address should have the form
+   protocol:ip_address:port
+
+   Example Usage:
+   (parse-resolved-service resolved command tcp://beaglebone.local:53123) ->
+   [:command \"53123\"]"
+  [line]
+  (let [[_ service address] (string/split line " ")
+        [_ _ port] (string/split address ":")]
+    [(keyword service) port]))
+
+(defn parse-resolve-log
+  "Takes a log of output from the resolve.py script
+  and returns a dictionary of available services with their ports"
+  [log]
+  (let [lines (->> log string/split-lines (map string/trim))
+        services-lines (filter #(string/starts-with? % "resolved") lines)
+        service-ports (mapcat parse-service services-lines)]
+    (apply hash-map service-ports)))
+
+(defn log
+  "Casts x to a str and prints it"
+  [x]
+  (.log js/console (str x)))
+
+
+(defn- log-ssh-cmd
+  "Output should be a map with the keys :exit, :err, and :out.
+  :exit contains the return code
+  :err contains stderr
+  :out contains stdout"
+  [output]
+  (let [{:keys [exit err out]} output]
+    (if (some? err)
+      (log err))
+    (if (some? out)
+      (log out))))

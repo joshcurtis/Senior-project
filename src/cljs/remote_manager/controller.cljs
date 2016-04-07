@@ -11,8 +11,21 @@
 (defonce mt (.-protobuf js/machinetalk))
 (defonce container (.-Container (.-message mt)))
 (defonce container-types (.-ContainerType (.-message mt)))
-(defonce PING (.-MT_PING container-types))
-(defonce PING_BUF (.encode container PING))
+(defonce MT_PING (.-MT_PING container-types))
+(defonce MT_SHUTDOWN (.-MT_SHUTDOWN container-types))
+
+(defn update-services!
+  [log]
+  (utils/log "Updating")
+  (utils/log (str "Log: " log))
+  (utils/log (utils/parse-resolve-log log))
+  (reset! model/services (utils/parse-resolve-log log)))
+
+(defn update-mk-services!
+  "Run to parse the ~/Desktop/services.log file
+  and update what machinekit services are available"
+  []
+  (server-interop/sftp-get "/home/machinekit/Desktop/services.log" update-services!))
 
 (defn encode-buffer
   "TODO: Move to utils
@@ -66,6 +79,15 @@
                        (update-configs!))
                     2000)
 
+(defn try-to-lauch-resolver
+  []
+    (if (:connected? @model/connection)
+      (do
+        (utils/log "Launching resolver")
+        (server-interop/watch-mk-services! utils/log-ssh-cmd)
+        (utils/set-interval "update-services" update-mk-services! 2000))
+      (utils/log "Resolver not started")))
+
 (defn connect!
   []
   (let [{:keys [hostname username password]} @model/connection
@@ -74,7 +96,9 @@
                                                    :connected? true
                                                    :connection-pending? false
                                                    :error nil)
-                                            (update-configs!))
+                                            (update-configs!)
+                                            (try-to-lauch-resolver)
+                                            )
                              (swap! model/connection assoc
                                     :connected? false
                                     :connection-pending? false
@@ -86,70 +110,46 @@
 
 (defn disconnect!
   []
-  (server-interop/ssh-disconnect!)
+  (utils/clear-interval "update-services")
+  (server-interop/cleanup! server-interop/ssh-disconnect!)
   (swap! model/connection assoc
          :connected? false
          :connection-pending? false
          :error nil))
 
-(defn- log-ssh-cmd
-  "Output should be a map with the keys :exit, :err, and :out.
-  :exit contains the return code
-  :err contains stderr
-  :out contains stdout"
-  [output]
-  (let [{:keys [exit err out]} output]
-    (if (some? err)
-      (.log js/console err))
-    (if (some? out)
-      (.log js/console out))))
-
-(defn parse-service
-  "Takes a line of the form
-   str service address
-   and returns a vector containing the service and address.
-
-   The address should have the form
-   protocol:ip_address:port
-
-   Example Usage:
-   (parse-resolved-service resolved command tcp://beaglebone.local:53123) ->
-   [:command \"53123\"]"
-  [line]
-  (let [[_ service address] (string/split line " ")
-        [_ _ port] (string/split address ":")]
-    [(keyword service) port]))
-
-(defn parse-resolve-log
-  "Takes a log of output from the resolve.py script
-  and returns a dictionary of available services with their ports"
-  [log]
-  (let [lines (->> log string/split-lines (map string/trim))
-        services-lines (filter #(string/starts-with? % "resolved") lines)
-        service-ports (mapcat parse-service services-lines)]
-    (apply hash-map service-ports)))
-
-(defn- update-mk-services!
-  "Run to parse the ~/Desktop/services.log file
-  and update what machinekit services are available"
+(defn- print-available-services
   []
-  (server-interop/sftp-get "./Desktop/services.log" #(reset! model/services (parse-resolve-log %))))
+  (println @model/services))
+
+(defn- log-available-services
+  []
+  (utils/log "Services: ")
+  (utils/log (str @model/services)))
+
+
 
 (defn launch-mk!
   []
-  (.log js/console "Trying to launch machinekit")
+  (utils/log "Trying to launch machinekit")
   (if (:connected? @model/connection)
     (do
-      (server-interop/watch-mk-services! log-ssh-cmd)
-      (server-interop/launch-mk! log-ssh-cmd)
-      (js/setInterval update-mk-services! 1000)
-      ;;(js/setInterval #(.log js/console (str @model/services)) 2000)
-      "Unable to launch machinekit. No SSH connection")))
+      (utils/log "launching machinekit")
+      (server-interop/launch-mk! utils/log-ssh-cmd)
+    "Unable to launch machinekit. No SSH connection")))
+
+(defn shutdown-mk!
+  []
+  (utils/log "Shuting down machinekit")
+  (if (:connected? @model/connection)
+    (do
+      (utils/log "Shutting down mk")
+      (server-interop/send-data (encode-buffer MT_PING) #(utils/log %)))
+    "Unable to shutdown machinekit. Not connected"))
 
 (defn test-socket
   []
-  (.log js/console "Testing socket")
-  (server-interop/test-socket (encode-buffer 210) #(.log js/console %)))
+  (utils/log "Testing socket")
+  (server-interop/send-data (encode-buffer MT_PING) #(utils/log %)))
 
 (defn- edit-ini!
   [s id]
@@ -214,3 +214,5 @@
 (utils/set-interval "update-connection-status!"
                     update-connection-status!
                     2000)
+
+(js/alert "Reloaded")
