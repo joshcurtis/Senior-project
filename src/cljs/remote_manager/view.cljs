@@ -47,8 +47,7 @@
                               :on-change #(-> %1
                                               .-target
                                               .-value
-                                              controller/set-password!)
-                              :placeholder password}]]]]
+                                              controller/set-password!)}]]]]
      (if connection-pending?
        [:div.progress.progress-striped.active
         [:div.progress-bar.progress-bar-success {:style {:width "100%"}}]])
