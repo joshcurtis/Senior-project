@@ -60,23 +60,24 @@
   [callback]
   (remote-callback :connection-status [] callback))
 
+(defn- run-ssh-command
+  [command callback]
+  (remote-callback :run-ssh-command [command] callback))
+
 (defn watch-mk-services!
   "Watch mk"
   [callback]
-  (remote-callback :run-ssh-command
-                   ["sh ~/Desktop/resolve.sh"] callback))
+  (run-ssh-command "sh /home/machinekit/Desktop/resolve.sh" callback))
 
 (defn launch-mk!
   "Launch machinekit"
   [callback]
-  (remote-callback :run-ssh-command
-                   ["sh ~/Desktop/run.sh"] callback))
+  (run-ssh-command  "sh /home/machinekit/Desktop/launch.sh" callback))
 
 (defn cleanup!
-  "Convenience method for programming to cleanup processes that may be existing"
+  "Cleanup running processes"
   [callback]
-  (remote-callback :run-ssh-command
-                   ["killps resolve.py && killps mklauncher"] callback))
+  (run-ssh-command "sh /home/machinekit/Desktop/cleanup.sh" callback))
 
 (defn send-data
   "Function for quickly testing zmq functionality"
