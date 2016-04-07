@@ -28,7 +28,9 @@
                                               .-target
                                               .-value
                                               controller/set-hostname!)
-                              :placeholder "Printer Address"}]]
+                              :placeholder "Printer Address"
+                              :value "192.168.0.101"
+                              }]]
        [:div.form-group {}
         [:label.col-lg-2 {:style {:text-align "left"}}  "user name"]
         [:input.form-control {:type "text"
@@ -36,7 +38,9 @@
                                               .-target
                                               .-value
                                               controller/set-username!)
-                              :placeholder "Username"}]]
+                              :placeholder "Username"
+                              :value "machinekit"
+                              }]]
        [:div.form-group {}
         [:label.col-lg-2 {:style {:text-align "left"}} "password"]
         [:input.form-control {:type "password"
@@ -130,6 +134,7 @@
 
 
 (defn- connected
+  ;; TODO fix repetition of ':margin-right "1rem"'
   [props]
   (let [{:keys [connection configs]} props
         {:keys [username hostname]} connection]
@@ -146,14 +151,14 @@
      [:button.btn.btn-primary {:style {:margin-right "1rem"}
                                :on-click controller/update-configs!}
       "Refresh"]
-     [:button.btn.btn-warning {
+     [:button.btn.btn-warning {:style {:margin-right "1rem"}
                                :on-click controller/disconnect!}
       "Disconnect"]
      [:button.btn.secondary {:style {:margin-right "1rem"}
                              :on-click controller/launch-mk!}
       "Launch MachineKit"]
-     [:button.btn.btn-info {:on-click controller/test-socket}
-     "Test Socket"]
+     [:button.btn.btn-danger {:on-click controller/shutdown-mk!}
+     "Shutdown MachineKit"]
      ]))
 
 

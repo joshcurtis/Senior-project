@@ -76,6 +76,19 @@
         (delete-file tmp-file)
         s))))
 
+(defremote get-service-log
+  "Gets the contents of ~/Desktop/services.log"
+  []
+  (locking state/ssh-lock
+    (let [tmp (create-tmp-file "")]
+      (ssh/sftp (:sftp-chan @state/connection-state)
+                {}
+                :get
+                "/home/machinekit/Desktop/services.log"
+                tmp)
+      (slurp tmp))))
+
+
 (defremote sftp-ls
   "Runs the ls command over the remote ssh server. Directories will end with a /
   character.
@@ -109,14 +122,15 @@
     (ssh/ssh (:session @state/connection-state) {:cmd cmd})))
 
 
-(def config-port 53082)
+(def config-port 51419)
+(def command-port 64549)
 
-(defremote test-socket
+(defremote send-data
   "Socket testing functionality"
   [data]
-  (let [endpoint (str "tcp://" (:hostname @state/connection-state) ":" config-port)
+  (let [endpoint (str "tcp://" (:hostname @state/connection-state) ":" command-port)
         context (zmq/zcontext)
-        identity (.getBytes "Josh")
+        identity (.getBytes "machinekit-client")
         hexstr (string/join (map #(format "%02X" %) data))
         buffer (Hex/decodeHex (.toCharArray hexstr))
         ]
@@ -124,4 +138,4 @@
                          (zmq/connect endpoint))]
       (zmq/set-identity dealer identity)
       (zmq/send dealer buffer)
-      hexstr)))
+      data)))

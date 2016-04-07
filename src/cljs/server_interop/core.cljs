@@ -38,6 +38,10 @@
   (assert (fn? callback))
   (remote-callback :sftp-get [filename] callback))
 
+(defn get-service-log
+  [callback]
+  (remote-callback :get-service-log [] callback))
+
 (defn sftp-ls
   "Runs the ls command over the remote ssh server. A vector of hash-maps with the
   keys :name and :type is passed to callback."
@@ -65,9 +69,16 @@
 (defn launch-mk!
   "Launch machinekit"
   [callback]
-  (remote-callback :run-ssh-command ["sh ~/Desktop/run.sh"] callback))
+  (remote-callback :run-ssh-command
+                   ["sh ~/Desktop/run.sh"] callback))
 
-(defn test-socket
+(defn cleanup!
+  "Convenience method for programming to cleanup processes that may be existing"
+  [callback]
+  (remote-callback :run-ssh-command
+                   ["killps resolve.py && killps mklauncher"] callback))
+
+(defn send-data
   "Function for quickly testing zmq functionality"
   [data callback]
-  (remote-callback :test-socket [data] callback))
+  (remote-callback :send-data [data] callback))
