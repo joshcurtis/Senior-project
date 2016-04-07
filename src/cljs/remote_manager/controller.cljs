@@ -16,6 +16,57 @@
 
 (enable-console-print!)
 
+
+(defn parse-service
+  "Takes a line of the form
+   str service address
+   and returns a vector containing the service and address.
+
+   The address should have the form
+   protocol:ip_address:port
+
+   Example Usage:
+   (parse-resolved-service resolved command tcp://beaglebone.local:53123) ->
+   [:command \"53123\"]"
+  [line]
+  (let [[_ service address] (string/split line " ")
+        [_ _ port] (string/split address ":")]
+    [(keyword service) port]))
+
+(defn parse-resolve-log
+  "Takes a log of output from the resolve.py script
+  and returns a dictionary of available services with their ports"
+  [log]
+  (let [lines (->> log string/split-lines (map string/trim))
+        services-lines (filter #(string/starts-with? % "resolved") lines)
+        service-ports (mapcat parse-service services-lines)]
+    (apply hash-map service-ports)))
+
+(defn update-services!
+  [log]
+  (println "Updating")
+  (println (str "Log: " log))
+  (println (parse-resolve-log log))
+  (reset! model/services (parse-resolve-log log)))
+
+(defn update-mk-services!
+  "Run to parse the ~/Desktop/services.log file
+  and update what machinekit services are available"
+  []
+  (server-interop/sftp-get "/home/machinekit/Desktop/services.log" update-services!))
+
+(defn- log-ssh-cmd
+  "Output should be a map with the keys :exit, :err, and :out.
+  :exit contains the return code
+  :err contains stderr
+  :out contains stdout"
+  [output]
+  (let [{:keys [exit err out]} output]
+    (if (some? err)
+      (.log js/console err))
+    (if (some? out)
+      (.log js/console out))))
+
 (defn encode-buffer
   "TODO: Move to utils
    Handle more data"
@@ -68,6 +119,16 @@
                        (update-configs!))
                     2000)
 
+(defn try-to-lauch-resolver
+  []
+    (if (:connected? @model/connection)
+      (do
+        (.log js/console "Launching resolver")
+        (utils/clear-interval "update-services")
+        (server-interop/watch-mk-services! log-ssh-cmd)
+        (utils/set-interval "update-services" update-mk-services! 5000))
+      (.log js/console "Resolver not started")))
+
 (defn connect!
   []
   (let [{:keys [hostname username password]} @model/connection
@@ -76,7 +137,9 @@
                                                    :connected? true
                                                    :connection-pending? false
                                                    :error nil)
-                                            (update-configs!))
+                                            (update-configs!)
+                                            (try-to-lauch-resolver)
+                                            )
                              (swap! model/connection assoc
                                     :connected? false
                                     :connection-pending? false
@@ -84,11 +147,7 @@
     (swap! model/connection assoc
            :connection-pending? true
            :error nil)
-    (server-interop/ssh-connect! hostname username password callback)
-    (if (:connected? @model/connection)
-      (do
-        (server-interop/watch-mk-services! log-ssh-cmd)
-        (utils/set-interval "update-services" update-mk-services! 5000)))))
+    (server-interop/ssh-connect! hostname username password callback)))
 
 (defn disconnect!
   []
@@ -97,57 +156,6 @@
          :connected? false
          :connection-pending? false
          :error nil))
-
-(defn- log-ssh-cmd
-  "Output should be a map with the keys :exit, :err, and :out.
-  :exit contains the return code
-  :err contains stderr
-  :out contains stdout"
-  [output]
-  (let [{:keys [exit err out]} output]
-    (if (some? err)
-      (.log js/console err))
-    (if (some? out)
-      (.log js/console out))))
-
-(defn parse-service
-  "Takes a line of the form
-   str service address
-   and returns a vector containing the service and address.
-
-   The address should have the form
-   protocol:ip_address:port
-
-   Example Usage:
-   (parse-resolved-service resolved command tcp://beaglebone.local:53123) ->
-   [:command \"53123\"]"
-  [line]
-  (let [[_ service address] (string/split line " ")
-        [_ _ port] (string/split address ":")]
-    [(keyword service) port]))
-
-(defn parse-resolve-log
-  "Takes a log of output from the resolve.py script
-  and returns a dictionary of available services with their ports"
-  [log]
-  (let [lines (->> log string/split-lines (map string/trim))
-        services-lines (filter #(string/starts-with? % "resolved") lines)
-        service-ports (mapcat parse-service services-lines)]
-    (apply hash-map service-ports)))
-
-
-(defn update-services!
-  [log]
-  (println "Updating")
-  (println log)
-  (println (parse-resolve-log log))
-  (reset! model/services (parse-resolve-log log)))
-
-(defn update-mk-services!
-  "Run to parse the ~/Desktop/services.log file
-  and update what machinekit services are available"
-  []
-  ( "/home/machinekit/Desktop/services.log" update-services!))
 
 (defn- print-available-services
   []
