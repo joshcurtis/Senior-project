@@ -5,8 +5,8 @@
 (defonce connection (atom {:connected? false
                            :connection-pending? false
                            :error nil
-                           :hostname ""
-                           :username ""
+                           :hostname "beaglebone.local"
+                           :username "machinekit"
                            :password ""}))
 
 (defonce configs (atom {:dirs []

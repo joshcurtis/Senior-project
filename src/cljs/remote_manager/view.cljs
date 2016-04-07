@@ -29,7 +29,7 @@
                                               .-value
                                               controller/set-hostname!)
                               :placeholder "Printer Address"
-                              :value "192.168.0.101"
+                              :value hostname
                               }]]
        [:div.form-group {}
         [:label.col-lg-2 {:style {:text-align "left"}}  "user name"]
@@ -39,7 +39,7 @@
                                               .-value
                                               controller/set-username!)
                               :placeholder "Username"
-                              :value "machinekit"
+                              :value username
                               }]]
        [:div.form-group {}
         [:label.col-lg-2 {:style {:text-align "left"}} "password"]
@@ -48,7 +48,7 @@
                                               .-target
                                               .-value
                                               controller/set-password!)
-                              :placeholder "Password"}]]]]
+                              :placeholder password}]]]]
      (if connection-pending?
        [:div.progress.progress-striped.active
         [:div.progress-bar.progress-bar-success {:style {:width "100%"}}]])
