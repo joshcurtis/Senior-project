@@ -132,7 +132,7 @@
 
 (defn update-services!
   [log]
-  (println "Jesus fucking christ")
+  (println "Updating")
   (println log)
   (println (parse-resolve-log log))
   (reset! model/services (parse-resolve-log log)))
@@ -141,8 +141,7 @@
   "Run to parse the ~/Desktop/services.log file
   and update what machinekit services are available"
   []
-  (server-interop/sftp-get "/home/machinekit/Desktop/services.log"
-                           #(println %)))
+  (server-interop/get-service-log update-services!))
 
 (defn- print-available-services
   []
@@ -159,9 +158,9 @@
   (if (:connected? @model/connection)
     (do
       (server-interop/watch-mk-services! log-ssh-cmd)
-      ;; (server-interop/launch-mk! log-ssh-cmd)
-      (utils/set-interval "update-mk-services" update-mk-services! 2000))
-      ;;(utils/set-interval "log-available-services" log-available-services 2000))
+      (server-interop/launch-mk! log-ssh-cmd)
+      (utils/set-interval "update-services" update-mk-services! 2000)
+      (utils/set-interval "log-available-services" log-available-services 2000))
     "Unable to launch machinekit. No SSH connection"))
 
 (defn shutdown-mk!

@@ -76,6 +76,19 @@
         (delete-file tmp-file)
         s))))
 
+(defremote get-service-log
+  "Gets the contents of ~/Desktop/services.log"
+  []
+  (locking state/ssh-lock
+    (let [tmp (create-tmp-file "")]
+      (ssh/sftp (:sftp-chan @state/connection-state)
+                {}
+                :get
+                "/home/machinekit/Desktop/services.log"
+                tmp)
+      (slurp tmp))))
+
+
 (defremote sftp-ls
   "Runs the ls command over the remote ssh server. Directories will end with a /
   character.
