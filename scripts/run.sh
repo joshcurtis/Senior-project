@@ -1,3 +1,4 @@
-nohup python ~/Desktop/run.py > ~/Desktop/run.log &
-sleep 2
+echo "lauching"
+nohup mklauncher /home/machinekit/Desktop -d > /home/machinekit/Desktop/run.log &
 echo "machinekit launched"
+exit 0
