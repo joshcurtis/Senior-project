@@ -66,12 +66,12 @@
 
 (defn try-to-launch-resolver!
   []
-    (if (:connected? @model/connection)
-      (do
-        (utils/log "launching resolver")
-        (server-interop/watch-mk-services! utils/log-ssh-cmd)
-        (utils/set-interval "update-services" update-mk-services! 2000))
-      (utils/log "Resolver not started")))
+  (if (:connected? @model/connection)
+    (do
+      (utils/log "launching resolver")
+      (server-interop/watch-mk-services! utils/log-ssh-cmd)
+      (utils/set-interval "update-services" update-mk-services! 2000))
+    (utils/log "Resolver not started")))
 
 (defn connect!
   []
@@ -84,10 +84,10 @@
                                             (update-configs!)
                                             (try-to-launch-resolver!)
                                             )
-                             (swap! model/connection assoc
-                                    :connected? false
-                                    :connection-pending? false
-                                    :error res)))]
+                               (swap! model/connection assoc
+                                      :connected? false
+                                      :connection-pending? false
+                                      :error res)))]
     (swap! model/connection assoc
            :connection-pending? true
            :error nil)
@@ -146,8 +146,7 @@
   (text-editor.controller/load-text! id s)
   (utils/click-element "tab-navigation-Text"))
 
-(def
-  edit-callbacks {"ini" edit-ini!})
+(def edit-callbacks {"ini" edit-ini!})
 
 (defn edit-file!
   [full-filename]
@@ -197,6 +196,13 @@
                     update-connection-status!
                     2000)
 
+(defn is-machinekit-running?
+  " TODO: Instead of checking if there are services available,
+  does this warrant an atom itself?
+  e.g. (:is-running @model/machinekit)?"
+  []
+  (not-empty @model/services))
+
 (defn log-state
   "Adding whatever information you want to see for debugging here"
   []
@@ -207,8 +213,3 @@
   (utils/set-interval "debug-state" log-state timeout))
 
 (debug-state 10000)
-
-(defonce has-run-here? (atom false))
-(if @has-run-here?
-  (js/alert "Reloaded remote-manager.controller"))
-(reset! has-run-here? true)

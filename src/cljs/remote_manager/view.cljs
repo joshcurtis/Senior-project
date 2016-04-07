@@ -153,11 +153,13 @@
      [:button.btn.btn-warning {:style {:margin-right "1rem"}
                                :on-click controller/disconnect!}
       "Disconnect"]
-     [:button.btn.secondary {:style {:margin-right "1rem"}
-                             :on-click controller/launch-mk!}
-      "Launch MachineKit"]
-     [:button.btn.btn-danger {:on-click controller/shutdown-mk!}
-     "Shutdown MachineKit"]
+
+     (if (controller/is-machinekit-running?)
+       [:button.btn.btn-danger {:on-click controller/shutdown-mk!}
+        "Shutdown MachineKit"]
+       [:button.btn.secondary {:style {:margin-right "1rem"}
+                               :on-click controller/launch-mk!}
+        "Launch MachineKit"])
      ]))
 
 

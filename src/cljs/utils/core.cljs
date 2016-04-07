@@ -140,36 +140,58 @@
   (clear-interval id)
   (swap! intervals assoc id (js/setInterval f milliseconds)))
 
-(defn parse-service
-  "Takes a line of the form
-   str service address
-   and returns a vector containing the service and address.
 
-   The address should have the form
-   protocol:ip_address:port
 
-   Example Usage:
-   (parse-resolved-service resolved command tcp://beaglebone.local:53123) ->
-   [:command \"53123\"]"
+(def test-str
+  "all for now
+  all for now
+  resolved launchercmd tcp://beaglebone.local:62996
+  resolved launcher tcp://beaglebone.local:49764
+  removed 2 0 Machinekit Launcher on beaglebone.local _machinekit._tcp local 4
+  removed 3 0 Launchercmd service on beaglebone.local pid 25044 _machinekit._tcp local 4")
+
+(def services [:launcher, :launchercmd])
+
+(defn parse-removed
+  [line]
+  (let [tokens (map (comp keyword string/lower-case) (string/split line " "))
+        launchercmd (nth tokens 3)
+        launcher (nth tokens 4)]
+    (cond
+      (= :launcher launcher) launcher
+      (= :launchercmd launchercmd) launchercmd
+      :else :error)))
+
+(defn parse-resolved
   [line]
   (let [[_ service address] (string/split line " ")
         [_ _ port] (string/split address ":")]
-    [(keyword service) port]))
+    {(keyword service) port})
+
+;; TODO handle all types of lines
+(defn parse-lines
+  [[line & lines] services]
+  (if (some? line)
+    (let [update (first (string/split line " "))]
+      (if (= update "removed")
+        (parse-lines lines (dissoc services (parse-removed line)))
+        (parse-lines lines (merge services (parse-resolved line))))
+    services))))
 
 (defn parse-resolve-log
   "Takes a log of output from the resolve.py script
   and returns a dictionary of available services with their ports"
   [log]
   (let [lines (->> log string/split-lines (map string/trim))
-        services-lines (filter #(string/starts-with? % "resolved") lines)
-        service-ports (mapcat parse-service services-lines)]
-    (apply hash-map service-ports)))
+        updates (filter #(or (string/starts-with? %1 "resolved")
+                             (string/starts-with? %1 "removed"))
+                        lines)]
+    (parse-lines updates {})))
 
 (defn log
   "Casts x to a str and prints it"
   [x]
   (.log js/console (str x)))
-
 
 (defn- log-ssh-cmd
   "Output should be a map with the keys :exit, :err, and :out.
