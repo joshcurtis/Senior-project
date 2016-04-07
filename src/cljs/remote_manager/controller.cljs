@@ -96,7 +96,7 @@
 (defn disconnect!
   []
   (utils/clear-interval "update-services")
-  (server-interop/cleanup! server-interop/ssh-disconnect!)
+  (server-interop/ssh-disconnect!)
   (swap! model/connection assoc
          :connected? false
          :connection-pending? false
@@ -114,7 +114,9 @@
 (defn launch-mk!
   []
   (if (:connected? @model/connection)
-    (server-interop/launch-mk! utils/log-ssh-cmd)
+    (do
+      (.log js/console "Trying to launch mk")
+      (server-interop/launch-mk! utils/log-ssh-cmd))
     (utils/log "Unable to launch machinekit. No SSH connection")))
 
 (defn shutdown-mk!
@@ -193,3 +195,19 @@
 (utils/set-interval "update-connection-status!"
                     update-connection-status!
                     2000)
+
+(defn log-state
+  "Adding whatever information you want to see for debugging here"
+  []
+  (utils/log (str "Services: " @model/services)))
+
+(defn debug-state
+  [timeout]
+  (utils/set-interval "log state" log-state timeout))
+
+(debug-state 10000)
+
+(defonce has-run-here? (atom false))
+(if @has-run-here?
+  (js/alert "Reloaded remote-manager.controller"))
+(reset! has-run-here? true)
