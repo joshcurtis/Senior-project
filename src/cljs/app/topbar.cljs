@@ -125,8 +125,7 @@
   ""
   []
   (let [valid-options (into #{} (keys (current-topbar-actions)))
-        about-el [:a {:href "https://github.com/joshcurtis/Senior-project"
-                      :target "_blank"} "Source Code"]
+        about-el [:a {:on-click #(reset! current-modal "about-modal")} "About"]
         dropdowns [
                    about-el
                    ]
@@ -232,6 +231,17 @@
                     :body body
                     :footer footer})))
 
+(defn about-modal
+  []
+  (let []
+    [widgets/modal {:header [:h2 "MachineKit Manager"]
+                    :body [:div
+                           [:p "Manage your MachineKit configuration in a sane manner."]
+                           [:p "Maintainers: Josh Curtis, Shub Gogna, & Will Medrano"]]
+                    :footer [:div [:button.btn.btn-default
+                                   {:on-click close-modal!}
+                                   "OK"]]}]))
+
 (defn render-topbar
   ""
   []
@@ -241,6 +251,7 @@
      (case @current-modal
        "remote-open" [remote-open-modal]
        "remote-save" [remote-save-modal]
+       "about-modal" [about-modal]
        nil nil)
      [navbar/navbar {:title tab
                      :elements [(topbar-file-menu)
