@@ -5,7 +5,6 @@
    [monitor.controller :as controller]
    [utils.widgets :as widgets]
    [utils.core :as utils]
-   [remote-manager.model]
    [reagent.core :as r :refer [atom]]))
 
 (def topbar-actions {})
@@ -76,6 +75,6 @@
 
 (defn contents
   [props]
-  (if (:connected? @remote-manager.model/connection)
+  (if (-> :connection :connected? @store/state)
     [contents-active]
     [contents-inactive]))

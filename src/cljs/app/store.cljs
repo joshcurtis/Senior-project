@@ -18,6 +18,22 @@
   (atom
    {
 
+    ;;; Tab and theme stuff
+    :tab "Home"
+    :tab-labels ["Home" "Remote" "Monitor" "INI" "Text"]
+    :current-theme "flatly"
+
+    ;;; Remote Manager Stuff
+    :connection {:connected? false
+                 :connection-pending? false
+                 :error nil
+                 :hostname "beaglebone.local"
+                 :username "machinekit"
+                 :password ""}
+    :configs {:dirs []
+              :contents {}}
+    :services {}
+
     ;;; INI Stuff
     ;; hashmap: [source path] -> {:ini parsed-ini from ini-editor.parser
     ;;                            :expanded? #{section-strings}}

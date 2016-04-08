@@ -1,7 +1,7 @@
 (ns remote-manager.core
   "Manage machinekit configuration remotely."
   (:require
-   [remote-manager.model :as model]
+   [app.store :as store]
    [remote-manager.view :as view]
    [utils.core :as utils]
    [server-interop.core :as server-interop]))
@@ -11,6 +11,7 @@
   remotely. See machine_conf/core.cljs. This returns a reagent component that
   takes no props."
   [props]
-  [:div {}
-   [view/remote-manager {:connection @model/connection
-                         :configs @model/configs}]])
+  (let [{:keys [connection configs]} @store/state]
+    [:div {}
+     [view/remote-manager {:connection connection
+                           :configs configs}]]))
