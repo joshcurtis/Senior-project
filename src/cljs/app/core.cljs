@@ -22,7 +22,6 @@
   [props]
   (let [state @store/state
         {:keys [tab tab-labels]} state]
-    (utils/log state)
     [:div.app {}
      [app.topbar/render-topbar {}]
      [widgets/tabs {:labels tab-labels

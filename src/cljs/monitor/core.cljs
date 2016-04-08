@@ -75,6 +75,6 @@
 
 (defn contents
   [props]
-  (if (-> :connection :connected? @store/state)
+  (if (-> @store/state :connection :connected?)
     [contents-active]
     [contents-inactive]))

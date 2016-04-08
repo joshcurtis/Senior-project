@@ -60,15 +60,6 @@
                    "Monitor" [monitor.core/contents {}]
                    "INI" [ini-editor.core/contents {}]
                    "Text" [text-editor.core/contents {}]})
-(defonce text (atom ""))
-(defn text-editor
-  [props]
-  [:pre
-   [:textarea {:value @text
-               :rows (->> @text (re-seq #"\n") count inc)
-               :style {:width "100%"
-                       :height "100%"}
-               :on-change #(reset! text (-> %1 .-target .-value))}]])
 
 (defn render-contents
   ""

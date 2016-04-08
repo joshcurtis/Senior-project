@@ -42,6 +42,11 @@
     ;; [source path]
     :selected-ini-id nil
 
+    ;;; Text Editor Stuff
+    ;; hashmap: [source path] -> string
+    :texts {[:local "scratch.txt"] ""}
+    :selected-text-id [:local "scratch.txt"]
+
     ;;; Monitor Stuff
     ;; seconds
     :initial-time (utils/time-seconds)
@@ -116,3 +121,11 @@
     (if (some? ini)
       (ini-editor.parser/ini-to-str ini)
       (js/alert "No INI has been loaded!"))))
+
+;; text editor helpers
+(defn text-str
+  "Convert the current model into an string. nil is returned if there is no text
+  that is currently being edited."
+  []
+  (let [{:keys [texts selected-text-id]} @state]
+    (get texts selected-text-id)))

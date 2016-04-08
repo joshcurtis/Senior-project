@@ -26,8 +26,8 @@
 
 (defn clear-configs!
   []
-  (reset! store/state assoc
-          :configs {:dirs [] :contents {}}))
+  (swap! store/state assoc
+         :configs {:dirs [] :contents {}}))
 
 (defn update-config!
   "Updates a single config based on the server. There isn't really a reason to
