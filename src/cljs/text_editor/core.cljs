@@ -18,7 +18,7 @@
   (let [{:keys [texts selected-text-id]} @store/state
         value (get texts selected-text-id)]
     [view/simple-text-editor {:selected-id selected-text-id
-                              :all-ids texts
+                              :all-ids (keys texts)
                               :text value}]))
 
 (defn text-as-str
