@@ -74,7 +74,7 @@
 
 (defn- ini-editor-active
   "Renders a component for editing the current ini.
-  # Props - same hashmap are present in `ini-editor.model/inis`.
+  # Props - same hashmaps are present in `(:inis @store/state)`.
   :key-metadata
   :key-order
   :section-metadata
