@@ -4,6 +4,7 @@
    [app.store :as store]
    [ini-editor.controller :as controller]
    [ini-editor.view :as view]
+   [reagent.core :as r :refer [atom]]
    [clojure.string :as string]))
 
 (def topbar-actions {"open" controller/load-str!
@@ -16,7 +17,8 @@
   "A view that can be rendered to edit the current ini file. It is used in
   app/core.cljs. This returns a reagent component that takes no props."
   [props]
-  (let [{:keys [inis selected-ini-id]} @store/state
+  (let [inis @(r/cursor store/state [:inis])
+        selected-ini-id @(r/cursor store/state [:selected-ini-id])
         all-ids (keys inis)
         model-ini (get inis selected-ini-id)]
     [view/ini-editor (merge (:ini model-ini)

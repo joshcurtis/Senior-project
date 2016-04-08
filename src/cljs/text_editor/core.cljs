@@ -3,7 +3,8 @@
   (:require
    [app.store :as store]
    [text-editor.controller :as controller]
-   [text-editor.view :as view]))
+   [text-editor.view :as view]
+   [reagent.core :as r :refer [atom]]))
 
 (def topbar-actions {"open" controller/load-text!
                      "save" store/text-str
@@ -15,7 +16,8 @@
   "A view that can be rendered to edit the current ini file. It is used in
   app/core.cljs. This returns a reagent component that takes no props."
   [props]
-  (let [{:keys [texts selected-text-id]} @store/state
+  (let [texts @(r/cursor store/state [:texts])
+        selected-text-id @(r/cursor store/state [:selected-text-id])
         value (get texts selected-text-id)]
     [view/simple-text-editor {:selected-id selected-text-id
                               :all-ids (keys texts)

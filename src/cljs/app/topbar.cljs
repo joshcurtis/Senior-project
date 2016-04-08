@@ -161,7 +161,7 @@
 
 (defn remote-open-modal
   []
-  (let [{:keys [configs]} @store/state
+  (let [configs @(r/cursor store/state [:configs])
         dirs (:dirs configs)
         contents (:contents configs)
 
@@ -212,7 +212,7 @@
 
 (defn remote-save-modal
   []
-  (let [{:keys [configs]} @store/state
+  (let [configs @(r/cursor store/state [:configs])
         dirs (:dirs configs)
         contents (:contents configs)
 
@@ -245,7 +245,7 @@
 (defn render-topbar
   ""
   []
-  (let [tab (:tab @store/state)]
+  (let [tab @(r/cursor store/state [:tab])]
     [:div
      (case @current-modal
        "remote-open" [remote-open-modal]

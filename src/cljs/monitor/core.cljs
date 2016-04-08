@@ -37,7 +37,8 @@
   "A view that can be rendered to monitor the machinekit configuration. It is
   used in app/core.cljs. This returns a reagent component that takes no props."
   [props]
-  (let [{:keys [is-monitoring? monitor]} @store/state
+  (let [is-monitoring? @(r/cursor store/state [:is-monitoring?])
+        monitor @(r/cursor store/state [:monitor])
         {:keys [all-components measurements history groups]} monitor
         temperature-group (:temperatures groups)
         times (get history "t")]
@@ -75,6 +76,6 @@
 
 (defn contents
   [props]
-  (if (-> @store/state :connection :connected?)
+  (if @(r/cursor store/state [:connection :connected?])
     [contents-active]
     [contents-inactive]))

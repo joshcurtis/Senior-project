@@ -20,8 +20,8 @@
   \"Remote\" - `remote-manager.core/view`
   \"INI\" - `ini-editor.core/view`"
   [props]
-  (let [state @store/state
-        {:keys [tab tab-labels]} state]
+  (let [tab @(r/cursor store/state [:tab])
+        tab-labels @(r/cursor store/state [:tab-labels])]
     [:div.app {}
      [app.topbar/render-topbar {}]
      [widgets/tabs {:labels tab-labels

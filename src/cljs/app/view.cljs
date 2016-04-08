@@ -23,7 +23,9 @@
 (defn home
   "reagent-component for home tab."
   [props]
-  (let [{:keys [tab tab-labels current-theme]} @store/state]
+  (let [tab (r/cursor store/state [:tab])
+        tab-labels (r/cursor store/state [:tab-labels])
+        current-theme (r/cursor store/state [:current-theme])]
     [:div
      [:h1 [:a {:href "https://github.com/machinekit/machinekit"
                :target "_blank"} "MachineKit"]]
@@ -64,7 +66,7 @@
 (defn render-contents
   ""
   []
-  (let [tab (:tab @store/state)]
+  (let [tab @(r/cursor store/state [:tab])]
     [:div.tab.content.panel.panel-default
      [:div.panel-body
       [:div.tab-pane.active {}
