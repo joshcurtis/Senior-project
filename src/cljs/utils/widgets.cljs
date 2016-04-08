@@ -13,12 +13,9 @@
   `id-prefix` - each tab will have the id {id-prefix}{label}
   `selected` - string, the currently selected label
   `on-change` - function that takes a label that was clicked on."
-  [props]
-  (let [{:keys [labels selected on-change id-prefix]} props
-        id-prefix (or id-prefix "")]
-    (assert (sequential? labels))
-    (assert (string? selected))
-    (assert (fn? on-change))
+  [{:keys [labels selected on-change id-prefix]}]
+  {:pre [(sequential? labels) (string? selected) (fn? on-change)]}
+  (let [id-prefix (or id-prefix "")]
     [:ul.nav.nav-tabs
      (map-indexed (fn [i l] [:li {:style {:cursor "pointer"}
                                   :key i

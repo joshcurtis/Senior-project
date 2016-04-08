@@ -67,17 +67,17 @@
 (defn watch-mk-services!
   "Watch mk"
   [callback]
-  (run-ssh-command "sh /home/machinekit/Desktop/resolve.sh" callback))
+  (run-ssh-command "sh ~/Desktop/resolve.sh" callback))
 
 (defn launch-mk!
   "Launch machinekit"
   [callback]
-  (run-ssh-command  "sh /home/machinekit/Desktop/launch.sh" callback))
+  (run-ssh-command  "sh ~/Desktop/launch.sh" callback))
 
 (defn cleanup!
   "Cleanup running processes"
   [callback]
-  (run-ssh-command "sh /home/machinekit/Desktop/cleanup.sh" callback))
+  (run-ssh-command "sh ~/Desktop/cleanup.sh" callback))
 
 (defn send-data
   "Function for quickly testing zmq functionality"

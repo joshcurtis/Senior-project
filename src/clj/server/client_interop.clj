@@ -84,7 +84,7 @@
       (ssh/sftp (:sftp-chan @state/connection-state)
                 {}
                 :get
-                "/home/machinekit/Desktop/services.log"
+                "~/Desktop/services.log"
                 tmp)
       (slurp tmp))))
 

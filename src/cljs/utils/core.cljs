@@ -166,9 +166,9 @@
     (apply hash-map service-ports)))
 
 (defn log
-  "Casts x to a str and prints it"
-  [x]
-  (.log js/console (str x)))
+  "Alias for the javascript function console.log"
+  ([x] (.log js/console x))
+  ([& args] (.log js/console args)))
 
 
 (defn- log-ssh-cmd

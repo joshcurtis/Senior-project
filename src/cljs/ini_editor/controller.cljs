@@ -1,97 +1,96 @@
 (ns ini-editor.controller
   "Actions for editing the ini files."
   (:require
-   [ini-editor.model :as model]
+   [app.store :as store]
    [ini-editor.parser :as parser]
    [utils.core :as utils]
+   [clojure.string :as string]
    [reagent.core :as r :refer [atom]]))
 
 (enable-console-print!)
 
-;; expanding/collapsing
+;; topbar
 
-(defn- is-important?
-  "Helper function for determining if a section is important, given its
-  metadata. This is done by checking if :unimportant is true. If it is not
-  included, then it is assumed that important is true"
-  [metadata]
-  (not (get metadata :unimportant false)))
-
-(defn- get-sections
-  "Helper function for getting the sections."
-  []
-  (get-in @model/inis [@model/selected-id :ini :section-order]))
-
-(defn expand-all!
-  "All sections are added to the expanded set."
-  []
-  (swap! model/inis assoc-in
-         [@model/selected-id :expanded?] (set (get-sections))))
-
-(defn toggle-expanded!
-  "If the given section (string) is in the expanded set, then it is removed. If
-  it is not in the expanded set, then it is added."
-  [section]
-  (assert (string? section))
-  (swap! model/inis update-in
-         [@model/selected-id :expanded?] utils/toggle-membership section))
-
-(defn expand-important!
-  "Every section that is important is added to the expanded set. An important
-  section is a section whose metadata does *not* include the \"unimportant\" in
-  it's tags."
-  []
-  (let [selected-id @model/selected-id
-        meta (get-in @model/inis [selected-id :ini :section-metadata])
-        important (filter #(-> %1 second is-important?) meta)
-        important-set (set (map first important))]
-    (swap! model/inis update-in
-           [selected-id :expanded?] clojure.set/union important-set)))
-
-(defn set-selected-id!
-  [id]
-  (assert (contains? @model/inis id))
-  (reset! model/selected-id id))
-
-;; editing
-
-(defn set-ini-value!
-  "The value in the provided section/key is set to the new value"
-  [section key value]
-  (assert (string? section))
-  (assert (string? key))
-  (assert (some? value))
-  (swap! model/inis assoc-in
-         [@model/selected-id :ini :values section key] value))
+(defn- --load-str
+  [state id s]
+  (let [ini (parser/parse-ini s)
+        s-metas (:section-metadata ini)
+        is-important? #(not (get %1 :unimportant false))
+        imp (filter #(-> %1 second is-important?)
+                    s-metas)
+        imp-set (set (map first imp))]
+    (-> state
+        (assoc-in [:inis id :ini] ini)
+        (assoc-in [:inis id :expanded?] imp-set)
+        (assoc :selected-ini-id id))))
 
 (defn load-str!
   "The given ini string representation is loaded for editing. The model is
   updated to represent the new ini And the selected id is changed to the new
   str. ini-editor.controller/expand-important! is called."
   [id s]
-  (assert (some? id))
-  (assert (string? s))
-  (let [parsed (parser/parse-ini s)]
-    (swap! model/inis assoc
-           id {:ini parsed :expanded? #{}})
-    (reset! model/selected-id id)
-    (expand-important!)))
+  (swap! store/state --load-str id s))
+
+(defn ini-str
+  []
+  (store/ini-str))
+
+(defn- --close-selected
+  [state]
+  (let [{:keys [selected-ini-id inis]} state]
+    (assoc state
+           :selected-ini-id nil
+           :inis (dissoc inis selected-ini-id))))
 
 (defn close-selected!
-  "Closes the currently selected ini file that is being edited."
+  "Closes the currently selected ini."
   []
-  (let [selected-id @model/selected-id]
-    (reset! model/selected-id nil)
-    (reset! model/selected-id (-> (swap! model/inis dissoc selected-id)
-                                  keys
-                                  first))))
+  (swap! store/state --close-selected))
 
-(defn save-str!
-  "Saves the given ini into its string representation on the users local
-  machine."
+(defn filename
+  "Gets the filename for the currently selected ini. This does not include the
+  path."
   []
-  (assert "Use `widgets/file-save` instead")
-  nil)
+  (utils/fname-from-path (-> @store/state :selected-ini-id second)))
 
-(defn ini-str [] (model/ini-str))
-(defn filename [] (utils/fname-from-path (second @model/selected-id)))
+(defn filename-filter
+  "Given a filename, it returns true if the filename has the right mimetype for
+  an ini, ends in .ini. False is returned if the mimetype does not match."
+  [fname]
+  (string/ends-with? fname ".ini"))
+
+;; expanding/collapsing and viewing
+
+(defn- --toggle-expanded
+  [state section]
+  (let [{:keys [inis selected-ini-id]} state]
+    (update-in state
+               [:inis selected-ini-id :expanded?]
+               utils/toggle-membership section)))
+
+(defn toggle-expanded!
+  "Toggles the given section between expanded and collapsed."
+  [section]
+  {:pre [(string? section)]}
+  (swap! store/state --toggle-expanded section))
+
+(defn set-selected-id!
+  [id]
+  {:pre [(or (vector? id) (nil? id))]}
+  (swap! store/state assoc
+         :selected-ini-id id))
+
+;; editing
+
+(defn- --set-ini-value
+  [state section key value]
+  (let [{:keys [inis selected-ini-id]} state]
+    (assoc-in state
+              [:inis selected-ini-id :ini :values section key]
+              value)))
+
+(defn set-ini-value!
+  "The value in the provided section/key is set to value."
+  [section key value]
+  {:pre [(string? section) (string? key) (string? value)]}
+  (swap! store/state --set-ini-value section key value))

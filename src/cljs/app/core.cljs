@@ -2,7 +2,8 @@
   ""
   (:require
    [app.devtools-setup]
-   [app.state]
+   [app.store :as store]
+   [app.view]
    [app.topbar]
    [ini-editor.core :as ini-editor]
    [remote-manager.core :as remote-manager]
@@ -19,16 +20,15 @@
   \"Remote\" - `remote-manager.core/view`
   \"INI\" - `ini-editor.core/view`"
   [props]
-  (let [app-state @app.state/app-state
-        tab-labels (:tab-labels app-state)
-        tab (:tab app-state)]
+  (let [tab @(r/cursor store/state [:tab])
+        tab-labels @(r/cursor store/state [:tab-labels])]
     [:div.app {}
      [app.topbar/render-topbar {}]
      [widgets/tabs {:labels tab-labels
                     :id-prefix "tab-navigation-"
                     :selected tab
-                    :on-change #(app.state/set-tab! %1)}]
-     [app.state/render-contents]]))
+                    :on-change #(app.view/set-tab! %1)}]
+     [app.view/render-contents]]))
 
 (defn ^:export start
   "Renders the application onto the DOM element \"app\""

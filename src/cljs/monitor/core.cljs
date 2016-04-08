@@ -1,11 +1,10 @@
 (ns monitor.core
   "Shows some measurements."
   (:require
+   [app.store :as store]
+   [monitor.controller :as controller]
    [utils.widgets :as widgets]
    [utils.core :as utils]
-   [monitor.controller :as controller]
-   [monitor.model :as model]
-   [remote-manager.model]
    [reagent.core :as r :refer [atom]]))
 
 (def topbar-actions {})
@@ -15,7 +14,7 @@
     (+ min (rand diff))))
 
 (defn rand-measurements []
-  {"t" (- (utils/time-seconds) @model/initial-time)
+  {"t" (- (utils/time-seconds) (:initial-time @store/state))
    "Ext-0" (rand-interval 180 220)
    "Ext-1" (rand-interval 100 180)
    "Ext-2" (rand-interval 90 110)})
@@ -38,8 +37,8 @@
   "A view that can be rendered to monitor the machinekit configuration. It is
   used in app/core.cljs. This returns a reagent component that takes no props."
   [props]
-  (let [is-monitoring? @model/is-monitoring?
-        monitor @model/monitor
+  (let [is-monitoring? @(r/cursor store/state [:is-monitoring?])
+        monitor @(r/cursor store/state [:monitor])
         {:keys [all-components measurements history groups]} monitor
         temperature-group (:temperatures groups)
         times (get history "t")]
@@ -77,6 +76,6 @@
 
 (defn contents
   [props]
-  (if (:connected? @remote-manager.model/connection)
+  (if @(r/cursor store/state [:connection :connected?])
     [contents-active]
     [contents-inactive]))

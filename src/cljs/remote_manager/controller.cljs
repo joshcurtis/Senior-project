@@ -1,7 +1,7 @@
 (ns remote-manager.controller
   (:require
+   [app.store :as store]
    [utils.core :as utils]
-   [remote-manager.model :as model]
    [ini-editor.controller]
    [text-editor.controller]
    [server-interop.core :as server-interop]
@@ -14,19 +14,20 @@
 
 (defn set-hostname!
   [name]
-  (swap! model/connection assoc :hostname name))
+  (swap! store/state assoc-in [:connection :hostname] name))
 
 (defn set-username!
   [name]
-  (swap! model/connection assoc :username name))
+  (swap! store/state assoc-in [:connection :username] name))
 
 (defn set-password!
   [password]
-  (swap! model/connection assoc :password password))
+  (swap! store/state assoc-in [:connection :password] password))
 
 (defn clear-configs!
   []
-  (reset! model/configs {:dirs [] :contents {}}))
+  (swap! store/state assoc
+         :configs {:dirs [] :contents {}}))
 
 (defn update-config!
   "Updates a single config based on the server. There isn't really a reason to
@@ -34,7 +35,7 @@
   [dir]
   (assert (utils/dir? dir))
   (let [callback (fn [files]
-                   (swap! model/configs assoc-in [:contents dir] files))]
+                   (swap! store/state assoc-in [:configs :contents dir] files))]
     (server-interop/sftp-ls (str "machinekit/configs/" dir) callback)))
 
 (defn update-configs!
@@ -42,55 +43,60 @@
   []
   (let [valid-dir #(or (utils/dir? %) (= "" %))
         callback (fn [dirs]
-                   (swap! model/configs assoc :dirs (filterv valid-dir (into [""] dirs)))
-                   (swap! model/configs assoc-in [:contents ""] (filterv (complement utils/dir?) dirs))
+                   (swap! store/state assoc-in
+                          [:configs :dirs] (filterv valid-dir (into [""] dirs)))
+                   (swap! store/state assoc-in
+                          [:configs :contents ""] (filterv (complement utils/dir?) dirs))
                    (doseq [dir dirs] (if (valid-dir dir) (update-config! dir))))]
     (clear-configs!)
     (server-interop/sftp-ls "machinekit/configs/" callback)))
 
 (utils/set-interval "update-configs-when-empty"
-                    #(if (and (:connected? @model/connection)
-                              (empty? (:dirs @model/configs)))
-                       (update-configs!))
+                    #(let [{:keys [connection configs]} @store/state]
+                       (if (and (:connected? connection)
+                                (empty? (:dirs configs)))
+                         (update-configs!)))
                     2000)
 
 (defn update-services!
   [log]
-  (reset! model/services (utils/parse-resolve-log log)))
+  (swap! store/state assoc
+         :services (utils/parse-resolve-log log)))
 
 (defn update-mk-services!
   "Run to parse the ~/Desktop/services.log file
   and update what machinekit services are available"
   []
-  (server-interop/sftp-get "/home/machinekit/Desktop/services.log" update-services!))
+  (server-interop/sftp-get "~/Desktop/services.log" update-services!))
 
 (defn try-to-launch-resolver!
   []
-    (if (:connected? @model/connection)
-      (do
-        (utils/log "launching resolver")
-        (server-interop/watch-mk-services! utils/log-ssh-cmd)
-        (utils/set-interval "update-services" update-mk-services! 2000))
-      (utils/log "Resolver not started")))
+  (if (-> @store/state :connection :connected?)
+    (do
+      (utils/log "launching resolver")
+      (server-interop/watch-mk-services! utils/log-ssh-cmd)
+      (utils/set-interval "update-services" update-mk-services! 2000))
+    (utils/log "Resolver not started")))
 
 (defn connect!
   []
-  (let [{:keys [hostname username password]} @model/connection
-        callback (fn [res] (if (nil? res) (do
-                                            (swap! model/connection assoc
-                                                   :connected? true
-                                                   :connection-pending? false
-                                                   :error nil)
-                                            (update-configs!)
-                                            (try-to-launch-resolver!)
-                                            )
-                             (swap! model/connection assoc
-                                    :connected? false
-                                    :connection-pending? false
-                                    :error res)))]
-    (swap! model/connection assoc
-           :connection-pending? true
-           :error nil)
+  (let [{:keys [connection]} @store/state
+        {:keys [hostname username password]} connection
+        callback (fn [res]
+                   (if (nil? res) (do
+                                    (swap! store/state update :connection
+                                           #(merge %1 {:connected? true
+                                                       :connection-pending? false
+                                                       :error nil}))
+                                    (update-configs!)
+                                    (try-to-launch-resolver!))
+                       (swap! store/state update :connection
+                              #(merge %1 {:connected? false
+                                          :connection-pending? false
+                                          :error res}))))]
+    (swap! store/state update :connection
+           #(merge %1 {:connection-pending? true
+                       :error nil}))
     (server-interop/ssh-connect! hostname username password callback)))
 
 (defn disconnect!
@@ -98,23 +104,23 @@
   (utils/clear-interval "update-services")
   (utils/clear-interval "debug-state")
   (server-interop/cleanup! server-interop/ssh-disconnect!)
-  (swap! model/connection assoc
-         :connected? false
-         :connection-pending? false
-         :error nil))
+  (swap! store/state update :connection
+         #(merge %1 {:connected? false
+                     :connection-pending? false
+                     :error nil})))
 
 (defn- print-available-services
   []
-  (println @model/services))
+  (println (:services @store/state)))
 
 (defn- log-available-services
   []
   (utils/log "Services: ")
-  (utils/log (str @model/services)))
+  (-> @store/state :services str utils/log))
 
 (defn launch-mk!
   []
-  (if (:connected? @model/connection)
+  (if (-> @store/state :connection :connected?)
     (do
       (.log js/console "Trying to launch mk")
       (server-interop/launch-mk! utils/log-ssh-cmd))
@@ -123,7 +129,7 @@
 (defn shutdown-mk!
   []
   (utils/log "Shuting down machinekit")
-  (if (:connected? @model/connection)
+  (if (-> @store/state :connection :connected?)
     (do
       (utils/log "Shutting down mk")
       (server-interop/send-data (utils/encode-buffer MT_SHUTDOWN) #(utils/log %)))
@@ -178,20 +184,21 @@
   {:pre [(string? full-filename)]}
   (server-interop/sftp-rm full-filename update-configs!))
 
-(defn- update-c-status-helper!
-  [status]
+(defn- --update-connection-status
+  [state status]
   (let [{:keys [connected? hostname username]} status]
     (if connected?
-      (swap! model/connection assoc
-             :connected? connected?
-             :hostname hostname
-             :username username)
-      (swap! model/connection assoc
-             :connected? connected?))))
+      (update state :connection
+              #(merge %1 {:connected? %2
+                          :hostname %3
+                          :username %4})
+              connected? hostname username)
+      (assoc-in state [:connection :connected?] false))))
 
 (defn update-connection-status!
   []
-  (server-interop/connection-status update-c-status-helper!))
+  (server-interop/connection-status #(swap! store/state
+                                            --update-connection-status %1)))
 
 (utils/set-interval "update-connection-status!"
                     update-connection-status!
@@ -200,15 +207,10 @@
 (defn log-state
   "Adding whatever information you want to see for debugging here"
   []
-  (utils/log (str "Services: " @model/services)))
+  (utils/log (str "Services: " (:services @store/state))))
 
 (defn debug-state
   [timeout]
   (utils/set-interval "debug-state" log-state timeout))
 
 (debug-state 10000)
-
-(defonce has-run-here? (atom false))
-(if @has-run-here?
-  (js/alert "Reloaded remote-manager.controller"))
-(reset! has-run-here? true)
