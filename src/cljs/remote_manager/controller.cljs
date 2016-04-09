@@ -202,7 +202,7 @@
 
 (utils/set-interval "update-connection-status!"
                     update-connection-status!
-                    2000)
+                    500)
 
 (defn log-state
   "Adding whatever information you want to see for debugging here"
