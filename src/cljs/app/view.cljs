@@ -54,20 +54,20 @@
                                         "metro"
                                         "simplex"
                                         "united"]
-                              :value current-theme
+                              :value @current-theme
                               :on-change change-theme!}]]))
-
-(def contents-map {"Home" [home {}]
-                   "Remote" [remote-manager.core/contents {}]
-                   "Monitor" [monitor.core/contents {}]
-                   "INI" [ini-editor.core/contents {}]
-                   "Text" [text-editor.core/contents {}]})
 
 (defn render-contents
   ""
   []
   (let [tab @(r/cursor store/state [:tab])]
     [:div.tab.content.panel.panel-default
-     [:div.panel-body
-      [:div.tab-pane.active {}
-       (get contents-map tab [:div "Unknown Tab"])]]]))
+      [:div.panel-body
+        [:div.tab-pane.active {}
+          (case tab
+            "Home" [home {}]
+            "Remote" [remote-manager.core/contents {}]
+            "Monitor" [monitor.core/contents {}]
+            "INI" [ini-editor.core/contents {}]
+            "Text" [text-editor.core/contents {}]
+          )]]]))
