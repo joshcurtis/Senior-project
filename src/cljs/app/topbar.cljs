@@ -242,6 +242,14 @@
                                    {:on-click close-modal!}
                                    "OK"]]}]))
 
+(defn topbar-connection-status
+  []
+  (let [connected? @(r/cursor store/state [:connection :connected?])]
+    [:li {:key "connection-status"}
+     [:a
+      [:span.label {:class (if connected? "label-info" "label-warning")}
+       (if connected? "Connected" "Disconnected")]]]))
+
 (defn render-topbar
   ""
   []
@@ -255,4 +263,5 @@
      [navbar/navbar {:title tab
                      :elements [(topbar-file-menu)
                                 (topbar-remote-menu)
-                                (topbar-help-menu)]}]]))
+                                (topbar-help-menu)]
+                     :right-elements [(topbar-connection-status)]}]]))

@@ -30,10 +30,11 @@
 (defn navbar
   ""
   [props]
-  (let [{:keys [title elements]} props
+  (let [{:keys [title elements right-elements]} props
         navbar-id (str "navbar-" (string/lower-case
                                   (string/replace title #" " "-")))
-        elements (seq elements)]
+        elements (seq elements)
+        right-elements (seq right-elements)]
     (assert (string? title))
     (assert (some? elements))
     [:nav.navbar.navbar-default {:style {:border-radius 0}}
@@ -50,4 +51,6 @@
         title]]
       [:div.collapse.navbar-collapse {:id navbar-id}
        [:ul.nav.navbar-nav
-        elements]]]]))
+        elements]
+       [:ul.nav.navbar-nav.navbar-right
+        right-elements]]]]))
