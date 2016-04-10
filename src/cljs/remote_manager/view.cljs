@@ -10,50 +10,38 @@
   (let [{:keys [connection]} props
         {:keys [error hostname username password connection-pending?]} connection]
     [:div {}
-     (if (some? error)
-       [:div.alert.alert-danger {}
-        [:h4 {} "Error"]
-        [:p error]]
-       [:div.alert.alert-warning {}
-        [:h4 {} "Disconnected"]
-        [:p "There is currently no remote connection!"]
-        [:p "For most default MachineKit images, the default username and password is \"machinekit\"."]])
-     [:form.form-horizontal.well {}
-      [:fieldset {}
-       [:legend {} "Connect Remotely"]
-       [:div.form-group {}
-        [:label.col-lg-2 {:style {:text-align "left"}}  "hostname"]
+      (if (some? error)
+        [:div.alert.alert-danger {}
+          [:h4 {} "Error"]
+          [:p error]]
+        [:div.alert.alert-warning {}
+          [:h4 {} "Disconnected (No Remote Connection)"]
+          [:p "For most default MachineKit images, the default username and password is \"machinekit\"."]])
+
+      [:form.form-horizontal.well {:on-submit (fn [ev] (.preventDefault ev) (controller/connect!))}
+        [:label.col-lg-2 {} "Hostname"]
         [:input.form-control {:type "text"
-                              :on-change #(-> %1
-                                              .-target
-                                              .-value
-                                              controller/set-hostname!)
+                              :on-change #(-> %1 .-target .-value controller/set-hostname!)
                               :placeholder "Printer Address"
-                              :value hostname
-                              }]]
-       [:div.form-group {}
-        [:label.col-lg-2 {:style {:text-align "left"}}  "user name"]
+                              :value (or hostname "")}]
+
+        [:label.col-lg-2 {:style {:margin-top "15px"}} "Username"]
         [:input.form-control {:type "text"
-                              :on-change #(-> %1
-                                              .-target
-                                              .-value
-                                              controller/set-username!)
+                              :on-change #(-> %1 .-target .-value controller/set-username!)
                               :placeholder "Username"
-                              :value username
-                              }]]
-       [:div.form-group {}
-        [:label.col-lg-2 {:style {:text-align "left"}} "password"]
+                              :value (or username "")}]
+
+        [:label.col-lg-2 {:style {:margin-top "15px"}} "Password"]
         [:input.form-control {:type "password"
-                              :on-change #(-> %1
-                                              .-target
-                                              .-value
-                                              controller/set-password!)}]]]]
-     (if connection-pending?
-       [:div.progress.progress-striped.active
-        [:div.progress-bar.progress-bar-success {:style {:width "100%"}}]])
-     [:button.btn.btn-primary {:disabled connection-pending?
-                               :on-click controller/connect!}
-      (if connection-pending? "Connecting" "Connect")]]))
+                              :on-change #(-> %1 .-target .-value controller/set-password!)
+                              :placeholder "Password"
+                              :value (or password "")}]
+
+        [:button.btn.btn-primary {:style {:margin-top "15px"}
+                                  :type "submit"
+                                  :disabled connection-pending?}
+          (if connection-pending? "Connecting ..." "Connect")]]
+    ]))
 
 (defn- edit-icon
   [props]

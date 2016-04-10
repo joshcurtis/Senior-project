@@ -1,8 +1,8 @@
 (ns app.topbar
   (:require
-   [app.state :as state]
-   [remote-manager.model]
+   [app.store :as store]
    [remote-manager.controller]
+   [ini-editor.core]
    [text-editor.core]
    [utils.core :as utils]
    [utils.widgets :as widgets]
@@ -35,7 +35,7 @@
 
 (defn current-topbar-actions
   []
-  (get topbar-actions-map (:tab @state/app-state)))
+  (get topbar-actions-map (:tab @store/state)))
 
 (defn topbar-action-open
   ""
@@ -161,7 +161,7 @@
 
 (defn remote-open-modal
   []
-  (let [configs @remote-manager.model/configs
+  (let [configs @(r/cursor store/state [:configs])
         dirs (:dirs configs)
         contents (:contents configs)
 
@@ -212,7 +212,7 @@
 
 (defn remote-save-modal
   []
-  (let [configs @remote-manager.model/configs
+  (let [configs @(r/cursor store/state [:configs])
         dirs (:dirs configs)
         contents (:contents configs)
 
@@ -242,11 +242,18 @@
                                    {:on-click close-modal!}
                                    "OK"]]}]))
 
+(defn topbar-connection-status
+  []
+  (let [connected? @(r/cursor store/state [:connection :connected?])]
+    [:li {:key "connection-status"}
+     [:a
+      [:span.label {:class (if connected? "label-info" "label-warning")}
+       (if connected? "Connected" "Disconnected")]]]))
+
 (defn render-topbar
   ""
   []
-  (let [app-state @state/app-state
-        tab (:tab app-state)]
+  (let [tab @(r/cursor store/state [:tab])]
     [:div
      (case @current-modal
        "remote-open" [remote-open-modal]
@@ -256,4 +263,5 @@
      [navbar/navbar {:title tab
                      :elements [(topbar-file-menu)
                                 (topbar-remote-menu)
-                                (topbar-help-menu)]}]]))
+                                (topbar-help-menu)]
+                     :right-elements [(topbar-connection-status)]}]]))

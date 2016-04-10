@@ -1,7 +1,7 @@
 (ns text-editor.controller
   "Actions for editing the ini files."
   (:require
-   [text-editor.model :as model]
+   [app.store :as store]
    [utils.core :as utils]
    [reagent.core :as r :refer [atom]]))
 
@@ -9,35 +9,47 @@
 
 ;; loading/saving
 
+(defn- --load-text
+  [state id text]
+  (let []
+    (-> state
+        (assoc-in [:texts id] text)
+        (assoc :selected-text-id id))))
+
 (defn load-text!
   "Loads the given text for editing."
   [id text]
-  (assert (some? id))
-  (assert (string? text))
-  (swap! model/texts assoc
-         id text)
-  (reset! model/selected-id id))
+  {:pre [(vector? id) (string? text)]}
+  (swap! store/state --load-text id text))
 
 (defn set-selected-id!
   [id]
-  (reset! model/selected-id id))
+  (swap! store/state assoc
+         :selected-text-id id))
+
+(defn- --close-selected
+  [state]
+  (let []
+    (assoc state :selected-text-id nil)))
 
 (defn close-selected!
   "Closes the text that is being edited."
   []
-  (let [selected-id @model/selected-id]
-    (reset! model/selected-id nil)
-    (reset! model/selected-id (-> (swap! model/texts dissoc selected-id)
-                                  keys
-                                  first))))
+  (swap! store/state --close-selected))
 
-(defn filename [] (utils/fname-from-path (second @model/selected-id)))
+(defn filename
+  []
+  (-> @store/state :selected-text-id second utils/fname-from-path))
 
 ;; editing
 
-(defn change-current-text
+(defn- --change-current-text
+  [state new-text]
+  (let [{:keys [selected-text-id]} state]
+    (assoc-in state [:texts selected-text-id] new-text)))
+
+(defn change-current-text!
   "Sets the currently selected text value."
   [new-text]
-  (assert (string? new-text))
-  (swap! model/texts assoc
-         @model/selected-id new-text))
+  {:pre [(string? new-text)]}
+  (swap! store/state --change-current-text new-text))

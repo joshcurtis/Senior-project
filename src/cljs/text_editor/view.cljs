@@ -22,4 +22,4 @@
                     :style {:resize "none"
                             :width "100%"
                             :height "100%"}
-                    :on-change #(controller/change-current-text (-> %1 .-target .-value))}]]])))
+                    :on-change #(controller/change-current-text! (-> %1 .-target .-value))}]]])))
