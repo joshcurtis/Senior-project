@@ -1,6 +1,7 @@
 (ns remote-manager.view
   "Provides the view for the remote manager."
   (:require
+   [app.store :as store]
    [remote-manager.controller :as controller]
    [utils.navbar :as navbar]
    [reagent.core :as r :refer [atom]]))
@@ -124,7 +125,8 @@
   ;; TODO fix repetition of ':margin-right "1rem"'
   [props]
   (let [{:keys [connection configs]} props
-        {:keys [username hostname]} connection]
+        {:keys [username hostname]} connection
+        is-machinekit-running? @(r/cursor store/state [:is-machinekit-running?])]
     (assert (some? connection))
     (assert (some? configs))
     [:div {}
@@ -142,7 +144,7 @@
                                :on-click controller/disconnect!}
       "Disconnect"]
 
-     (if (controller/is-machinekit-running?)
+     (if is-machinekit-running?
        [:button.btn.btn-danger {:on-click controller/shutdown-mk!}
         "Shutdown MachineKit"]
        [:button.btn.secondary {:style {:margin-right "1rem"}
