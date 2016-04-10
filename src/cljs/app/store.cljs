@@ -97,7 +97,13 @@
                         "Ext-0" empty-sequence
                         "Ext-1" empty-sequence
                         "Ext-2" empty-sequence}
-              :groups {:temperatures ["Ext-0" "Ext-1" "Ext-2"]}}
+              :groups {:temperatures ["Ext-0" "Ext-1" "Ext-2"]
+                       :axes (mapv #(let [name (str "Axis-" %1)]
+                                      {:name name
+                                       :x (str name "-x")
+                                       :y (str name "-y")
+                                       :z (str name "-z")})
+                                   (range 4))}}
     }))
 
 ;; global helpers

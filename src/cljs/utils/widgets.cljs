@@ -174,9 +174,7 @@
      [:div.modal-body body]
      [:div.modal-footer footer]]]])
 
-;; wraps a Plotly
-;; ;; not handled, changing :layout
-(def line-plot
+(def plotly
   "Renders a line line plot Plotly Documentation -
   https://plot.ly/javascript/line-charts/#basic-line-plot Note: Changing layout
   is not supported. Will have to delete and recreate component to update layout.
@@ -191,30 +189,25 @@
                                id (or (:id props)
                                       (str "line-plot-" (utils/unique-int)))]
                            {:id id
-                            :plot nil
-                            :data nil
-                            :layout nil}))
+                            :plot nil}))
     :component-did-mount (fn [this]
                            (let [{:keys [id]} (r/state this)
                                  {:keys [data layout]} (r/props this)
-                                 plot (.newPlot js/Plotly
-                                                id
-                                                (clj->js data)
-                                                (clj->js layout))]
-                             (r/set-state this {:plot plot
-                                                :data data
-                                                :layout layout})))
-    :component-will-update (fn [this _]
-                             (let [state (r/state this)
-                                   {:keys [id plot]} state
-                                   el (.getElementById js/document id)
-                                   old-data (:data state)
-                                   old-layout (:layout state)
-                                   {:keys [data layout]} (r/props this)]
-                               (aset el "data" (clj->js data))
-                               (.redraw js/Plotly el)
-                               (r/set-state this {:data data
-                                                  :layout layout})))
+                                 plot (.plot js/Plotly
+                                             id
+                                             (clj->js data)
+                                             (clj->js layout))]
+                             (r/set-state this {:plot plot})))
+    :component-did-update (fn [this _]
+                            (let [state (r/state this)
+                                  {:keys [id plot]} state
+                                  el (.getElementById js/document id)
+                                  old-data (:data state)
+                                  old-layout (:layout state)
+                                  {:keys [data layout]} (r/props this)]
+                              (aset el "data" (clj->js data))
+                              (aset el "layout" (clj->js layout))
+                              (.redraw js/Plotly el)))
     :render (fn [this]
               (let [{:keys [id]} (r/state this)
                     div-props (assoc (r/props this) :id id)]
