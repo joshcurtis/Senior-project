@@ -4,9 +4,6 @@
    [clojure.set]
    [clojure.string :as string]))
 
-(defonce mt (.-protobuf js/machinetalk))
-(defonce container (.-Container (.-message mt)))
-(defonce container-types (.-ContainerType (.-message mt)))
 
 (defn alert
   "Shows an alert box with the provided arguments displayed as strings."
@@ -140,19 +137,7 @@
   (clear-interval id)
   (swap! intervals assoc id (js/setInterval f milliseconds)))
 
-
-
-(def test-str
-  "all for now
-  all for now
-  resolved launchercmd tcp://beaglebone.local:62996
-  resolved launcher tcp://beaglebone.local:49764
-  removed 2 0 Machinekit Launcher on beaglebone.local _machinekit._tcp local 4
-  removed 3 0 Launchercmd service on beaglebone.local pid 25044 _machinekit._tcp local 4")
-
-(def services [:launcher, :launchercmd])
-
-(defn parse-removed
+(defn parse-removed-line
   [line]
   (let [tokens (map (comp keyword string/lower-case) (string/split line " "))
         launchercmd (nth tokens 3)
@@ -162,31 +147,39 @@
       (= :launchercmd launchercmd) launchercmd
       :else :error)))
 
-(defn parse-resolved
+(defn parse-resolved-line
   [line]
   (let [[_ service address] (string/split line " ")
         [_ _ port] (string/split address ":")]
-    {(keyword service) port})
+    {(keyword service) port}))
 
-;; TODO handle all types of lines
-(defn parse-lines
+(defn parse-service-lines
+  "Takes a list of lines declaring or removing a service.
+  Outputs a dictionary of current services and their ports.
+  Return an empty dictionary if no services are available."
   [[line & lines] services]
   (if (some? line)
     (let [update (first (string/split line " "))]
-      (if (= update "removed")
-        (parse-lines lines (dissoc services (parse-removed line)))
-        (parse-lines lines (merge services (parse-resolved line))))
-    services))))
+      (cond
+        (= update "removed")  (parse-service-lines lines (dissoc services (parse-removed-line line)))
+        (= update "resolved") (parse-service-lines lines (merge services (parse-resolved-line line)))))
+    services))
 
-(defn parse-resolve-log
+(defn clean-service-log
+  "Removes trailing and leading whitespace from a log
+  Splits the log into lines
+  Keeps only lines that are service updates"
+  [log]
+  (let [lines (->> log string/split-lines (map string/trim))]
+    (filter #(or (string/starts-with? %1 "resolved")
+                 (string/starts-with? %1 "removed"))
+            lines)))
+
+(defn parse-service-log
   "Takes a log of output from the resolve.py script
   and returns a dictionary of available services with their ports"
   [log]
-  (let [lines (->> log string/split-lines (map string/trim))
-        updates (filter #(or (string/starts-with? %1 "resolved")
-                             (string/starts-with? %1 "removed"))
-                        lines)]
-    (parse-lines updates {})))
+  (parse-service-lines (clean-service-log log) {}))
 
 (defn log
   "Casts x to a str and prints it"
@@ -208,7 +201,10 @@
 (defn encode-buffer
   "TODO: Handle more data"
   [type]
-  (let [encoded (.encode container type)
+  (let [mt (.-protobuf js/machinetalk)
+        container (.-Container (.-message mt))
+        container-types (.-ContainerType (.-message mt))
+        encoded (.encode container type)
         limit (.-limit encoded)
         buffer (.-view encoded)
         sliced (map #(aget buffer %) (range 3))]

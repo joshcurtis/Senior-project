@@ -56,7 +56,7 @@
 
 (defn update-services!
   [log]
-  (reset! model/services (utils/parse-resolve-log log)))
+  (reset! model/services (utils/parse-service-log log)))
 
 (defn update-mk-services!
   "Run to parse the ~/Desktop/services.log file
