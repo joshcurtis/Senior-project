@@ -72,7 +72,7 @@
 (defn launch-mk!
   "Launch machinekit"
   [callback]
-  (run-ssh-command  "sh ~/Desktop/launch.sh" callback))
+  (run-ssh-command "sh ~/Desktop/launch.sh" callback))
 
 (defn cleanup!
   "Cleanup running processes"
