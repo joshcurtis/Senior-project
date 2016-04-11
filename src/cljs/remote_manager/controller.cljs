@@ -67,7 +67,7 @@
   "Run to parse the ~/Desktop/services.log file
   and update what machinekit services are available"
   []
-  (server-interop/sftp-get "~/Desktop/services.log" update-services!))
+  (server-interop/sftp-get "/home/machinekit/Desktop/services.log" update-services!))
 
 (defn try-to-launch-resolver!
   []
@@ -102,7 +102,6 @@
 (defn disconnect!
   []
   (utils/clear-interval "update-services")
-  (utils/clear-interval "debug-state")
   (server-interop/cleanup! server-interop/ssh-disconnect!)
   (swap! store/state update :connection
          #(merge %1 {:connected? false
