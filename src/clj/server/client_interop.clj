@@ -68,13 +68,15 @@
   "Gets the contents of a file through sftp. It is required that the server is
   connected through ssh."
   [filename]
-  (assert (string? filename))
-  (locking state/ssh-lock
-    (let [tmp-file (create-tmp-file "")]
-      (ssh/sftp (:sftp-chan @state/connection-state) {} :get filename tmp-file)
-      (let [s (slurp tmp-file)]
-        (delete-file tmp-file)
-        s))))
+  {:pre [(string? filename)]}
+  (try
+    (locking state/ssh-lock
+      (let [tmp-file (create-tmp-file "")]
+        (ssh/sftp (:sftp-chan @state/connection-state) {} :get filename tmp-file)
+        (let [s (slurp tmp-file)]
+          (delete-file tmp-file)
+          {:out s :error nil})))
+    (catch Exception e {:out nil :error (.getMessage e)})))
 
 (defremote sftp-ls
   "Runs the ls command over the remote ssh server. Directories will end with a /

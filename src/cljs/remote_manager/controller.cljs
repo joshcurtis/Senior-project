@@ -60,8 +60,10 @@
 
 (defn update-services!
   [log]
-  (swap! store/state assoc
-         :services (utils/parse-service-log log)))
+  (if (-> log :error nil?)
+    (swap! store/state assoc
+           :services (utils/parse-service-log (:out log)))
+    (.warn js/console (str "update-services! error: " (-> log :error)))))
 
 (defn update-mk-services!
   "Run to parse the ~/Desktop/services.log file
@@ -150,7 +152,10 @@
   (assert (string/includes? full-filename "machinekit"))
   (let [extension (utils/file-ext full-filename)
         callback (get edit-callbacks extension edit-unsupported)
-        callback #(callback %1 [:remote full-filename])]
+        callback #(callback %1 [:remote full-filename])
+        callback #(if (-> %1 :error nil?)
+                   (callback (:out %1))
+                   (.warn js/console (str "edit-file! error: " (:error %1))))]
     (server-interop/sftp-get full-filename callback)))
 
 (defn upload-file!
@@ -164,9 +169,13 @@
   [full-filename]
   (assert (string? full-filename))
   (assert (string/includes? full-filename "machinekit"))
-  (let [fname (utils/fname-from-path full-filename)]
-    (server-interop/sftp-get full-filename
-                             #(utils/save-file %1 fname))))
+  (let [fname (utils/fname-from-path full-filename)
+        save-cback #(utils/save-file %1 fname)
+        err-cback #(.warn js/console "(download-file! " full-filename ") error: " %1)
+        cback #(if (-> %1 :error nil?)
+                 (save-cback (:out %1))
+                 (err-cback (:error %1)))]
+    (server-interop/sftp-get full-filename cback)))
 
 (defn delete-file!
   [full-filename]
