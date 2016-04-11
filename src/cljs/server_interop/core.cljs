@@ -38,10 +38,6 @@
   (assert (fn? callback))
   (remote-callback :sftp-get [filename] callback))
 
-(defn get-service-log
-  [callback]
-  (remote-callback :get-service-log [] callback))
-
 (defn sftp-ls
   "Runs the ls command over the remote ssh server. A vector of hash-maps with the
   keys :name and :type is passed to callback."
