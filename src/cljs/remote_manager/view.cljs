@@ -124,7 +124,7 @@
   ;; TODO fix repetition of ':margin-right "1rem"'
   [props]
   (let [{:keys [connection configs]} props
-        {:keys [username hostname]} connection]
+        {:keys [username hostname running?]} connection]
     (assert (some? connection))
     (assert (some? configs))
     [:div {}
@@ -142,7 +142,7 @@
                                :on-click controller/disconnect!}
       "Disconnect"]
 
-     (if (controller/is-machinekit-running?)
+     (if running?
        [:button.btn.btn-danger {:on-click controller/shutdown-mk!}
         "Shutdown MachineKit"]
        [:button.btn.secondary {:style {:margin-right "1rem"}
@@ -154,10 +154,10 @@
 (defn remote-manager
   "Renders a component for editing the machinekit configuration remotely."
   [props]
-  (let [{:keys [connection configs]} props
+  (let [{:keys [connection configs services]} props
         {:keys [connected?]} connection]
     (assert (some? connection))
     (assert (some? configs))
     (if connected?
-      [connected {:connection connection :configs configs}]
+      [connected {:connection connection :configs configs :running? (empty? services)}]
       [disconnected {:connection connection}])))
