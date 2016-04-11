@@ -182,9 +182,10 @@
   (parse-service-lines (clean-service-log log) {}))
 
 (defn log
-  "Alias for the javascript function console.log"
-  ([x] (.log js/console x))
-  ([& args] (.log js/console args)))
+  "Alias for the javascript function console.log
+  Stringifies object before printing them for convenience"
+  ([x] (.log js/console (str x)))
+  ([& args] (.log js/console (str args))))
 
 (defn- log-ssh-cmd
   "Output should be a map with the keys :exit, :err, and :out.
