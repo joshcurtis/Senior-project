@@ -109,15 +109,6 @@
                      :connection-pending? false
                      :error nil})))
 
-(defn- print-available-services
-  []
-  (println (:services @store/state)))
-
-(defn- log-available-services
-  []
-  (utils/log "Services: ")
-  (-> @store/state :services str utils/log))
-
 (defn launch-mk!
   []
   (if (-> @store/state :connection :connected?)
