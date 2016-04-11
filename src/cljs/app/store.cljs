@@ -32,7 +32,7 @@
                  :password ""}
     :configs {:dirs []
               :contents {}}
-    :is-machinekit-running? false
+
     :services {}
 
     ;;; INI Stuff

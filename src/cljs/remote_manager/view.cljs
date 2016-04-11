@@ -124,9 +124,8 @@
 (defn- connected
   ;; TODO fix repetition of ':margin-right "1rem"'
   [props]
-  (let [{:keys [connection configs]} props
-        {:keys [username hostname]} connection
-        is-machinekit-running? @(r/cursor store/state [:is-machinekit-running?])]
+  (let [{:keys [connection configs services-running?]} props
+        {:keys [username hostname]} connection]
     (assert (some? connection))
     (assert (some? configs))
     [:div {}
@@ -144,7 +143,7 @@
                                :on-click controller/disconnect!}
       "Disconnect"]
 
-     (if is-machinekit-running?
+     (if services-running?
        [:button.btn.btn-danger {:on-click controller/shutdown-mk!}
         "Shutdown MachineKit"]
        [:button.btn.secondary {:style {:margin-right "1rem"}
@@ -161,5 +160,6 @@
     (assert (some? connection))
     (assert (some? configs))
     (if connected?
-      [connected {:connection connection :configs configs :running? (empty? services)}]
+      [connected {:connection connection :configs configs
+                  :services-running? (not (empty? services))}]
       [disconnected {:connection connection}])))

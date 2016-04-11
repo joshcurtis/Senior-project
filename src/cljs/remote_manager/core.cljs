@@ -13,7 +13,10 @@
   takes no props."
   [props]
   (let [connection @(r/cursor store/state [:connection])
-        configs @(r/cursor store/state [:configs])]
+        configs @(r/cursor store/state [:configs])
+        services @(r/cursor store/state [:services])]
+
     [:div {}
      [view/remote-manager {:connection connection
-                           :configs configs}]]))
+                           :configs configs
+                           :services services}]]))
