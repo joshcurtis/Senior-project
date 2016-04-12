@@ -22,13 +22,24 @@
   (assert (string? password))
   (remote-callback :ssh-connect! [hostname username password] callback))
 
+(defn- wrap-callback
+  "Wraps the original callback with one that will log errors to the JS console.
+  The original callback is always called with the result."
+  [callback action]
+  (assert (fn? callback))
+  (fn [result]
+    (let [error (:error result)]
+      (if error (js/console.error (str "Error: " error "\nAction: " action)))
+      (callback result))))
+
 (defn sftp-put
   "Puts a file through sftp. It is required that the server is connected through
   ssh. If callback is not nil, then it will be called upon completion."
   [contents filename callback]
   (assert (string? contents))
   (assert (string? filename))
-  (remote-callback :sftp-put [contents filename] (or callback identity)))
+  (remote-callback :sftp-put [contents filename]
+    (wrap-callback (or callback identity) (str "sftp-put " filename))))
 
 (defn sftp-get
   "Gets the contents of a file through sftp. It is required that the server is
@@ -36,19 +47,22 @@
   [filename callback]
   (assert (string? filename))
   (assert (fn? callback))
-  (remote-callback :sftp-get [filename] callback))
+  (remote-callback :sftp-get [filename]
+    (wrap-callback callback (str "sftp-get " filename))))
 
 (defn sftp-ls
   "Runs the ls command over the remote ssh server. A vector of hash-maps with the
   keys :name and :type is passed to callback."
   [path callback]
-  (remote-callback :sftp-ls [path] callback))
+  (remote-callback :sftp-ls [path]
+    (wrap-callback callback (str "sftp-ls " path))))
 
 (defn sftp-rm
   "Runs the ls command over the remote ssh server. If callback is a not nil,
   then it will be called once the action is complete."
   [path callback]
-  (remote-callback :sftp-rm [path] (or callback identity)))
+  (remote-callback :sftp-rm [path]
+    (wrap-callback (or callback identity) (str "sftp-rm " path))))
 
 (defn connection-status
   "Gets the connection status of the server as a hashmap. See
