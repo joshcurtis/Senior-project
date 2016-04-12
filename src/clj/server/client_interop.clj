@@ -10,6 +10,8 @@
   (:import
    [org.apache.commons.codec.binary Hex]))
 
+(defonce SSH-NO-SUCH-FILE-ERROR 2)
+
 (defn- create-tmp-file
   "TODO: Get rid of the endline. Using the print instead of println function did
   not work in this context."
@@ -93,7 +95,11 @@
         (let [s (slurp tmp-file)]
           (delete-file tmp-file)
           {:out s :error nil})))
-    (catch Exception e {:out nil :error (.getMessage e)})))
+    (catch Exception e
+      (let [error-id (.-id e)]
+        (if (= error-id SSH-NO-SUCH-FILE-ERROR)
+          {:out nil :error (str "\nNo such file '" filename "'")}
+          {:out nil :error (.getMessage e)})))))
 
 (defremote sftp-ls
   "Runs the ls command over the remote ssh server. Directories will end with a /
