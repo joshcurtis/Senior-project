@@ -30,12 +30,9 @@
      [:h1 [:a {:href "https://github.com/machinekit/machinekit"
                :target "_blank"} "MachineKit"]]
      [:div "MachineKit is a platform for machine control applications."]
-     [:h2 [:a
-           {:href
-            "https://github.com/machinekit/machinekit-docs/blob/master/machinekit-documentation/getting-started/getting-started-platform.asciidoc"
-            :target "_blank"}
-           "Installation"]]
-     [:h2 "Theme"]
+     [:h2 [:a {:href "https://github.com/machinekit/machinekit-docs/blob/master/machinekit-documentation/getting-started/getting-started-platform.asciidoc"
+               :target "_blank"} "Installation"]]
+     [:h3 {:style {:marginTop "51px"}} "Select a Theme"]
      [widgets/dropdown-input {:disabled false
                               :options ["flatly"
                                         "cerulean"
