@@ -63,7 +63,7 @@
   (if (-> log :error nil?)
     (swap! store/state assoc
            :services (utils/parse-service-log (:out log)))
-    (.warn js/console (str "Error in update-services!: " (log :error)))))
+    (.warn js/console (str "update-services! error: " (-> log :error)))))
 
 (defn update-mk-services!
   "Run to parse the ~/Desktop/services.log file

@@ -47,7 +47,8 @@
   [filename callback]
   (assert (string? filename))
   (assert (fn? callback))
-  (remote-callback :sftp-get [filename] callback))
+  (remote-callback :sftp-get [filename]
+    (wrap-callback callback (str "sftp-get " filename))))
 
 (defn sftp-ls
   "Runs the ls command over the remote ssh server. A vector of hash-maps with the
