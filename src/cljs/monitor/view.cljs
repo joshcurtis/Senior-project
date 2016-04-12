@@ -11,9 +11,9 @@
   [:div.jumbotron
    [:h1 "Not Connected"]
    [:p "The application is not connected to a BeagleBone."]
-   [:p "Connect in the"
+   [:p "Connect in the "
     [:a {:on-click #(utils/click-element "tab-navigation-Remote")
-         :style {:cursor "pointer"}} " remote"]
+         :style {:cursor "pointer"}} "Remote"]
     " tab."]])
 
 (defn temperature-plot
