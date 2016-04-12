@@ -120,6 +120,21 @@
                contents)]]
         [:div {} "Loading..."])]]))
 
+(defn- control-buttons
+  [services-running?]
+  (let [button-style {:margin-right "1rem"}]
+    [:div {:style {:marginBottom "10px"}}
+      [:button.btn.btn-primary {:style button-style
+                                :on-click controller/update-configs!} "Refresh"]
+      [:button.btn.btn-warning {:style button-style
+                                :on-click controller/disconnect!} "Disconnect"]
+
+      (if services-running?
+        [:button.btn.btn-danger {:style button-style
+                                 :on-click controller/shutdown-mk!} "Shutdown MachineKit"]
+        [:button.btn.secondary {:style button-style
+                                :on-click controller/launch-mk!} "Launch MachineKit"])
+    ]))
 
 (defn- connected
   ;; TODO fix repetition of ':margin-right "1rem"'
@@ -132,25 +147,13 @@
      [:h1 {} (str username \@ hostname)]
      [:div.well
       (str "Remote configurations should be located in /home/" username "/machinekit/configs/. Running machinekit for the first time will load the configurations onto this directory.")]
+     (control-buttons services-running?)
      (map (fn [d] [render-config {:key d
                                   :dir d
                                   :contents (get-in configs [:contents d])}])
           (:dirs configs))
-     [:button.btn.btn-primary {:style {:margin-right "1rem"}
-                               :on-click controller/update-configs!}
-      "Refresh"]
-     [:button.btn.btn-warning {:style {:margin-right "1rem"}
-                               :on-click controller/disconnect!}
-      "Disconnect"]
-
-     (if services-running?
-       [:button.btn.btn-danger {:on-click controller/shutdown-mk!}
-        "Shutdown MachineKit"]
-       [:button.btn.secondary {:style {:margin-right "1rem"}
-                               :on-click controller/launch-mk!}
-        "Launch MachineKit"])
+     (control-buttons services-running?)
      ]))
-
 
 (defn remote-manager
   "Renders a component for editing the machinekit configuration remotely."
