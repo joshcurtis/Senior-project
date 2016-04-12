@@ -87,10 +87,10 @@
     (assert (some? directory))
     (assert (some? filename))
     [:tr {}
-     [:td {} filename]
-     [:td {} [edit-icon {:on-click #(controller/edit-file! full-filename)}]]
-     [:td {} [save-icon {:on-click #(controller/download-file! full-filename)}]]
-     [:td {} [delete-icon {:on-click #(controller/delete-file! full-filename)}]]]))
+     [:td {:style {:width "40%"}} filename]
+     [:td {:style {:width "20%"}} [edit-icon {:on-click #(controller/edit-file! full-filename)}]]
+     [:td {:style {:width "20%"}} [save-icon {:on-click #(controller/download-file! full-filename)}]]
+     [:td {:style {:width "20%"}} [delete-icon {:on-click #(controller/delete-file! full-filename)}]]]))
 
 (defn- render-config
   "
@@ -102,23 +102,25 @@
         loaded? (some? contents)
         contents (or contents [])]
     (assert (some? dir))
-    [:div.panel.panel-default {}
-     [:div.panel-body
-      [:h3 {} (if (= dir "") "." dir)]
+    [:div {}
+      (if (= dir "")
+        [:h3 {:style {:paddingLeft "8px" :margin "00px 0px 10px 0px"}} "."]
+        [:h3 {:style {:paddingLeft "8px" :margin "40px 0px 10px 0px"}} dir])
+
       (if loaded?
         [:table.table.table-striped.table-hover {}
          [:thead {}
           [:tr {}
-           [:th {} "File"]
-           [:th {} "Edit"]
-           [:th {} "Download"]
-           [:th {} "Delete"]]]
+           [:th {:style {:width "40%"}} "File"]
+           [:th {:style {:width "20%"}} "Edit"]
+           [:th {:style {:width "20%"}} "Download"]
+           [:th {:style {:width "20%"}} "Delete"]]]
          [:tbody {}
           (map (fn [f] [render-file {:key f
                                      :directory dir
-                                     :filename f}])
-               contents)]]
-        [:div {} "Loading..."])]]))
+                                     :filename f}]) contents)]]
+        [:div {} (str "Loading " dir " ...")])
+    ]))
 
 (defn- control-buttons
   [services-running?]
@@ -148,12 +150,16 @@
      [:div.well
       (str "Remote configurations should be located in /home/" username "/machinekit/configs/. Running machinekit for the first time will load the configurations onto this directory.")]
      (control-buttons services-running?)
-     (map (fn [d] [render-config {:key d
-                                  :dir d
-                                  :contents (get-in configs [:contents d])}])
-          (:dirs configs))
+
+     [:div.panel.panel-default
+      [:div.panel-body
+       (map (fn [d] [render-config {:key d
+                                    :dir d
+                                    :contents (get-in configs [:contents d])}])
+            (:dirs configs))]]
+
      (control-buttons services-running?)
-     ]))
+    ]))
 
 (defn remote-manager
   "Renders a component for editing the machinekit configuration remotely."
