@@ -4,10 +4,6 @@
    [cljs.test :refer-macros [deftest is testing run-tests]]
    [utils.core :as utils]))
 
-(deftest simple
-  (is (= 1 1)))
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Testing the parsing of output
 ;;; resolve.py found in ~/Desktop of

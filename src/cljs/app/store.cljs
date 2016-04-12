@@ -34,6 +34,7 @@
               :contents {}}
 
     :services {}
+    :sockets {}
 
     ;;; INI Stuff
     ;; hashmap: [source path] -> {:ini parsed-ini from ini-editor.parser

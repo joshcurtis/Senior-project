@@ -41,6 +41,23 @@
                     (if dir? (str name \/) name)))
           ls)))
 
+(defn add-socket!
+  "type should be one of :dealer or :subscriber
+  TODO: Possibly choose the type based on the service"
+  [service port type]
+  (let [endpoint (str "tcp://" (:hostname @state/connection-state) ":" port)
+        context (zmq/zcontext)
+        identity (.getBytes "machinekit-client")
+        socket (doto  (zmq/socket context :dealer)
+                 (zmq/connect endpoint))]
+    (zmq/set-identity socket identity)
+    (swap! state/sockets assoc service socket)))
+
+(defn remove-socket!
+  [service]
+  (zmq/close (service @state/sockets))
+  (swap! state/sockets dissoc service))
+
 (defremote ssh-disconnect!
   []
   (state/ssh-disconnect!)
@@ -110,21 +127,14 @@
   (locking state/ssh-lock
     (ssh/ssh (:session @state/connection-state) {:cmd cmd})))
 
-
-(def config-port 51419)
-(def command-port 64549)
+(defn format-data
+  [data]
+  (let [hexstr (string/join (map #(format "%02X" %) data))]
+    (Hex/decodeHex (.toCharArray hexstr))))
 
 (defremote send-data
   "Socket testing functionality"
-  [data]
-  (let [endpoint (str "tcp://" (:hostname @state/connection-state) ":" command-port)
-        context (zmq/zcontext)
-        identity (.getBytes "machinekit-client")
-        hexstr (string/join (map #(format "%02X" %) data))
-        buffer (Hex/decodeHex (.toCharArray hexstr))
-        ]
-    (with-open [dealer (doto  (zmq/socket context :dealer)
-                         (zmq/connect endpoint))]
-      (zmq/set-identity dealer identity)
-      (zmq/send dealer buffer)
-      data)))
+  [service data]
+  (let [buffer (format-data data)
+        socket (service @state/sockets)]
+    (zmq/send socket buffer) data))

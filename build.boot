@@ -24,12 +24,14 @@
                  [reagent "0.6.0-alpha"]
                  [commons-codec/commons-codec "1.10"]
                  [crisptrutski/boot-cljs-test "0.2.2-SNAPSHOT" :scope "test"]
+                 [adzerk/boot-test "1.1.1" :scope "test"]
                  ]
  )
 
 (require '[adzerk.boot-cljs :refer [cljs]]
          '[adzerk.boot-cljs-repl :refer [cljs-repl start-repl]]
          '[adzerk.boot-reload :refer [reload]]
+         '[adzerk.boot-test :refer [test]]
          '[pandeiro.boot-http :refer [serve]]
          '[crisptrutski.boot-cljs-test :refer [test-cljs]]
          '[codox.main :refer [generate-docs]])
@@ -78,22 +80,17 @@
                    :output-path "target/clj-doc"})))
 
 (deftask testing []
-  (set-env! :source-paths #(conj % "test/cljs"))
+  (set-env! :source-paths #(conj % "test/cljs" "test/clj"))
   identity)
 
-;;; Note: Comment below copied from some autogen stuff from another project
-
-;;; This prevents a name collision WARNING between the test task and
-;;; clojure.core/test, a function that nobody really uses or cares
-;;; about.
-(ns-unmap 'boot.user 'test)
-
-(deftask test []
+(deftask test-all []
   (comp (testing)
+        (test)
         (test-cljs :js-env :phantom
                    :exit?  false)))
 
 (deftask auto-test []
   (comp (testing)
         (watch)
+        (test)
         (test-cljs :js-env :phantom)))
