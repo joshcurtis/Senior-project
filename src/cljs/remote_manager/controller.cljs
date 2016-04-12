@@ -103,11 +103,11 @@
 
 (defn disconnect!
   []
+  (swap! store/state assoc-in [:connection :connected?] false)
   (utils/clear-interval "update-services")
   (server-interop/cleanup! server-interop/ssh-disconnect!)
   (swap! store/state update :connection
-         #(merge %1 {:connected? false
-                     :connection-pending? false
+         #(merge %1 {:connection-pending? false
                      :error nil})))
 
 (defn launch-mk!
