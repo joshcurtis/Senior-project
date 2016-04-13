@@ -10,6 +10,8 @@
   (:import
    [org.apache.commons.codec.binary Hex]))
 
+(defonce SSH-NO-SUCH-FILE-ERROR 2)
+
 (defn- create-tmp-file
   "TODO: Get rid of the endline. Using the print instead of println function did
   not work in this context."
@@ -59,27 +61,34 @@
   (swap! state/sockets dissoc service))
 
 (defremote ssh-disconnect!
+  "Disconnects from SSH. Returns nil if successful, otherwise error message."
   []
-  (state/ssh-disconnect!)
-  nil)
+  (try
+    (state/ssh-disconnect!)
+    nil
+  (catch Exception e (.getMessage e))))
 
 (defremote ssh-connect!
-  "Connect remotely through ssh. Returns true if successful, otherwise false."
+  "Connect remotely through SSH. Returns nil if successful, otherwise error
+  message."
   [hostname username password]
-  (try (state/ssh-connect! hostname username password)
-       nil
-       (catch Exception e (.getMessage e))))
+  (try
+    (state/ssh-connect! hostname username password)
+    nil
+  (catch Exception e (.getMessage e))))
 
 (defremote sftp-put
   "Puts a file through sftp. It is required that the server is connected
   through ssh."
   [contents filename]
-  (assert (string? contents))
-  (assert (string? filename))
-  (locking state/ssh-lock
+  {:pre [(string? contents) (string? filename)]}
+  (try
     (let [tmp-file (create-tmp-file contents)]
-      (ssh/sftp (:sftp-chan @state/connection-state) {} :put tmp-file filename)
-      (delete-file tmp-file))))
+      (locking state/ssh-lock
+        (ssh/sftp (:sftp-chan @state/connection-state) {} :put tmp-file filename))
+      (delete-file tmp-file)
+      {:error nil})
+  (catch Exception e {:error (.getMessage e)})))
 
 (defremote sftp-get
   "Gets the contents of a file through sftp. It is required that the server is
@@ -87,31 +96,40 @@
   [filename]
   {:pre [(string? filename)]}
   (try
-    (locking state/ssh-lock
-      (let [tmp-file (create-tmp-file "")]
-        (ssh/sftp (:sftp-chan @state/connection-state) {} :get filename tmp-file)
-        (let [s (slurp tmp-file)]
-          (delete-file tmp-file)
-          {:out s :error nil})))
-    (catch Exception e {:out nil :error (.getMessage e)})))
+    (let [tmp-file (create-tmp-file "")]
+      (locking state/ssh-lock
+        (ssh/sftp (:sftp-chan @state/connection-state) {} :get filename tmp-file))
+      (let [s (slurp tmp-file)]
+        (delete-file tmp-file)
+        {:out s :error nil}))
+  (catch Exception e
+    (let [error-id (.-id e)]
+      (if (= error-id SSH-NO-SUCH-FILE-ERROR)
+        {:out nil :error (str "\nNo such file '" filename "'")}
+        {:out nil :error (.getMessage e)})))))
 
 (defremote sftp-ls
   "Runs the ls command over the remote ssh server. Directories will end with a /
   character.
   Note: Never pass the empty string to ssh/sftp"
   [path]
-  (locking state/ssh-lock
-    (format-ls (ssh/sftp (:sftp-chan @state/connection-state)
-                         {}
-                         :ls (if (string/blank? path) "./" path)))))
+  {:pre [(string? path)]}
+  (try
+    (let [non-blank-path (if (string/blank? path) "./" path)]
+      (locking state/ssh-lock
+        {:out (format-ls (ssh/sftp (:sftp-chan @state/connection-state) {} :ls non-blank-path))
+         :error nil}))
+  (catch Exception e {:out nil :error (.getMessage e)})))
 
 (defremote sftp-rm
   "Runs the rm command over the remote ssh server."
   [path]
-  (locking state/ssh-lock
-    (ssh/sftp (:sftp-chan @state/connection-state)
-              {}
-              :rm path)))
+  {:pre [(string? path)]}
+  (try
+    (locking state/ssh-lock
+      (ssh/sftp (:sftp-chan @state/connection-state) {} :rm path))
+    {:error nil}
+  (catch Exception e {:error (.getMessage e)})))
 
 (defremote connection-status
   "Get the connection status of the server. This involves things such as being
