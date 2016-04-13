@@ -34,20 +34,26 @@
   call this function. Prefer to use `update-configs!`, which uses this function."
   [dir]
   (assert (utils/dir? dir))
-  (let [callback (fn [files]
-                   (swap! store/state assoc-in [:configs :contents dir] files))]
+  (let [callback (fn [result]
+                  (assert (some? result))
+                  (let [files (:out result)]
+                    (assert (some? files))
+                    (swap! store/state assoc-in [:configs :contents dir] files)))]
     (server-interop/sftp-ls (str "machinekit/configs/" dir) callback)))
 
 (defn update-configs!
   "Updates the configs based on the server."
   []
   (let [valid-dir #(or (utils/dir? %) (= "" %))
-        callback (fn [dirs]
-                   (swap! store/state assoc-in
+        callback (fn [result]
+                   (assert (some? result))
+                   (let [dirs (:out result)]
+                     (assert (some? dirs))
+                     (swap! store/state assoc-in
                           [:configs :dirs] (filterv valid-dir (into [""] dirs)))
-                   (swap! store/state assoc-in
+                     (swap! store/state assoc-in
                           [:configs :contents ""] (filterv (complement utils/dir?) dirs))
-                   (doseq [dir dirs] (if (valid-dir dir) (update-config! dir))))]
+                     (doseq [dir dirs] (if (valid-dir dir) (update-config! dir)))))]
     (clear-configs!)
     (server-interop/sftp-ls "machinekit/configs/" callback)))
 

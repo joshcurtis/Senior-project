@@ -29,7 +29,7 @@
   (assert (fn? callback))
   (fn [result]
     (let [error (:error result)]
-      (if error (js/console.error (str "Error: " error "\nAction: " action)))
+      (if error (js/console.info (str "Error: " error "\nAction: " action)))
       (callback result))))
 
 (defn sftp-put
