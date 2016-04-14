@@ -6,7 +6,8 @@
    [reagent.core :as r :refer [atom]]))
 
 (def empty-sequence
-  "A sequence is a data structure that can conj a new item. This will be
+  " Update: vector is entrenched as using `subvec` is convenient.
+  A sequence is a data structure that can conj a new item. This will be
   converted into a js-array.  Why is this a constant? You can use a list, and
   new items will be put at the front and the plot will be drawn backwards. You
   can use a vector, and items will be pushed back. I don't know which is more
