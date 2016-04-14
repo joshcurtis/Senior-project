@@ -16,15 +16,22 @@
          :style {:cursor "pointer"}} "Remote"]
     " tab."]])
 
+(defn n-most-recent
+  [coll n]
+  {:pre [(vector? coll)]}
+  (let [len (count coll)
+        start (max 0 (- len n))]
+    (subvec coll start)))
+
 (defn temperature-plot
-  [{:keys [temperature-group history]}]
-  (let [times (get history "t")]
+  [{:keys [temperature-group history display-len]}]
+  (let [times (n-most-recent (get history "t") display-len)]
     [widgets/plotly {:style {:width "100%"
                              :height "512px"}
                      :data (map (fn [k] {:mode "lines"
                                          :name k
                                          :x times
-                                         :y (get history k)})
+                                         :y (n-most-recent (get history k) display-len)})
                                 temperature-group)
                      :layout {:title "Temperatures"
                               :xaxis {:title "Time Elapsed (s)"}
@@ -51,7 +58,7 @@
   [props]
   (let [is-monitoring? @(r/cursor store/state [:is-monitoring?])
         monitor @(r/cursor store/state [:monitor])
-        {:keys [all-components measurements history groups]} monitor]
+        {:keys [all-components measurements history history-display-size groups]} monitor]
     [:div
      ;; temperature plot
      [:div
@@ -63,7 +70,8 @@
                                 :style {:margin-right "1rem"}}
        "Clear History"]]
      [temperature-plot {:temperature-group (:temperatures groups)
-                        :history history}]
+                        :history history
+                        :display-len history-display-size}]
      [axes-plot {:axes-group (:axes groups)
                  :measurements measurements}]
      ;; all table
