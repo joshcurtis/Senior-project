@@ -36,13 +36,28 @@
   reset."
   (swap! store/state --clear-history))
 
+(defn- conj-and-cut-fn
+  [max-len cut-to-len]
+  (fn [coll el]
+    (assert (vector? coll))
+    (let [coll (conj coll el)
+          len (count coll)]
+      (if (> len max-len)
+        (subvec coll (- len cut-to-len))
+        coll))))
+
 (defn- --update-measurements
   [state measurements]
-  (let [{:keys [monitor is-monitoring?]} state]
+  (let [{:keys [monitor is-monitoring?]} state
+        {:keys [history-display-size history-store-size]} monitor]
     (if is-monitoring?
       (-> state
           (assoc-in [:monitor :measurements] measurements)
-          (update-in [:monitor :history] #(merge-with conj %1 %2) measurements))
+          (update-in [:monitor :history]
+                     #(merge-with (conj-and-cut-fn history-store-size history-display-size)
+                                  %1
+                                  %2)
+                     measurements))
       state)))
 
 (defn update-measurements!
