@@ -2,3 +2,5 @@ target
 out
 .nrepl*
 scripts/node_modules/*
+resources/public/js/compiled
+figwheel_server.log

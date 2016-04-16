@@ -33,6 +33,5 @@
 (defn ^:export start
   "Renders the application onto the DOM element \"app\""
   []
-  (r/render-component
-   [app {}]
-   (.getElementById js/document "app")))
+  (r/render-component [app {}]
+                      (.getElementById js/document "app")))
