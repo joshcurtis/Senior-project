@@ -13,16 +13,19 @@
 
 (defn- --load-str
   [state id s]
-  (let [ini (parser/parse-ini s)
-        s-metas (:section-metadata ini)
-        is-important? #(not (get %1 :unimportant false))
-        imp (filter #(-> %1 second is-important?)
-                    s-metas)
-        imp-set (set (map first imp))]
-    (-> state
-        (assoc-in [:inis id :ini] ini)
-        (assoc-in [:inis id :expanded?] imp-set)
-        (assoc :selected-ini-id id))))
+  (try
+    (let [ini (parser/parse-ini s)
+          s-metas (:section-metadata ini)
+          is-important? #(not (get %1 :unimportant false))
+          imp (filter #(-> %1 second is-important?)
+                      s-metas)
+          imp-set (set (map first imp))]
+      (-> state
+          (assoc-in [:inis id :ini] ini)
+          (assoc-in [:inis id :expanded?] imp-set)
+          (assoc :selected-ini-id id)))
+    (catch :default e (do (js/alert "Invalid INI")
+                          state))))
 
 (defn load-str!
   "The given ini string representation is loaded for editing. The model is
