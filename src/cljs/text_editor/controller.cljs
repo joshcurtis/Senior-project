@@ -9,9 +9,16 @@
 
 ;; loading/saving
 
+(defn- gen-unique
+  [ids id]
+  (loop [id id]
+    (if (contains? ids id)
+      (recur (update id 1 #(str "copy-" %1)))
+      id)))
+
 (defn- --load-text
   [state id text]
-  (let []
+  (let [id (gen-unique (-> state :texts keys set) id)]
     (-> state
         (assoc-in [:texts id] text)
         (assoc :selected-text-id id))))
