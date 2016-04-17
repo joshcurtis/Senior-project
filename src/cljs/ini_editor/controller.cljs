@@ -11,17 +11,10 @@
 
 ;; topbar
 
-(defn- gen-unique
-  [ids id]
-  (loop [id id]
-    (if (contains? ids id)
-      (recur (update id 1 #(str "copy-" %1)))
-      id)))
-
 (defn- --load-str
   [state id s]
   (try
-    (let [id (gen-unique (-> state :inis keys set) id)
+    (let [id (utils/gen-unique-id (-> state :inis keys set) id)
           ini (parser/parse-ini s)
           s-metas (:section-metadata ini)
           is-important? #(not (get %1 :unimportant false))

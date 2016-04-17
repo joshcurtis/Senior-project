@@ -5,6 +5,22 @@
    [utils.core :as utils]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Testing for ids stuff
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(deftest unique-int
+  (is (distinct? (map utils/unique-int (range 10000)))))
+
+(deftest gen-unique-id
+  (let [ra [:remote "a"]
+        rb [:remote "b"]
+        la [:local "a"]
+        lb [:local "b"]
+        ids (set [ra rb la lb])
+        new [:remote "c"]]
+    (is (= (utils/gen-unique-id ids new) new))
+    (is (not= (utils/gen-unique-id ids ra) ra))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Testing the parsing of output
 ;;; resolve.py found in ~/Desktop of
 ;;; the BB

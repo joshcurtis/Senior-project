@@ -91,7 +91,7 @@
     (-> s (string/split \.) last string/lower-case)
     ""))
 
-;;
+;; id stuff
 
 (defonce unique-int-counter (atom 0))
 
@@ -100,6 +100,16 @@
   0 and counts upward."
   []
   (swap! unique-int-counter inc))
+
+(defn gen-unique-id
+  "Generates an id so that it does not exist in ids. An id is a vector tuple of
+  structure [any string]. To make the id unique, the string is prefixed with
+  `copy-` until it is not found in the set `ids`."
+  [ids id]
+  (loop [id id]
+    (if (contains? ids id)
+      (recur (update id 1 #(str "copy-" %1)))
+      id)))
 
 ;; intervals that are reload friendly
 

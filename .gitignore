@@ -1,6 +1,7 @@
 target
 out
 .nrepl*
+.lein-repl-history
 scripts/node_modules/*
 resources/public/js/compiled
 figwheel_server.log
