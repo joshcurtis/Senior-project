@@ -88,8 +88,8 @@
   [s]
   (assert (string? s))
   (if (and (string/includes? s \.) (not (dir? s)))
-    (-> s (string/split \.) last string/lower-case)))
-
+    (-> s (string/split \.) last string/lower-case)
+    ""))
 
 ;;
 

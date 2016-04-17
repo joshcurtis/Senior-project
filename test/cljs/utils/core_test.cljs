@@ -66,3 +66,26 @@
   (is (empty? (utils/parse-service-log log-with-no-services)))
   (is (empty? (utils/parse-service-log log-with-stopped-services)))
   (is (= {:launchercmd "62996", :launcher "49764"} (utils/parse-service-log log-with-services))))
+
+
+(deftest append-line-test
+  (is (= "line" (utils/append-line nil "line")))
+  (is (= "line\n" (utils/append-line "line" nil)))
+  (is (= "line" (utils/append-line "" "line")))
+  (is (= "line\n" (utils/append-line "line" "")))
+  (is (= "line1\nline2" (utils/append-line "line1" "line2"))))
+
+(deftest remove-idx-test
+  (is (= [1 2 3] (utils/remove-idx [0 1 2 3] 0)))
+  (is (= [0 1 2] (utils/remove-idx [0 1 2 3] 3)))
+  (is (empty? (utils/remove-idx [1] 0))))
+
+(deftest toggle-membership-test
+  (is (= #{1} (utils/toggle-membership #{} 1)))
+  (is (= #{} (utils/toggle-membership #{1} 1))))
+
+(deftest file-ext-test
+  (is (= "" (utils/file-ext "some-file")))
+  (is (= "" (utils/file-ext "dir1/dir2/dir3/some-file")))
+  (is (= "txt" (utils/file-ext "file.txt")))
+  (is (= "txt" (utils/file-ext "dir1/dir2/dir3/file.txt"))))
