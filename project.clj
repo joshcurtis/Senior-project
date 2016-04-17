@@ -16,7 +16,8 @@
                  [org.clojars.magomimmo/shoreleave-remote "0.3.1"]
                  [javax.servlet/servlet-api "2.5"]
                  [clj-ssh "0.5.14"]
-                 [org.zeromq/cljzmq "0.1.4"]
+                 [org.zeromq/jeromq "0.3.3"]
+                 [org.zeromq/cljzmq "0.1.4" :exclusions [org.zeromq/jzmq]]
                  [reagent "0.6.0-alpha"]
                  [commons-codec/commons-codec "1.10"]]
 
