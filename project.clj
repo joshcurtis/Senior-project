@@ -4,7 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :min-lein-version "2.6.1"
+  :min-lein-version "2.5.0"
 
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.228"]
@@ -16,18 +16,22 @@
                  [org.clojars.magomimmo/shoreleave-remote "0.3.1"]
                  [javax.servlet/servlet-api "2.5"]
                  [clj-ssh "0.5.14"]
-                 [org.zeromq/cljzmq "0.1.4"]
+                 [org.zeromq/jeromq "0.3.3"]
+                 [org.zeromq/cljzmq "0.1.4" :exclusions [org.zeromq/jzmq]]
                  [reagent "0.6.0-alpha"]
                  [commons-codec/commons-codec "1.10"]]
 
   :jvm-opts ["-Djava.library.path=/usr/lib:/usr/local/lib"]
 
   :plugins [[lein-figwheel "0.5.2"]
+            [lein-doo "0.1.6"]
             [lein-cljsbuild "1.1.3" :exclusions [[org.clojure/clojure]]]]
 
-  :source-paths ["src/clj" "src/cljs"]
+  :source-paths ["src/clj" "src/cljs" "test/clj"]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
+
+  :doo {:build "test"}
 
   :cljsbuild {:builds
               [{:id "dev"
@@ -41,6 +45,15 @@
                            :output-to "resources/public/js/compiled/core.js"
                            :output-dir "resources/public/js/compiled/out"
                            :source-map-timestamp true}}
+
+               {:id "test"
+                :source-paths ["src" "test"]
+
+                :compiler {:main app.runner
+                           :output-to "resources/public/js/compiled/test.js"
+                           :output-dir "resources/public/js/compiled/test"}}
+
+
                ;; This next build is an compressed minified build for
                ;; production. You can build this with:
                ;; lein cljsbuild once min
