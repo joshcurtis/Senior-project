@@ -16,6 +16,12 @@ Edit specifications for use with MachineKit
 1. `lein figwheel` to host the application and provide a REPL into the browser
 2. Check it out on a web browser at [localhost:3000](localhost:3000)
 
+## Other
+* `lein with-profile cljs codox` - Generate ClojureScript documentation under `cljs_doc`
+* `lein with-profile clj codox` - Generate Clojure documentation under `clj_doc`
+* `lein doo phantom` - Run ClojureScript tests, updates when files change.
+* `lein test` - Run Clojure tests once
+
 ## Enabling Custom Formatting for Chrome/Chromium Console
 1. Open DevTools
 2. Go to Settings ("three dots" icon in the upper right corner of DevTools > Menu > Settings F1 > General > Console)
@@ -28,7 +34,7 @@ Edit specifications for use with MachineKit
 * `cljs` - [modern cljs](https://github.com/magomimmo/modern-cljs)
 * `reagent` - [quick guide](https://reagent-project.github.io) [complete api](http://blog.ducky.io/reagent-docs/index.html)
 
-## Adding Javascript
+## Adding JavaScript
 1. Place files under `resources/public/js/`
 2. Add them with the other `js` files in `resources/public/index.html`
 3. Add definitions of variables to be used under `resources/public/js/externs.js`

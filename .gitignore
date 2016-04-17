@@ -5,3 +5,5 @@ scripts/node_modules/*
 resources/public/js/compiled
 figwheel_server.log
 .lein-failures
+clj_doc
+cljs_doc

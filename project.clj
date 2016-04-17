@@ -25,11 +25,18 @@
 
   :plugins [[lein-figwheel "0.5.2"]
             [lein-doo "0.1.6"]
+            [lein-codox "0.9.4"]
             [lein-cljsbuild "1.1.3" :exclusions [[org.clojure/clojure]]]]
 
   :source-paths ["src/clj" "src/cljs" "test/clj"]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
+
+  :profiles {:clj {:codox {:soure-paths ["src/clj"]
+                           :output-path "clj_doc"}}
+             :cljs {:codox {:language :clojurescript
+                            :source-paths ["src/cljs"]
+                            :output-path "cljs_doc"}}}
 
   :doo {:build "test"}
 
