@@ -1,5 +1,6 @@
-# MachineKit Editor
+# MachineKit Editor ![build-status](https://travis-ci.org/joshcurtis/MachineView.svg?branch=master "build status")
 Edit specifications for use with MachineKit
+
 
 ## Maintainers
 - Josh Curtis
@@ -12,9 +13,8 @@ Edit specifications for use with MachineKit
 3. Web Browser - JavaScript capable browser. Chrome, Firefox, or Safari are recommended
 
 ## Running Development Environment
-1. `boot dev`
+1. `lein figwheel` to host the application and provide a REPL
 2. Check it out on a web browser at [localhost:3000](localhost:3000)
-3. To connect to the browser's REPL, run `boot repl -c`, and issue the command `(start-repl)`
 
 ## Enabling Custom Formatting for Chrome/Chromium Console
 1. Open DevTools
@@ -23,19 +23,15 @@ Edit specifications for use with MachineKit
 4. Close DevTools
 5 .Open DevTools
 
-## Generating HTML Code Documentation
-1. `boot doc`
-2. Check out the documentation html page located in the target/doc/ directory
-
 ## Development Resources
 * `compojure` - [quick guide](https://learnxinyminutes.com/docs/compojure/)
 * `cljs` - [modern cljs](https://github.com/magomimmo/modern-cljs)
 
 ## Adding Javascript
-1. Place files under `src/html/js/`
-2. Add them with the other `js` files in `src/html/index.html`
-3. Add definitions of variables to be used under `src/html/js/externs.js`
+1. Place files under `resources/public/js/`
+2. Add them with the other `js` files in `resources/public/index.html`
+3. Add definitions of variables to be used under `resources/public/js/externs.js`
 
 ## Resources
 * [bootswatch](https://bootswatch.com) for CSS styles
-* [icons](https://design.google.com/icons/), use 2x
+* [icons](https://design.google.com/icons/), use 2x size

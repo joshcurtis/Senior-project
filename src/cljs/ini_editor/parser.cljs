@@ -34,8 +34,7 @@
       [:key-value (mapv string/trim (string/split l #"=" 2))]
 
       :else
-      (do (throw (str "ini parse error: " l))
-          [:parse-error nil]))))
+      (throw (js/Error. "ini parser error: " l)))))
 
 (defn- helper-update-value
   "Updates the ini value based on its metadata. For most cases, this means
@@ -56,6 +55,10 @@
       (assoc-in values [sec k]
                 (if (some? old-val) (conj old-val v) v)))))
 
+(defn my-merge
+  ([] {})
+  ([& args] (apply merge args)))
+
 (defn parse-ini
   "Parses the ini into an internal representation. Here are the fields of the
   returned hashmap:
@@ -74,7 +77,8 @@
          section-order [] ;; [string]
          values {}] ;; string -> string -> string | [string]
     (if (nil? l) {:key-metadata key-meta
-                  :key-order (reduce merge (map (fn [[k v]] {k (distinct v)}) key-order))
+                  :key-order (reduce my-merge
+                                     (map (fn [[k v]] {k (distinct v)}) key-order))
                   :section-metadata section-meta
                   :section-order (distinct section-order)
                   :values values}
@@ -168,7 +172,7 @@
            (= type "text") (str k \= v)
            (= type "options") (str k \= v)
            (= type "multiline") (string/join \newline (map #(str k \= %1) v))
-           :else (throw (str "Unknown type"))))))
+           :else (throw (js/Error. "Unknown type"))))))
 
 (defn- ini-sec-to-str
   "Given a section and the data provided by the function `parse-ini-line`,
