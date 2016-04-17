@@ -9,11 +9,11 @@ Edit specifications for use with MachineKit
 
 ## Requirements
 1. Java - Backend for Clojure
-2. [boot](boot-clj.com) - Build tooling for Clojure, insatll instructions [here](https://github.com/boot-clj/boot#install)
+2. [lein](leiningen.org) - Build tooling for Clojure, install instructions [here](http://leiningen.org/#install)
 3. Web Browser - JavaScript capable browser. Chrome, Firefox, or Safari are recommended
 
 ## Running Development Environment
-1. `lein figwheel` to host the application and provide a REPL
+1. `lein figwheel` to host the application and provide a REPL into the browser
 2. Check it out on a web browser at [localhost:3000](localhost:3000)
 
 ## Enabling Custom Formatting for Chrome/Chromium Console
@@ -21,11 +21,12 @@ Edit specifications for use with MachineKit
 2. Go to Settings ("three dots" icon in the upper right corner of DevTools > Menu > Settings F1 > General > Console)
 3. Check-in "Enable custom formatters"
 4. Close DevTools
-5 .Open DevTools
+5. Open DevTools
 
 ## Development Resources
 * `compojure` - [quick guide](https://learnxinyminutes.com/docs/compojure/)
 * `cljs` - [modern cljs](https://github.com/magomimmo/modern-cljs)
+* `reagent` - [quick guide](https://reagent-project.github.io) [complete api](http://blog.ducky.io/reagent-docs/index.html)
 
 ## Adding Javascript
 1. Place files under `resources/public/js/`
