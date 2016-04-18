@@ -65,76 +65,75 @@
   []
   ((get (current-topbar-actions) "close" identity)))
 
+(defn- topbar-file-open-callback
+  [file-list]
+  (let [file (first file-list)
+        f-id [:local (.-name file)]]
+    (if (some? file)
+      (utils/read-file file #(topbar-action-open f-id %1)))))
+
 (defn topbar-file-menu
   ""
   []
   (let [valid-options (into #{} (keys (current-topbar-actions)))
-        open-el [widgets/file-input {:id "file-input"
-                                     :file-types nil
-                                     :element "Open"
-                                     :on-change (fn [file-list]
-                                                  (let [file (first file-list)
-                                                        f-id [:local (.-name file)]]
-                                                    (if (some? file)
-                                                      (utils/read-file file
-                                                                       #(topbar-action-open f-id
-                                                                                            %1)))))}]
-        download-el [widgets/file-save {:element "Download"
-                                        :filename topbar-action-filename
-                                        :str-func topbar-action-save}]
-        close-el [:a {:key "close"
-                      :on-click topbar-action-close}
-                  "Close"]
-        dropdowns [
-                   (if (contains? valid-options "save") open-el)
+        pointer-style {:cursor "pointer"}
+        open-el  [:li {:key "open"
+                       :style pointer-style
+                       :on-click #(utils/click-element "file-input")}
+                   [:a
+                     [widgets/file-input {:id "file-input"
+                                          :file-types nil
+                                          :element "Open"
+                                          :on-change topbar-file-open-callback}] "Open File"]]
+        save-el  [:li {:key "download"
+                       :style pointer-style
+                       :on-click #(utils/save-file (topbar-action-save) (topbar-action-filename))}
+                   [:a "Download"]]
+        close-el [:li {:key "close"
+                       :style pointer-style
+                       :on-click topbar-action-close}
+                   [:a "Close"]]
+        dropdowns [(if (contains? valid-options "save") open-el)
                    (if (and (contains? valid-options "save")
-                            (contains? valid-options "filename"))
-                     download-el)
-                   (if (contains? valid-options "close")
-                     close-el)
-                   ]
-        should-show? (some some? dropdowns) ; only show if there is a non-nil in dropdowns
-        ]
-    (if should-show?
+                            (contains? valid-options "filename")) save-el)
+                   (if (contains? valid-options "close") close-el)]]
+    ; only show if there is a non-nil in dropdowns
+    (if (some some? dropdowns)
       [navbar/navbar-dropdown {:title "File"
-                               :key "file"
-                               :labels dropdowns}])))
+                                 :list-items dropdowns}])))
 
 (defn topbar-remote-menu
-  ""
+  "Display a dropdown to open and save remote files."
   []
   (let [valid-options (into #{} (keys (current-topbar-actions)))
-        open-el [:span {:key "open"
-                        :on-click #(reset! current-modal "remote-open")} "Open"]
-        upload-el [:span {:key "upload"
-                          :on-click #(reset! current-modal "remote-save")} "Upload"]
-        dropdowns [
-                   (if (contains? valid-options "save") open-el)
+        pointer-style {:cursor "pointer"}
+        open-el   [:li {:key "open"
+                        :style pointer-style
+                        :on-click #(reset! current-modal "remote-open")}
+                    [:a "Open"]]
+        upload-el [:li {:key "upload"
+                        :style pointer-style
+                        :on-click #(reset! current-modal "remote-save")}
+                    [:a "Upload"]]
+        dropdowns [(if (contains? valid-options "open") open-el)
                    (if (and (contains? valid-options "save")
-                            (contains? valid-options "filename"))
-                     upload-el)
-                   ]
-        should-show? (some some? dropdowns) ; only show if there is a non-nil in dropdowns
-        ]
-    (if should-show?
+                            (contains? valid-options "filename")) upload-el)]]
+    ; only show if there is a non-nil in dropdowns
+    (if (some some? dropdowns)
       [navbar/navbar-dropdown {:title "Remote"
-                               :key "remote"
-                               :labels dropdowns}])))
+                                 :list-items dropdowns}])))
 
 (defn topbar-help-menu
-  ""
+  "Display a dropdown for help options."
   []
   (let [valid-options (into #{} (keys (current-topbar-actions)))
-        about-el [:a {:on-click #(reset! current-modal "about-modal")} "About"]
-        dropdowns [
-                   about-el
-                   ]
-        should-show? true ; only show if there is a non-nil in dropdowns
-        ]
-    (if should-show?
-      [navbar/navbar-dropdown {:title "Help"
-                               :key "help"
-                               :labels dropdowns}])))
+        pointer-style {:cursor "pointer"}
+        about-el [:li {:key "about"
+                       :style pointer-style
+                       :on-click #(reset! current-modal "about-modal")}
+                   [:a "About"]]]
+    [navbar/navbar-dropdown {:title "Help"
+                               :list-items [about-el]}]))
 
 
 (defn map-do
