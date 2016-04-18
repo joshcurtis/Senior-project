@@ -211,7 +211,7 @@
     :render (fn [this]
               (let [{:keys [id]} (r/state this)
                     div-props (assoc (r/props this) :id id)]
-                [:div div-props]))
+                [:div.r-plotly div-props]))
     }))
 
 (defn infosection

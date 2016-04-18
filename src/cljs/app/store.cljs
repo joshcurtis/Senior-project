@@ -109,7 +109,13 @@
                                        :y (str name "-y")
                                        :z (str name "-z")})
                                    (range 4))}}
+
+    ;; backing up csv
+    :csvs '()
+    :current-csv "tmp.csv"
     }))
+
+;; update intervals
 
 ;; global helpers
 

@@ -26,9 +26,7 @@
 (defn temperature-plot
   [{:keys [temperature-group history display-len]}]
   (let [times (n-most-recent (get history "t") display-len)]
-    [widgets/plotly {:style {:width "100%"
-                             :height "512px"}
-                     :data (map (fn [k] {:mode "lines"
+    [widgets/plotly {:data (map (fn [k] {:mode "lines"
                                          :name k
                                          :x times
                                          :y (n-most-recent (get history k) display-len)})
@@ -39,18 +37,27 @@
 
 (defn axes-plot
   [{:keys [axes-group measurements]}]
-  [widgets/plotly {:style {:width "100%"
-                           :height "512px"}
+  [widgets/plotly {:style {:height "64rem"}
                    :data [{:mode "markers"
+                           :x [0 0 0 0 1 1 1 1]
+                           :y [0 0 1 1 0 0 1 1]
+                           :z [0 1 0 1 0 1 0 1]
+                           :name ""
+                           :type "scatter3d"}
+                          {:mode "markers"
                            :x (map #(get measurements (:x %1)) axes-group)
                            :y (map #(get measurements (:y %1)) axes-group)
                            :z (map #(get measurements (:z %1)) axes-group)
-                           :name (map :name axes-group)
+                           :name "Axes"
+                           :text (map :name axes-group)
                            :type "scatter3d"}]
                    :layout {:title "Axes"
-                            :xaxis {:range [0 1]}
-                            :yaxis {:range [0 1]}
-                            :zaxis {:range [0 1]}}}])
+                            :xaxis {:title "X"
+                                    :range [0 1]}
+                            :yaxis {:title "Y"
+                                    :range [0 1]}
+                            :zaxis {:title "Z"
+                                    :range [0 1]}}}])
 
 (defn contents-active
   "A view that can be rendered to monitor the machinekit configuration. It is
