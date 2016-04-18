@@ -11,11 +11,11 @@
       (map #(.getName %1))
       (filter #(.endsWith %1 ".csv"))))
 
-(defn- csv-name->fname
+(defn- csv-name-to-fname
   [name]
   (str "./csv/" name ".csv"))
 
-(defn seq->csv-row
+(defn- seq-to-csv-row
   [seq]
   (join ", " seq))
 
