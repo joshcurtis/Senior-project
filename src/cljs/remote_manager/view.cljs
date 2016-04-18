@@ -150,15 +150,12 @@
      [:div.well
       (str "Remote configurations should be located in /home/" username "/machinekit/configs/. Running machinekit for the first time will load the configurations onto this directory.")]
      (control-buttons services-running?)
-
      [:div.panel.panel-default
       [:div.panel-body
        (map (fn [d] [render-config {:key d
                                     :dir d
                                     :contents (get-in configs [:contents d])}])
             (:dirs configs))]]
-
-     (control-buttons services-running?)
     ]))
 
 (defn remote-manager
