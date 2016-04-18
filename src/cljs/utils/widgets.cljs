@@ -85,49 +85,27 @@
     (map #(.item file-list %1) (range len))))
 
 (defn file-input
-  "Renders an element that can be used to query a file from the user.
+  "Returns a tiny/invisible file input component.
   # Props
   `id` - A unique id string. Failure to do so will cause the element to become
   un-clickable.
   `file-types` - Specifies the accepted file types. Use an empty string to
   accept all types.
-  `on-change` - A function that accepts a `list of JavaScript File`.
-  `element` - This component will look exactly like `element`. If no `element`
-  is provided, then a button with the text 'Upload File' will be displayed."
+  `on-change` - A function that accepts a `list of JavaScript File`."
   [props]
-  (let [{:keys [id file-types on-change element]} props]
+  (let [{:keys [id file-types on-change]} props]
     (assert (some? id) "No id was provided")
     (assert (some? on-change) "No on-change was provided.")
-    [:span {:on-click #(utils/click-element id)}
-     (if (some? element) element
-         [:button.btn.btn-default.btn-xs {} "Upload File"])
-     [:input {:id id
-              :style {:height "0px"
-                      :width "0px"
-                      :overflow "hidden"}
-              :value nil
-              :on-change #(-> %1
+    [:input {:id id
+             :type "file"
+             :accept file-types
+             :style {:height "0px" :width "0px"}
+             :value nil
+             :on-change #(-> %1
                               .-target
                               .-files
                               from-file-list
-                              on-change)
-              :type "file"
-              :accept file-types}]]))
-
-(defn file-save
-  "Renders an element that can be used to save a file to disk.
-  # Props
-  `str-func` - Function that returns a string that will be downloaded.
-  `filename` - Function that returns the target filename to be downloaded
-  `element` - This component will look exactly like `element`. Downloading will
-  happen when it is clicked."
-  [props]
-  (let [{:keys [str-func element filename]} props]
-    (assert (fn? str-func))
-    (assert (fn? filename))
-    (assert (some? element))
-    [:span {:on-click #(utils/save-file (str-func) (filename))}
-     element]))
+                              on-change)}]))
 
 (defn list-input
   "Renders an element that can be used to edit a vector of values.

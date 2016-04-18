@@ -5,27 +5,16 @@
    [reagent.core :as r :refer [atom]]
    [clojure.string :as string]))
 
-(defn- coerce-to-a
-  "If el is an :a tag, then it remains the same, else it is
-  nexted under an :a tag."
-  [el]
-  (if (and (vector? el) (= (first el) :a))
-    el
-    [:a {:style {:display "flex"}} el]))
-
 (defn navbar-dropdown
   ""
   [props]
-  (let [{:keys [title labels]} props]
+  (let [{:keys [title list-items]} props]
     (assert (string? title))
     [:li.dropdown {:key title}
      [:a.dropdown-toggle {:data-toggle "dropdown"
                           :role "button"
                           :aria-expanded "false"} title [:span.caret]]
-     [:ul.dropdown-menu {:role "menu"}
-      (map (fn [l] [:li {:style {:cursor "pointer"}
-                         :key l} (coerce-to-a l)])
-           labels)]]))
+     [:ul.dropdown-menu {:role "menu"} (lazy-seq list-items)]]))
 
 (defn navbar
   ""
