@@ -7024,7 +7024,6 @@ a.list-group-item-danger.active:focus {
   color: #2c3e50;
 }
 
-
 @media (max-width: 1000px) {
   .navbar-header {
       float: none;
