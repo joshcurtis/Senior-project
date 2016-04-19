@@ -2,6 +2,9 @@ from flask import Flask
 import edn_format as edn
 
 from glob import glob
+import os.path
+
+app = Flask(__name__)
 
 status = {"ok?": True,
           "mk_is_running?": False}
@@ -12,7 +15,7 @@ def route_status():
 
 @app.route("/configs")
 def route_configs():
-    config_root = "machinekit/configs"
+    config_root = os.path.expanduser("~/machinekit/configs")
     config_dirs = glob("{}/*/".format(config_root))
     files = map(lambda d: glob("{}*".format(d)), config_dirs)
     m = dict(zip(config_dirs, files))
