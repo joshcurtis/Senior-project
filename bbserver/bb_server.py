@@ -56,16 +56,18 @@ def crossdomain(origin=None, methods=None, headers=None,
 
 status = {"ok?": True,
           "mk_is_running?": False}
+config_root = os.path.expanduser("~/machinekit/configs")
 
 @app.route("/status")
 @crossdomain(origin="*")
 def route_status():
+    global status
     return edn.dumps(status)
 
 @app.route("/configs", methods=['GET'])
 @crossdomain(origin="*")
 def route_configs():
-    config_root = os.path.expanduser("~/machinekit/configs")
+    global config_root
     config_dirs = glob("{}/*/".format(config_root))
     files = map(lambda d: glob("{}*".format(d)), config_dirs)
     get_f = lambda s: s.split('/')[-1]
@@ -74,9 +76,21 @@ def route_configs():
     m = dict(zip(m_keys, m_vals))
     return edn.dumps(m)
 
+@app.route("/configs/<config>/<filename>", methods=['GET'])
+@crossdomain(origin="*")
+def route_configs_file(config, filename):
+    global config_root
+    path = "{}/{}/{}".format(config_root, config, filename)
+    if request.method == 'GET':
+        txt = open(path).read()
+        return edn.dumps({"contents": txt})
+    elif request.method == 'POST':
+        return edn.dumps({})
+
 @app.route("/run_mk", methods=['GET'])
 @crossdomain(origin="*")
 def route_run_mk():
+    global status
     if not status["mk_is_running?"]:
         status["mk_is_running?"] = True
     return edn.dumps(status)
@@ -84,6 +98,7 @@ def route_run_mk():
 @app.route("/stop_mk", methods=['GET'])
 @crossdomain(origin="*")
 def route_stop_mk():
+    global status
     if status["mk_is_running?"]:
         status["mk_is_running?"] = False
     return edn.dumps(status)
