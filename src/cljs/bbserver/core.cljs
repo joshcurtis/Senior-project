@@ -10,24 +10,25 @@
   [address callback]
   (go (let [resp (<! (http/get address
                                {:with-credentials? false}))]
+        (.log js/console resp)
         (-> resp :body reader/read-string callback))))
 
 (defn- build-address
-  [address port route]
-  (str "http://" address \: port route))
+  [hostname port route]
+  (str "http://" hostname \: port route))
 
 (defn status
-  [address callback]
-  (bb-get (build-address address 3001 "/status") callback))
+  [hostname callback]
+  (bb-get (build-address hostname 3001 "/status") callback))
 
 (defn configs
-  [address callback]
-  (bb-get (build-address address 3001 "/configs") callback))
+  [hostname callback]
+  (bb-get (build-address hostname 3001 "/configs") callback))
 
 (defn run_mk
-  [address callback]
-  (bb-get (build-address address 3001 "/run_mk") callback))
+  [hostname callback]
+  (bb-get (build-address hostname 3001 "/run_mk") callback))
 
 (defn stop_mk
-  [address callback]
-  (bb-get (build-address address 3001 "/stop_mk") callback))
+  [hostname callback]
+  (bb-get (build-address hostname 3001 "/stop_mk") callback))

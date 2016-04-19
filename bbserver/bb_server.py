@@ -6,6 +6,7 @@ from glob import glob
 import os.path
 
 app = Flask(__name__)
+app.debug = True
 
 # stolen code for crossdomain
 from datetime import timedelta
@@ -67,7 +68,10 @@ def route_configs():
     config_root = os.path.expanduser("~/machinekit/configs")
     config_dirs = glob("{}/*/".format(config_root))
     files = map(lambda d: glob("{}*".format(d)), config_dirs)
-    m = dict(zip(config_dirs, files))
+    get_f = lambda s: s.split('/')[-1]
+    m_keys = map(lambda p: p.split('/')[-2]+'/', config_dirs)
+    m_vals = map(lambda fs: map(get_f, fs), files)
+    m = dict(zip(m_keys, m_vals))
     return edn.dumps(m)
 
 @app.route("/run_mk", methods=['GET'])

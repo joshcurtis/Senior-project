@@ -1,6 +1,7 @@
 (ns remote-manager.controller
   (:require
    [app.store :as store]
+   [bbserver.core :as bbserver]
    [utils.core :as utils]
    [ini-editor.controller]
    [text-editor.controller]
@@ -29,33 +30,18 @@
   (swap! store/state assoc
          :configs {:dirs [] :contents {}}))
 
-(defn update-config!
-  "Updates a single config based on the server. There isn't really a reason to
-  call this function. Prefer to use `update-configs!`, which uses this function."
-  [dir]
-  (assert (utils/dir? dir))
-  (let [callback (fn [result]
-                  (assert (some? result))
-                  (let [files (:out result)]
-                    (assert (some? files))
-                    (swap! store/state assoc-in [:configs :contents dir] files)))]
-    (server-interop/sftp-ls (str "machinekit/configs/" dir) callback)))
+(defn- --update-configs
+  [state configs]
+  (let [dirs (mapv identity (keys configs))
+        contents configs]
+    (assoc state :configs {:dirs dirs
+                           :contents contents})))
 
 (defn update-configs!
   "Updates the configs based on the server."
   []
-  (let [valid-dir #(or (utils/dir? %) (= "" %))
-        callback (fn [result]
-                   (assert (some? result))
-                   (let [dirs (:out result)]
-                     (assert (some? dirs))
-                     (swap! store/state assoc-in
-                          [:configs :dirs] (filterv valid-dir (into [""] dirs)))
-                     (swap! store/state assoc-in
-                          [:configs :contents ""] (filterv (complement utils/dir?) dirs))
-                     (doseq [dir dirs] (if (valid-dir dir) (update-config! dir)))))]
-    (clear-configs!)
-    (server-interop/sftp-ls "machinekit/configs/" callback)))
+  (let [hostname (get-in @store/state [:connection :hostname])]
+    (bbserver/configs hostname #(swap! store/state --update-configs %1))))
 
 (utils/set-interval "update-configs-when-empty"
                     #(let [{:keys [connection configs]} @store/state]
