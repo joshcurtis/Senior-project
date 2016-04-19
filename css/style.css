@@ -1,4 +1,8 @@
-@media (max-width: 1000px) {
+.navbar-toggle {
+    float: left;
+}
+
+@media screen and (max-device-height: 800px) {
   .navbar-header {
       float: none;
   }
@@ -15,7 +19,6 @@
 }
   .navbar-toggle {
       display: block;
-      float: left;
       height: 50px
   }
   .navbar-collapse {
