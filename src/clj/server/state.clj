@@ -7,8 +7,7 @@
                                  :hostname ""
                                  :username "machinekit"
                                  :agent nil
-                                 :session nil
-                                 :sftp-chan nil}))
+                                 :session nil}))
 
 (defonce sockets (atom {}))
 
@@ -19,16 +18,13 @@
 (defn ssh-disconnect!
   []
   (locking  ssh-lock
-    (let [{:keys [session sftp-chan]} @connection-state]
+    (let [{:keys [session]} @connection-state]
       (swap! connection-state assoc
              :connected? false
              :agent nil
-             :session nil
-             :sftp-chan nil)
+             :session nil)
       (if (and (some? session) (ssh/connected? session))
-        (ssh/disconnect session))
-      (if (and (some? sftp-chan) (ssh/connected-channel? sftp-chan))
-        (ssh/disconnect-channel sftp-chan)))))
+        (ssh/disconnect session)))))
 
 (defn ssh-connect!
   "Disconnects from the current ssh server if needed and the attempts to connect
@@ -42,15 +38,10 @@
                                         :username username
                                         :password password})
                         _ (ssh/connect s timeout)]
-                    s)
-          sftp-channel (let [c (ssh/ssh-sftp session)
-                             _ (if-not (ssh/connected-channel? c)
-                                 (ssh/connect-channel c))]
-                         c)]
+                    s)]
       (swap! connection-state assoc
              :connected? true
              :hostname hostname
              :username username
              :agent agent
-             :session session
-             :sftp-chan sftp-channel))))
+             :session session))))

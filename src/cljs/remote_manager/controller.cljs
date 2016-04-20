@@ -189,5 +189,3 @@
 (defn debug-state
   [timeout]
   (utils/set-interval "debug-state" log-state timeout))
-
-(debug-state 10000)
