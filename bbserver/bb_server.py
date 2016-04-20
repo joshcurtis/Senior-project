@@ -57,6 +57,12 @@ def crossdomain(origin=None, methods=None, headers=None,
 status = {"ok?": True,
           "mk_is_running?": False}
 config_root = os.path.expanduser("~/machinekit/configs")
+service_log_path = os.path.expanduser("~/Desktop/services.log")
+
+def clear_services_log():
+    global service_log_path
+    open(service_log_path, 'w').write('')
+clear_services_log()
 
 @app.route("/status")
 @crossdomain(origin="*")
@@ -93,6 +99,13 @@ def route_configs_file(config, filename):
     elif request.method == 'DELETE':
         os.remove(path)
         return edn.dumps({})
+
+@app.route("/services_log", methods=['GET'])
+@crossdomain(origin="*")
+def route_services_log():
+    global service_log_path
+    text = open(service_log_path).read()
+    return edn.dumps({"log": text})
 
 @app.route("/run_mk", methods=['GET'])
 @crossdomain(origin="*")
