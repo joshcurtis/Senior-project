@@ -76,7 +76,7 @@ def route_configs():
     m = dict(zip(m_keys, m_vals))
     return edn.dumps(m)
 
-@app.route("/configs/<config>/<filename>", methods=['GET'])
+@app.route("/configs/<config>/<filename>", methods=['GET', 'PUT', 'DELETE', 'OPTIONS'])
 @crossdomain(origin="*")
 def route_configs_file(config, filename):
     global config_root
@@ -84,7 +84,14 @@ def route_configs_file(config, filename):
     if request.method == 'GET':
         txt = open(path).read()
         return edn.dumps({"contents": txt})
-    elif request.method == 'POST':
+    elif request.method == 'PUT':
+        fp = open(path, 'w')
+        fp.write(request.form.get('contents'))
+        return edn.dumps({})
+    elif request.method == 'OPTIONS': # http/delete calls options then delete
+        return edn.dumps({})
+    elif request.method == 'DELETE':
+        os.remove(path)
         return edn.dumps({})
 
 @app.route("/run_mk", methods=['GET'])

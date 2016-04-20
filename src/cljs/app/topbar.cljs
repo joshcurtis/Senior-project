@@ -152,7 +152,7 @@
                                                        (do
                                                          (close-modal!)
                                                          (remote-manager.controller/edit-file!
-                                                          (str "machinekit/configs/" dir %1))))
+                                                          dir %1)))
                                            :style {:cursor "pointer"}}
                        %1)
               contents)]]))
@@ -192,18 +192,18 @@
                               :type "text"}]
         [:span.input-group-btn
          [:button.btn.btn-primary {:on-click #(let [fname (utils/element-value text-input-id)
-                                                    path (str "machinekit/configs/" dir fname)]
+                                                    config dir]
                                                 (remote-manager.controller/upload-file!
-                                                 path (topbar-action-save))
+                                                 config fname (topbar-action-save))
                                                 (close-modal!))}
           "Upload"]]]]
       (map-do #(vector :a.list-group-item {:key %1
                                            :on-click (fn []
                                                        (let [fname %1
-                                                             path (str "machinekit/configs/" dir fname)]
-                                                         (close-modal!)
+                                                             config dir]
                                                          (remote-manager.controller/upload-file!
-                                                          path (topbar-action-save))))
+                                                          config fname (topbar-action-save))
+                                                         (close-modal!)))
                                            :style {:cursor "pointer"}}
                        %1)
               contents)]]))

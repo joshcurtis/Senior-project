@@ -129,7 +129,7 @@
   "Get the currently selected INI as a string."
   []
   (let [{:keys [inis selected-ini-id]} @state
-        ini (get inis selected-ini-id)]
+        ini (get-in inis [selected-ini-id :ini])]
     (if (some? ini)
       (ini-editor.parser/ini-to-str ini)
       (js/alert "No INI has been loaded!"))))
