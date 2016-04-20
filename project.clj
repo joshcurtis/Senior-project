@@ -12,6 +12,7 @@
                  [binaryage/devtools "0.6.0"]
                  [hiccup "1.0.5"]
                  [compojure "1.5.0"]
+                 [cljs-http "0.1.40"]
                  [org.clojars.magomimmo/shoreleave-remote-ring "0.3.1"]
                  [org.clojars.magomimmo/shoreleave-remote "0.3.1"]
                  [javax.servlet/servlet-api "2.5"]

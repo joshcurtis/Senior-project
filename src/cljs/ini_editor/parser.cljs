@@ -193,5 +193,6 @@
 (defn ini-to-str
   "Given the same structured hashmap as returned by `parse-ini-line`."
   [ini]
-  (string/join \newline
-               (map #(ini-sec-to-str ini %1) (:section-order ini))))
+  (let [sec-order (:section-order ini)]
+    (string/join \newline
+                 (map #(ini-sec-to-str ini %1) sec-order))))
