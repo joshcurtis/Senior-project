@@ -100,7 +100,8 @@
     ; only show if there is a non-nil in dropdowns
     (if (some some? dropdowns)
       [navbar/navbar-dropdown {:title "File"
-                                 :list-items dropdowns}])))
+                               :key "file-menu"
+                               :list-items dropdowns}])))
 
 (defn topbar-remote-menu
   "Display a dropdown to open and save remote files."
@@ -121,7 +122,8 @@
     ; only show if there is a non-nil in dropdowns
     (if (some some? dropdowns)
       [navbar/navbar-dropdown {:title "Remote"
-                                 :list-items dropdowns}])))
+                               :key "remote-menu"
+                               :list-items dropdowns}])))
 
 (defn topbar-help-menu
   "Display a dropdown for help options."
@@ -133,7 +135,8 @@
                        :on-click #(reset! current-modal "about-modal")}
                    [:a "About"]]]
     [navbar/navbar-dropdown {:title "Help"
-                               :list-items [about-el]}]))
+                             :key "help-menu"
+                             :list-items [about-el]}]))
 
 
 (defn map-do
