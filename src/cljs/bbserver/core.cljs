@@ -47,7 +47,7 @@
 
 (defn put-file
   [hostname config filename contents callback]
-  {:pre [(string? contents)]}
+  {:pre [(string/includes? config \/) (string? contents)]}
   (bb-put (build-address hostname 3001 (str "/configs/" config filename))
           callback {:form-params {:contents contents}}))
 
