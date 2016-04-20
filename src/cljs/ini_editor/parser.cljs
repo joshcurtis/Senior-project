@@ -34,7 +34,7 @@
       [:key-value (mapv string/trim (string/split l #"=" 2))]
 
       :else
-      (throw (js/Error. "ini parser error: " l)))))
+      (throw (js/Error. (str "ini parser error: " l))))))
 
 (defn- helper-update-value
   "Updates the ini value based on its metadata. For most cases, this means
@@ -55,7 +55,7 @@
       (assoc-in values [sec k]
                 (if (some? old-val) (conj old-val v) v)))))
 
-(defn my-merge
+(defn- my-merge
   ([] {})
   ([& args] (apply merge args)))
 
