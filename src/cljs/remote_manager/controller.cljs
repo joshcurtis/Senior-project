@@ -1,6 +1,7 @@
 (ns remote-manager.controller
   (:require
    [app.store :as store]
+   [bbserver.core :as bbserver]
    [utils.core :as utils]
    [ini-editor.controller]
    [text-editor.controller]
@@ -29,33 +30,18 @@
   (swap! store/state assoc
          :configs {:dirs [] :contents {}}))
 
-(defn update-config!
-  "Updates a single config based on the server. There isn't really a reason to
-  call this function. Prefer to use `update-configs!`, which uses this function."
-  [dir]
-  (assert (utils/dir? dir))
-  (let [callback (fn [result]
-                  (assert (some? result))
-                  (let [files (:out result)]
-                    (assert (some? files))
-                    (swap! store/state assoc-in [:configs :contents dir] files)))]
-    (server-interop/sftp-ls (str "machinekit/configs/" dir) callback)))
+(defn- --update-configs
+  [state configs]
+  (let [dirs (mapv identity (keys configs))
+        contents configs]
+    (assoc state :configs {:dirs dirs
+                           :contents contents})))
 
 (defn update-configs!
   "Updates the configs based on the server."
   []
-  (let [valid-dir #(or (utils/dir? %) (= "" %))
-        callback (fn [result]
-                   (assert (some? result))
-                   (let [dirs (:out result)]
-                     (assert (some? dirs))
-                     (swap! store/state assoc-in
-                          [:configs :dirs] (filterv valid-dir (into [""] dirs)))
-                     (swap! store/state assoc-in
-                          [:configs :contents ""] (filterv (complement utils/dir?) dirs))
-                     (doseq [dir dirs] (if (valid-dir dir) (update-config! dir)))))]
-    (clear-configs!)
-    (server-interop/sftp-ls "machinekit/configs/" callback)))
+  (let [hostname (get-in @store/state [:connection :hostname])]
+    (bbserver/configs hostname #(swap! store/state --update-configs %1))))
 
 (utils/set-interval "update-configs-when-empty"
                     #(let [{:keys [connection configs]} @store/state]
@@ -153,40 +139,29 @@
 (def edit-callbacks {"ini" edit-ini!})
 
 (defn edit-file!
-  [full-filename]
-  (assert (string? full-filename))
-  (assert (string/includes? full-filename "machinekit"))
-  (let [extension (utils/file-ext full-filename)
+  [config filename]
+  (let [extension (utils/file-ext filename)
+        hostname (get-in @store/state [:connection :hostname])
         callback (get edit-callbacks extension edit-unsupported)
-        callback #(callback %1 [:remote full-filename])
-        callback #(if (-> %1 :error nil?)
-                   (callback (:out %1))
-                   (.warn js/console (str "edit-file! error: " (:error %1))))]
-    (server-interop/sftp-get full-filename callback)))
+        callback #(callback (get %1 "contents") [:remote filename])]
+    (bbserver/get-file hostname config filename callback)))
 
 (defn upload-file!
-  [full-filename contents]
-  (assert (string? full-filename))
-  (assert (string/includes? full-filename "machinekit"))
-  (let []
-    (server-interop/sftp-put contents full-filename update-configs!)))
+  [config filename contents]
+  (let [hostname (get-in @store/state [:connection :hostname])]
+    (bbserver/put-file hostname config filename contents update-configs!)))
 
 (defn download-file!
-  [full-filename]
-  (assert (string? full-filename))
-  (assert (string/includes? full-filename "machinekit"))
-  (let [fname (utils/fname-from-path full-filename)
-        save-cback #(utils/save-file %1 fname)
-        err-cback #(.warn js/console "(download-file! " full-filename ") error: " %1)
-        cback #(if (-> %1 :error nil?)
-                 (save-cback (:out %1))
-                 (err-cback (:error %1)))]
-    (server-interop/sftp-get full-filename cback)))
+  [config filename]
+  (let [hostname (get-in @store/state [:connection :hostname])
+        callback #(utils/save-file (get %1 "contents") filename)]
+    (bbserver/get-file hostname config filename callback)))
 
 (defn delete-file!
-  [full-filename]
-  {:pre [(string? full-filename)]}
-  (server-interop/sftp-rm full-filename update-configs!))
+  [config filename]
+  (let [hostname (get-in @store/state [:connection :hostname])
+        callback update-configs!]
+    (bbserver/delete-file hostname config filename callback)))
 
 (defn- --update-connection-status
   [state status]

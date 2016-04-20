@@ -83,14 +83,15 @@
 (defn- render-file
   [props]
   (let [{:keys [directory filename]} props
+        config directory
         full-filename (str "machinekit/configs/" directory filename)]
     (assert (some? directory))
     (assert (some? filename))
     [:tr {}
      [:td {:style {:width "40%"}} filename]
-     [:td {:style {:width "20%"}} [edit-icon {:on-click #(controller/edit-file! full-filename)}]]
-     [:td {:style {:width "20%"}} [save-icon {:on-click #(controller/download-file! full-filename)}]]
-     [:td {:style {:width "20%"}} [delete-icon {:on-click #(controller/delete-file! full-filename)}]]]))
+     [:td {:style {:width "20%"}} [edit-icon {:on-click #(controller/edit-file! config filename)}]]
+     [:td {:style {:width "20%"}} [save-icon {:on-click #(controller/download-file! config filename)}]]
+     [:td {:style {:width "20%"}} [delete-icon {:on-click #(controller/delete-file! config filename)}]]]))
 
 (defn- render-config
   "
