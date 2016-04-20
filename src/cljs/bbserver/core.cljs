@@ -56,6 +56,10 @@
   {:pre [(string/includes? config \/)]}
   (bb-delete (build-address hostname 3001 (str "/configs/" config filename)) callback))
 
+(defn get-services-log
+  [hostname callback]
+  (bb-get (build-address hostname 3001 "/services_log") callback))
+
 (defn run_mk
   [hostname callback]
   (bb-get (build-address hostname 3001 "/run_mk") callback))

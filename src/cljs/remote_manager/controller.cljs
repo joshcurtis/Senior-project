@@ -43,25 +43,23 @@
   (let [hostname (get-in @store/state [:connection :hostname])]
     (bbserver/configs hostname #(swap! store/state --update-configs %1))))
 
-(utils/set-interval "update-configs-when-empty"
-                    #(let [{:keys [connection configs]} @store/state]
-                       (if (and (:connected? connection)
-                                (empty? (:dirs configs)))
+(utils/set-interval "update-configs"
+                    #(let [{:keys [connection]} @store/state]
+                       (if (:connected? connection)
                          (update-configs!)))
                     2000)
 
 (defn update-services!
   [log]
-  (if (-> log :error nil?)
-    (swap! store/state assoc
-           :services (utils/parse-service-log (:out log)))
-    (.warn js/console (str "update-services! error: " (-> log :error)))))
+  (swap! store/state assoc
+         :services (utils/parse-service-log log)))
 
 (defn update-mk-services!
   "Run to parse the ~/Desktop/services.log file
   and update what machinekit services are available"
   []
-  (server-interop/sftp-get "/home/machinekit/Desktop/services.log" update-services!))
+  (let [hostname (get-in @store/state [:connection :hostname])]
+    (bbserver/get-services-log hostname #(update-services! (get %1 "log")))))
 
 (defn try-to-launch-resolver!
   []
