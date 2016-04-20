@@ -196,3 +196,18 @@
   (let [sec-order (:section-order ini)]
     (string/join \newline
                  (map #(ini-sec-to-str ini %1) sec-order))))
+
+(defn ini?
+  "Returns true if `ini` has all the keys required to be an ini
+  representation."
+  [ini]
+  (and
+   (map? ini)
+   (= (set (keys ini)) #{:key-metadata
+                         :key-order
+                         :section-metadata
+                         :section-order
+                         :values})
+   (every? #(map? (get ini %1))
+           [:key-metadata :key-order :section-metadata :values])
+   (sequential? (get ini :section-order))))

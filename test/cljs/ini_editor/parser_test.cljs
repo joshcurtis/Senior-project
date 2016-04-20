@@ -39,6 +39,9 @@ key = value
               (catch js/Error e (.-message e)))
          (str "ini parser error: " (-> bad-ini string/split-lines second)))))
 
+(deftest is-ini
+  (is (parser/ini? (parser/parse-ini good-str))))
+
 (deftest ini-correctness
   (let [ini (parser/parse-ini good-ini)]
     (are [sec k v] (= (get-in ini [:values sec k]) v)
