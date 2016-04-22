@@ -4,6 +4,7 @@ import edn_format as edn
 
 from glob import glob
 import os.path
+import subprocess
 
 app = Flask(__name__)
 app.debug = True
@@ -58,6 +59,7 @@ status = {"ok?": True,
           "mk_is_running?": False}
 config_root = os.path.expanduser("~/machinekit/configs")
 service_log_path = os.path.expanduser("~/Desktop/services.log")
+mklauncher = None
 
 def clear_services_log():
     global service_log_path
@@ -111,17 +113,30 @@ def route_services_log():
 @crossdomain(origin="*")
 def route_run_mk():
     global status
+    start_mklauncher()
     if not status["mk_is_running?"]:
         status["mk_is_running?"] = True
     return edn.dumps(status)
+
+def start_mklauncher():
+    global mklauncher
+    cmd = '/usr/bin/mklauncher /home/machinekit/Desktop -d'.split()
+    mklauncher = subprocess.Popen(cmd)
 
 @app.route("/stop_mk", methods=['GET'])
 @crossdomain(origin="*")
 def route_stop_mk():
     global status
+    stop_mklauncher()
     if status["mk_is_running?"]:
         status["mk_is_running?"] = False
     return edn.dumps(status)
+
+def stop_mklauncher():
+    global mklauncher
+    if mklauncher != None:
+        if mklauncher.returncode == None:
+            mklauncher.kill()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3001)
