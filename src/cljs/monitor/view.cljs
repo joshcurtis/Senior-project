@@ -4,6 +4,7 @@
    [app.store :as store]
    [utils.core :as utils]
    [utils.widgets :as widgets]
+   [utils.rd3 :as rd3]
    [reagent.core :as r :refer [atom]]))
 
 (defn contents-inactive
@@ -23,19 +24,35 @@
         start (max 0 (- len n))]
     (subvec coll start)))
 
+(defn format-rd3-line-values [x y]
+  {:pre [(= (count x) (count y))]}
+  (let [len (count x)]
+    (map (fn [i] {:x (get x i) :y (get y i)})
+         (range len))))
+
 (defn temperature-plot
-  [{:keys [temperature-group history display-len]}]
-  (let [times (n-most-recent (get history "t") display-len)]
-    [widgets/plotly {:style {:width "100%"
-                             :height "512px"}
-                     :data (map (fn [k] {:mode "lines"
-                                         :name k
-                                         :x times
-                                         :y (n-most-recent (get history k) display-len)})
-                                temperature-group)
-                     :layout {:title "Temperatures"
-                              :xaxis {:title "Time Elapsed (s)"}
-                              :yaxis {:title "Temperature (C°)"}}}]))
+  (let [{:keys [temperature-group history display-len]} props
+        times (n-most-recent (get history "t") display-len)
+        data (map (fn [k] {:name k
+                           :values (format-rd3-line-values
+                                    times
+                                    (n-most-recent (get history k)
+                                                   display-len))})
+                  temperature-group)]
+    (if (pos? (count times))
+      [rd3/line-chart {:data data
+                       :legend true
+                       :width (- js/window.innerWidth 32)
+                       :title "Temperature"
+                       :gridHorizontal true
+                       :hoverAnimation true
+                       :circle-radius 5
+                       :margins {:top 10 :right 20 :bottom 50 :left 50}
+                       :y-axis-label "Temperature (C)"
+                       :x-axis-label "Time Elapsed (s)"}]
+      [:div.jumbotron
+       [:h1 "No Data Collected"]
+       [:p "Resume monitoring to collect more data."]])))
 
 (defn axes-plot
   [{:keys [axes-group measurements]}]
