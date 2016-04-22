@@ -31,6 +31,7 @@
          (range len))))
 
 (defn temperature-plot
+  [props]
   (let [{:keys [temperature-group history display-len]} props
         times (n-most-recent (get history "t") display-len)
         data (map (fn [k] {:name k
@@ -42,12 +43,13 @@
     (if (pos? (count times))
       [rd3/line-chart {:data data
                        :legend true
-                       :width (- js/window.innerWidth 32)
+                       :width (- js/document.body.clientWidth 32)
+                       :height 320
                        :title "Temperature"
                        :gridHorizontal true
                        :hoverAnimation true
                        :circle-radius 5
-                       :margins {:top 10 :right 20 :bottom 50 :left 50}
+                       :margins {:top 10 :right 20 :bottom 80 :left 50}
                        :y-axis-label "Temperature (C)"
                        :x-axis-label "Time Elapsed (s)"}]
       [:div.jumbotron
@@ -78,7 +80,7 @@
         {:keys [all-components measurements history history-display-size groups]} monitor]
     [:div
      ;; temperature plot
-     [:div
+     [:div {:style {:margin-bottom "2rem"}}
       [:button.btn {:class (if is-monitoring? "btn-primary" "btn-secondary")
                     :on-click controller/toggle-monitoring!
                     :style {:margin-right "1rem"}}
