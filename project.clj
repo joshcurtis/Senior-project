@@ -21,6 +21,7 @@
                  [org.zeromq/cljzmq "0.1.4" :exclusions [org.zeromq/jzmq]]
                  [reagent "0.6.0-alpha"]
                  [figwheel-sidecar "0.5.2"]
+                 [com.cemerick/piggieback "0.2.1"]
                  [commons-codec/commons-codec "1.10"]]
 
   :jvm-opts ["-Djava.library.path=/usr/lib:/usr/local/lib"]
@@ -103,4 +104,6 @@
 
              ;; to configure a different figwheel logfile path
              ;; :server-logfile "tmp/logs/figwheel-logfile.log"
-             })
+             }
+
+  :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]})
