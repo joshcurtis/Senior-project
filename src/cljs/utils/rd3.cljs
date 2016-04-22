@@ -3894,5 +3894,4 @@ exports.shade = function (hex, percent) {
 
 (js/eval rd3-code)
 
-(.log js/console js/d3)
 (def line-chart (r/adapt-react-class js/rd3.LineChart))

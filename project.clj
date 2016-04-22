@@ -21,6 +21,7 @@
                  [org.zeromq/cljzmq "0.1.4" :exclusions [org.zeromq/jzmq]]
                  [reagent "0.6.0-alpha"]
                  [cljsjs/d3 "3.5.16-0"]
+                 [cljsjs/three "0.0.72-0"]
                  [commons-codec/commons-codec "1.10"]]
 
   :jvm-opts ["-Djava.library.path=/usr/lib:/usr/local/lib"]
