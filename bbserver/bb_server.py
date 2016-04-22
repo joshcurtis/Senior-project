@@ -60,6 +60,9 @@ status = {"ok?": True,
 config_root = os.path.expanduser("~/machinekit/configs")
 service_log_path = os.path.expanduser("~/Desktop/services.log")
 mklauncher = None
+configserver = None
+linuxcnc = None
+
 
 def clear_services_log():
     global service_log_path
@@ -113,30 +116,39 @@ def route_services_log():
 @crossdomain(origin="*")
 def route_run_mk():
     global status
-    start_mklauncher()
+    run_mk()
     if not status["mk_is_running?"]:
         status["mk_is_running?"] = True
     return edn.dumps(status)
 
-def start_mklauncher():
+def run_mk():
     global mklauncher
-    cmd = '/usr/bin/mklauncher /home/machinekit/Desktop -d'.split()
-    mklauncher = subprocess.Popen(cmd)
+    global configserver
+    global linuxcnc
+    cmd1 = 'configserver /home/machinekit/Desktop -d'.split()
+    configserver = subprocess.Popen(cmd1)
+    #cmd2 = 'linuxcnc /home/machinekit/machinekit/configs/ARM.BeagleBone.CRAMPS/CRAMPS_REMOTE.ini -d'.split()
+    #linuxcnc = subprocess.Popen(cmd2)
 
 @app.route("/stop_mk", methods=['GET'])
 @crossdomain(origin="*")
 def route_stop_mk():
     global status
-    stop_mklauncher()
+    global mklauncher
+    global configserver
+    global linuxcnc
+    stop_process(mklauncher)
+    stop_process(configserver)
+    stop_process(linuxcnc)
     if status["mk_is_running?"]:
         status["mk_is_running?"] = False
     return edn.dumps(status)
 
-def stop_mklauncher():
-    global mklauncher
-    if mklauncher != None:
-        if mklauncher.returncode == None:
-            mklauncher.kill()
+def stop_process(process):
+    if process != None:
+        if process.returncode == None:
+            process.kill()
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3001)
