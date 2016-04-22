@@ -27,8 +27,9 @@
     (-> state
         (assoc :initial-time (utils/time-seconds))
         (update-in [:monitor :history]
-                   #(apply hash-map (mapcat (fn [[k v]] [k store/empty-sequence])
-                                            %1))))))
+                   #(apply hash-map
+                           (mapcat (fn [[k v]] [k store/empty-sequence])
+                                   %1))))))
 
 (defn clear-history!
   []
@@ -54,7 +55,8 @@
       (-> state
           (assoc-in [:monitor :measurements] measurements)
           (update-in [:monitor :history]
-                     #(merge-with (conj-and-cut-fn history-store-size history-display-size)
+                     #(merge-with (conj-and-cut-fn history-store-size
+                                                   history-display-size)
                                   %1
                                   %2)
                      measurements))
