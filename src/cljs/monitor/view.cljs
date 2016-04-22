@@ -50,7 +50,7 @@
                        :hoverAnimation true
                        :circle-radius 5
                        :margins {:top 10 :right 20 :bottom 80 :left 50}
-                       :y-axis-label "Temperature (C)"
+                       :y-axis-label "Temperature (C°)"
                        :x-axis-label "Time Elapsed (s)"}]
       [:div.jumbotron
        [:h1 "No Data Collected"]

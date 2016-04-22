@@ -56,8 +56,8 @@
     :initial-time (utils/time-seconds)
     :is-monitoring? false
     :monitor {
-              :history-display-size 50
-              :history-store-size 100
+              :history-display-size 1000
+              :history-store-size 1200
               :all-components ["Axis-0-x" "Axis-0-y" "Axis-0-z" "Axis-0-a"
                                "Axis-1-x" "Axis-1-y" "Axis-1-z" "Axis-1-a"
                                "Axis-2-x" "Axis-2-y" "Axis-2-z" "Axis-2-a"
