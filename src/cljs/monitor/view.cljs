@@ -94,6 +94,9 @@
      [axes-plot {:axes-group (:axes groups)
                  :measurements measurements}]
      ;; all table
+     [:button.btn.btn-info {:style {:margin-right "1rem"}
+                            :on-click controller/download-measurements!}
+      "Download CSV"]
      [:table.table.table-striped.table-hover
       [:thead
        [:tr

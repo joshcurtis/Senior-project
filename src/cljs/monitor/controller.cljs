@@ -3,7 +3,8 @@
   (:require
    [app.store :as store]
    [utils.core :as utils]
-   [reagent.core :as r :refer [atom]]))
+   [reagent.core :as r :refer [atom]]
+   [clojure.string :as string]))
 
 (defn enable-monitoring!
   []
@@ -68,3 +69,26 @@
   the values to the history."
   [measurements]
   (swap! store/state --update-measurements measurements))
+
+(defn ith-csv-row
+  [history keys i]
+  (string/join ", "
+               (map #(get-in history [% i]) keys)))
+
+(defn history-to-csv
+  [history]
+  (let [fields (conj
+                (sort (remove #(= "t" %1) (keys history)))
+                "t")
+        len (count (get history "t"))]
+    (str (string/join ", " fields) \newline
+         (string/join \newline (map #(ith-csv-row history fields %)
+                                    (range len))))))
+
+(defn download-measurements!
+  []
+  (utils/save-file
+   (history-to-csv (-> @store/state
+                       :monitor
+                       :history))
+   "measurements.csv"))
