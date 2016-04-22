@@ -68,6 +68,7 @@
   :section-order - [section-string]
   :values - hashmap: section-string -> key-string -> value-string or [value-string]"
   [s]
+  {:pre [(string? s)]}
   (loop [[l & r] (string/split-lines s)
          section "" ; string
          meta-acc {} ;; string -> any

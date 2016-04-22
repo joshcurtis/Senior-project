@@ -39,8 +39,14 @@ key = value
               (catch js/Error e (.-message e)))
          (str "ini parser error: " (-> bad-ini string/split-lines second)))))
 
+;; nil should not be accepted
+(deftest parse-nil
+  (is (not (string/blank? (try (parser/parse-ini nil)
+                               ""
+                               (catch js/Error e (.-message e)))))))
+
 (deftest is-ini
-  (is (parser/ini? (parser/parse-ini good-str))))
+  (is (parser/ini? (parser/parse-ini good-ini))))
 
 (deftest ini-correctness
   (let [ini (parser/parse-ini good-ini)]
