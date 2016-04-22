@@ -5,6 +5,7 @@
    [utils.core :as utils]
    [utils.widgets :as widgets]
    [utils.rd3 :as rd3]
+   [three.core :as three]
    [reagent.core :as r :refer [atom]]))
 
 (defn contents-inactive
@@ -58,18 +59,32 @@
 
 (defn axes-plot
   [{:keys [axes-group measurements]}]
-  [widgets/plotly {:style {:width "100%"
-                           :height "512px"}
-                   :data [{:mode "markers"
-                           :x (map #(get measurements (:x %1)) axes-group)
-                           :y (map #(get measurements (:y %1)) axes-group)
-                           :z (map #(get measurements (:z %1)) axes-group)
-                           :name (map :name axes-group)
-                           :type "scatter3d"}]
-                   :layout {:title "Axes"
-                            :xaxis {:range [0 1]}
-                            :yaxis {:range [0 1]}
-                            :zaxis {:range [0 1]}}}])
+  (let [axes (mapv (fn [g] {:x (get measurements (:x g))
+                            :y (get measurements (:z g))
+                            :z (get measurements (:y g))})
+                   axes-group)]
+    [:div.r-axes-plot
+     [:h2 "Axes"]
+     [three/axes-plot
+      {:max-axes 6
+       :background "#EEEEEE"
+       :size {:width 512
+              :height 512}
+       :axes axes}]]))
+
+(defn table-measurements
+  [props]
+  (let [{:keys [all-components measurements]} props]
+    [:table.table.table-striped.table-hover
+     [:thead
+      [:tr
+       [:th "Name"]
+       [:th "Value"]]]
+     [:tbody
+      (map (fn [k] [:tr {:key k}
+                    [:td k]
+                    [:td (get measurements k)]])
+           all-components)]]))
 
 (defn contents-active
   "A view that can be rendered to monitor the machinekit configuration. It is
@@ -77,33 +92,40 @@
   [props]
   (let [is-monitoring? @(r/cursor store/state [:is-monitoring?])
         monitor @(r/cursor store/state [:monitor])
-        {:keys [all-components measurements history history-display-size groups]} monitor]
+        monitor-tab @(r/cursor store/state [:monitor-tab])
+        {:keys [all-components
+                measurements
+                history
+                history-display-size
+                groups]} monitor]
     [:div
-     ;; temperature plot
      [:div {:style {:margin-bottom "2rem"}}
-      [:button.btn {:class (if is-monitoring? "btn-primary" "btn-secondary")
-                    :on-click controller/toggle-monitoring!
-                    :style {:margin-right "1rem"}}
+      [:button.btn.btn-sm
+       {:class (if is-monitoring? "btn-primary" "btn-secondary")
+        :on-click controller/toggle-monitoring!
+        :style {:margin-right "1rem"}}
        (if is-monitoring? "Pause Monitoring" "Resume Monitoring")]
-      [:button.btn.btn-warning {:on-click controller/clear-history!
-                                :style {:margin-right "1rem"}}
-       "Clear History"]]
-     [temperature-plot {:temperature-group (:temperatures groups)
-                        :history history
-                        :display-len history-display-size}]
-     [axes-plot {:axes-group (:axes groups)
-                 :measurements measurements}]
-     ;; all table
-     [:button.btn.btn-info {:style {:margin-right "1rem"}
-                            :on-click controller/download-measurements!}
-      "Download CSV"]
-     [:table.table.table-striped.table-hover
-      [:thead
-       [:tr
-        [:th "Name"]
-        [:th "Value"]]]
-      [:tbody
-       (map (fn [k] [:tr {:key k}
-                     [:td k]
-                     [:td (get measurements k)]])
-            all-components)]]]))
+      [:button.btn.btn-warning.btn-sm
+       {:on-click controller/clear-history!
+        :style {:margin-right "1rem"}}
+       "Clear History"]
+      [:button.btn.btn-info.btn-sm
+       {:style {:margin-right "1rem"}
+        :on-click controller/download-measurements!}
+       "Download CSV"]]
+     ;; temperature plot
+     [widgets/tabs {:labels ["Measurements" "Axes" "History"]
+                    :id-prefix "monitor-tab"
+                    :selected monitor-tab
+                    :on-change #(swap! store/state assoc :monitor-tab %)}]
+     (case monitor-tab
+       "History"
+       [temperature-plot {:temperature-group (:temperatures groups)
+                          :history history
+                          :display-len history-display-size}]
+       "Axes"
+       [axes-plot {:axes-group (:axes groups)
+                   :measurements measurements}]
+       "Measurements"
+       [table-measurements {:all-components all-components
+                            :measurements measurements}])]))

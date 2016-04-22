@@ -14,16 +14,6 @@
    [three.core :as three]
    [reagent.core :as r :refer [atom]]))
 
-(defn experiment []
-  [:div
-   [:h1 "Experimenting"]
-   [three/axes-plot
-    {:size {:width 256
-            :height 256}}]]
-
-
-  [:div])
-
 (defn app
   "Reagent component which describes the app. It is a tab bar followed by the
   contents of that tab. Here are the locations of the contents:
@@ -34,7 +24,6 @@
   (let [tab @(r/cursor store/state [:tab])
         tab-labels @(r/cursor store/state [:tab-labels])]
     [:div.app {}
-     [experiment]
      [app.topbar/render-topbar {}]
      [widgets/tabs {:labels tab-labels
                     :id-prefix "tab-navigation-"
