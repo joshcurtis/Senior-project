@@ -20,6 +20,7 @@
                  [org.zeromq/jeromq "0.3.3"]
                  [org.zeromq/cljzmq "0.1.4" :exclusions [org.zeromq/jzmq]]
                  [reagent "0.6.0-alpha"]
+                 [figwheel-sidecar "0.5.2"]
                  [commons-codec/commons-codec "1.10"]]
 
   :jvm-opts ["-Djava.library.path=/usr/lib:/usr/local/lib"]
