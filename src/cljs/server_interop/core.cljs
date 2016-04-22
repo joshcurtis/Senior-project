@@ -37,11 +37,6 @@
   [callback]
   (run-ssh-command "sh ~/Desktop/resolve.sh" callback))
 
-(defn launch-mk!
-  "Launch machinekit"
-  [callback]
-  (run-ssh-command "sh ~/Desktop/launch.sh" callback))
-
 (defn cleanup!
   "Cleanup running processes"
   [callback]
