@@ -100,22 +100,17 @@
          #(merge %1 {:connection-pending? false
                      :error nil})))
 
-(defn launch-mk!
+(defn run-mk!
   []
   (if (-> @store/state :connection :connected?)
-    (do
-      (.log js/console "Trying to launch mk")
-      (server-interop/launch-mk! utils/log-ssh-cmd))
-    (utils/log "Unable to launch machinekit. No SSH connection")))
+    (let [hostname (get-in @store/state [:connection :hostname])]
+      (bbserver/run_mk hostname #(utils/log %)))))
 
 (defn shutdown-mk!
   []
-  (utils/log "Shuting down machinekit")
   (if (-> @store/state :connection :connected?)
-    (do
-      (utils/log "Shutting down mk")
-      (server-interop/send-data (utils/encode-buffer MT_SHUTDOWN) #(utils/log %)))
-    "Unable to shutdown machinekit. Not connected"))
+    (let [hostname (get-in @store/state [:connection :hostname])]
+      (bbserver/stop_mk hostname #(utils/log %)))))
 
 (defn test-socket
   []

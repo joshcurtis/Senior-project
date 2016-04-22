@@ -136,7 +136,7 @@
         [:button.btn.btn-danger {:style button-style
                                  :on-click controller/shutdown-mk!} "Shutdown MachineKit"]
         [:button.btn.secondary {:style button-style
-                                :on-click controller/launch-mk!} "Launch MachineKit"])
+                                :on-click controller/run-mk!} "Launch MachineKit"])
     ]))
 
 (defn- connected
