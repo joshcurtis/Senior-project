@@ -57,11 +57,21 @@
        [:h1 "No Data Collected"]
        [:p "Resume monitoring to collect more data."]])))
 
+(defn format-coords
+  "Format coordinates for use with `three/axes-plot`. Major hacks include
+  switching `y` and `z` and coordinates the original `y` is negated."
+  [measurements m]
+  (let [x (get measurements (:x m))
+        y (get measurements (:y m))
+        z (get measurements (:z m))
+        [x y z] [x z (- y)]]
+    {:x x
+     :y y
+     :z z}))
+
 (defn axes-plot
   [{:keys [axes-group measurements]}]
-  (let [axes (mapv (fn [g] {:x (get measurements (:x g))
-                            :y (get measurements (:z g))
-                            :z (get measurements (:y g))})
+  (let [axes (mapv #(format-coords measurements %)
                    axes-group)]
     [:div.r-axes-plot
      [:h2 "Axes"]
