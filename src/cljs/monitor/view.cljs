@@ -70,6 +70,15 @@
        :background "#EEEEEE"
        :size {:width 512
               :height 512}
+       :camera {:x 0.8
+                :y 1.6
+                :z 1.6
+                :atx 0.2
+                :aty 0.0
+                :atz 0.2
+                :upx 0
+                :upy 1
+                :upz 0}
        :axes axes}]]))
 
 (defn table-measurements
