@@ -88,15 +88,15 @@
               :height 512}
        :render-tick @render-tick
        :controls true
-       :camera {:x 0.8
-                :y 1.6
-                :z 1.6
-                :atx 0.2
-                :aty 0.0
-                :atz 0.2
+       :camera {:x 0.0
+                :y 1.0
+                :z 1.5
+                :atx 0.0
+                :aty 10.0
+                :atz 0.0
                 :upx 0
                 :upy 1
-                :upz 0}
+                :upz 0.5}
        :update-camera false
        :light {:x 0.0
                :y 1.6
@@ -106,7 +106,7 @@
       {:on-click
        (fn []
          (utils/click-element "monitor-tabMeasurements")
-         (js/setTimeout #(utils/click-element "monitor-tabAxes") 1))}
+         (js/setTimeout #(utils/click-element "monitor-tabAxes") 30))}
       "Reset Camera"]]))
 
 (defn table-measurements
