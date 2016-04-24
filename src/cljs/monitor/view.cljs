@@ -57,11 +57,27 @@
        [:h1 "No Data Collected"]
        [:p "Resume monitoring to collect more data."]])))
 
+(defn format-coords
+  "Format coordinates for use with `three/axes-plot`. Major hacks include
+  switching `y` and `z` and coordinates the original `y` is negated."
+  [measurements m]
+  (let [x (get measurements (:x m))
+        y (get measurements (:y m))
+        z (get measurements (:z m))
+        [x y z] [x z (- y)]]
+    {:x x
+     :y y
+     :z z}))
+
+(defonce render-tick (atom 0))
+
+(utils/set-interval "render-tick"
+                    #(swap! render-tick inc)
+                    (/ 1000 30))
+
 (defn axes-plot
   [{:keys [axes-group measurements]}]
-  (let [axes (mapv (fn [g] {:x (get measurements (:x g))
-                            :y (get measurements (:z g))
-                            :z (get measurements (:y g))})
+  (let [axes (mapv #(format-coords measurements %)
                    axes-group)]
     [:div.r-axes-plot
      [:h2 "Axes"]
@@ -70,7 +86,28 @@
        :background "#EEEEEE"
        :size {:width 512
               :height 512}
-       :axes axes}]]))
+       :render-tick @render-tick
+       :controls true
+       :camera {:x 0.8
+                :y 1.6
+                :z 1.6
+                :atx 0.2
+                :aty 0.0
+                :atz 0.2
+                :upx 0
+                :upy 1
+                :upz 0}
+       :update-camera false
+       :light {:x 0.0
+               :y 1.6
+               :z 0.0}
+       :axes axes}]
+     [:button.btn.btn-primary
+      {:on-click
+       (fn []
+         (utils/click-element "monitor-tabMeasurements")
+         (js/setTimeout #(utils/click-element "monitor-tabAxes") 1))}
+      "Reset Camera"]]))
 
 (defn table-measurements
   [props]
