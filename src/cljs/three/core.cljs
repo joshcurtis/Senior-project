@@ -150,13 +150,14 @@
       :component-did-update
       (fn [this _]
         (let [props (merge default-props (r/props this))
-              {:keys [axes]} props
+              {:keys [axes update-camera]} props
               n-axes (min max-axes (count axes))]
           (if (not= n-axes (count axes))
             (.warn js/console
                    "Error displaying axes. Probably went over max-axes."))
           ;; camera & light
-          (adjust-camera! camera (:camera props))
+          (if update-camera
+            (adjust-camera! camera (:camera props)))
           (.set (.-position light)
                 (:x (:light props))
                 (:y (:light props))

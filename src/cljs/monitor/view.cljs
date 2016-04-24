@@ -69,6 +69,12 @@
      :y y
      :z z}))
 
+(defonce render-tick (atom 0))
+
+(utils/set-interval "render-tick"
+                    #(swap! render-tick inc)
+                    (/ 1000 30))
+
 (defn axes-plot
   [{:keys [axes-group measurements]}]
   (let [axes (mapv #(format-coords measurements %)
@@ -80,6 +86,8 @@
        :background "#EEEEEE"
        :size {:width 512
               :height 512}
+       :render-tick @render-tick
+       :controls true
        :camera {:x 0.8
                 :y 1.6
                 :z 1.6
@@ -89,10 +97,17 @@
                 :upx 0
                 :upy 1
                 :upz 0}
+       :update-camera false
        :light {:x 0.0
                :y 1.6
                :z 0.0}
-       :axes axes}]]))
+       :axes axes}]
+     [:button.btn.btn-primary
+      {:on-click
+       (fn []
+         (utils/click-element "monitor-tabMeasurements")
+         (js/setTimeout #(utils/click-element "monitor-tabAxes") 1))}
+      "Reset Camera"]]))
 
 (defn table-measurements
   [props]
