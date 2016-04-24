@@ -52,7 +52,7 @@
 (defn new-axis-obj
   "Creates an object that can be used to render an axis"
   []
-  (let [material (js/THREE.MeshNormalMaterial. #js {:morphTargets true})
+  (let [material (js/THREE.MeshLambertMaterial. #js {:color "#272822"})
         point (js/THREE.Mesh.
                (js/THREE.CylinderGeometry. (/ axes-width 2.0)
                                            0.0
@@ -66,6 +66,13 @@
              material)]
     {:point point
      :box box}))
+
+(defn new-floor-objs
+  []
+  (let [floor (js/THREE.Mesh.
+               (js/THREE.BoxGeometry. 2.5 0.01 2.5)
+               (js/THREE.MeshLambertMaterial. #js {:color "#888888"}))]
+    [floor]))
 
 (def default-props
   {:size {:width 512
@@ -95,24 +102,34 @@
   "Gotcha: max-axes can only be defined upon mounting."
   [props]
   (let [{:keys [size controls axes max-axes
-                camera background]} (merge default-props props)
+                camera light background]} (merge default-props props)
         {:keys [width height]} size
+        camera-props camera
+        light-props light
         n-axes (min max-axes (count axes))
         element-id (gen-id)
         scene (js/THREE.Scene.)
-        camera-props camera
+        light (js/THREE.PointLight. "white" 2.0)
         camera (js/THREE.PerspectiveCamera. 75 ;; field of view
                                             (/ width height) ;; aspect ratio
                                             0.001 ;; near clipping
                                             100.0) ;; far clipping
         renderer (js/THREE.WebGLRenderer. #js {:antialias true})
         controls (if controls (js/THREE.TrackballControls. camera))
+        floor-objs (new-floor-objs)
         axis-objs (mapv #(new-axis-obj) (range max-axes))]
+    (.set (.-position light)
+          (:x light-props)
+          (:y light-props)
+          (:z light-props))
+    (.add scene light)
     (adjust-camera! camera camera-props)
     (.setClearColor renderer background)
     (.setSize renderer width height)
     (doseq [i (range max-axes)]
       (axis-set-pos! (get axis-objs i) (get axes i)))
+    (doseq [obj floor-objs]
+      (.add scene obj))
     (doseq [{:keys [point box]} axis-objs]
       (.add scene point)
       (.add scene box))

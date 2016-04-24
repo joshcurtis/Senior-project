@@ -89,6 +89,9 @@
                 :upx 0
                 :upy 1
                 :upz 0}
+       :light {:x 0.0
+               :y 1.6
+               :z 0.0}
        :axes axes}]]))
 
 (defn table-measurements

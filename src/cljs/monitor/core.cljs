@@ -15,7 +15,7 @@
 
 (defn rand-measurements []
   (let [t (- (utils/time-seconds) (:initial-time @store/state))
-        s (mod t 20)]
+        s (mod t 18)]
     {"t" t
      "Ext-0" (rand-interval 180 220)
      "Ext-1" (rand-interval 100 180)
@@ -34,7 +34,7 @@
      "Axis-2-a" 0.0
      "Axis-3-x" (rand-interval 0 0.05)
      "Axis-3-y" (rand-interval 0 0.05)
-     "Axis-3-z" (rand-interval 0 0.05)
+     "Axis-3-z" (rand-interval 0 0.10)
      "Axis-3-a" 0.0}))
 
 (utils/set-interval "rand-update"
