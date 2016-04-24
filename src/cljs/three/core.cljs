@@ -74,10 +74,16 @@
                (js/THREE.MeshLambertMaterial. #js {:color "#888888"}))]
     [floor]))
 
+(def default-camera
+  (apply hash-map (map #(vector % 0) [:x :y :z
+                                      :atx :aty :atz
+                                      :upx :upy :upz])))
+
 (def default-props
   {:size {:width 512
           :height 512}
    :controls false
+   :camera default-camera
    :max-axes 4
    :axes [
           ;; {:x :y :z}
@@ -87,16 +93,10 @@
   [camera props]
   (let [{:keys [x y z
                 atx aty atz
-                upx upy upz]} props]
-    (if (some? x) (aset (.-position camera) "x" x))
-    (if (some? y) (aset (.-position camera) "y" y))
-    (if (some? z) (aset (.-position camera) "z" z))
-    (if (some? upx) (aset (.-up camera) "x" upx))
-    (if (some? upy) (aset (.-up camera) "y" upy))
-    (if (some? upz) (aset (.-up camera) "z" upz))
-    (.lookAt camera (js/THREE.Vector3. (or atx 0.0)
-                                       (or aty 0.0)
-                                       (or atz 0.0)))))
+                upx upy upz]} (merge default-camera props)]
+    (.set (.-position camera) x y z)
+    (.set (.-up camera) upx upy upz)
+    (.lookAt camera (js/THREE.Vector3. atx aty atz))))
 
 (defn axes-plot
   "Gotcha: max-axes can only be defined upon mounting."
@@ -155,6 +155,13 @@
           (if (not= n-axes (count axes))
             (.warn js/console
                    "Error displaying axes. Probably went over max-axes."))
+          ;; camera & light
+          (adjust-camera! camera (:camera props))
+          (.set (.-position light)
+                (:x (:light props))
+                (:y (:light props))
+                (:z (:light props)))
+          ;;
           (doseq [i (range max-axes)]
             (axis-set-pos! (get axis-objs i) (get axes i)))
           (if (some? controls) (.update controls))
