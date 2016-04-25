@@ -11,7 +11,9 @@
   ([http-type address callback options]
    (go (let [options (merge {:with-credentials? false} options)
              resp (<! (http-type address
-                                 options))]
+                                 options))
+             {:keys [status body]} resp]
+         ; TODO Modify callbacks to take status + body
          (-> resp :body reader/read-string callback))))
   ([http-type address callback] (bb-wrapper http-type address callback {})))
 
@@ -21,8 +23,11 @@
 
 (defn- bb-put
   [address callback options]
-  (js/alert (str options))
   (bb-wrapper http/put address callback options))
+
+(defn- bb-post
+  [address callback options]
+  (bb-wrapper http/post address callback options))
 
 (defn- bb-delete
   [address callback]
@@ -35,6 +40,11 @@
 (defn status
   [hostname callback]
   (bb-get (build-address hostname 3001 "/status") callback))
+
+(defn login
+  [hostname password callback]
+  (bb-post (build-address hostname 3001 "/login") callback
+    {:form-params {:password password}}))
 
 (defn configs
   [hostname callback]
