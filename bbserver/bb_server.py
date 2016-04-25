@@ -8,6 +8,8 @@ import os.path
 app = Flask(__name__)
 app.debug = True
 
+login_password = 'machinekit'
+
 # stolen code for crossdomain
 from datetime import timedelta
 from flask import make_response, request, current_app
@@ -69,6 +71,18 @@ clear_services_log()
 def route_status():
     global status
     return edn.dumps(status)
+
+@app.route("/login", methods=['POST', 'OPTIONS'])
+@crossdomain(origin="*")
+def route_login():
+    global status
+    if request.method == 'OPTIONS':
+        return edn.dumps({})
+    if request.method == 'POST':
+        if request.form.get('password') == login_password:
+            return '{:authenticated true}'
+        else:
+            return '{:authenticated false}'
 
 @app.route("/configs", methods=['GET'])
 @crossdomain(origin="*")
