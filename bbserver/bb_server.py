@@ -3,6 +3,7 @@ from flask import Flask
 import edn_format as edn
 
 from glob import glob
+import os
 import os.path
 import subprocess
 
@@ -104,6 +105,12 @@ def route_configs_file(config, filename):
     elif request.method == 'DELETE':
         os.remove(path)
         return edn.dumps({})
+
+@app.route("/resolve", methods=['GET'])
+@crossdomain(origin="*")
+def route_resolve():
+    result = os.popen("sh resolve.sh").read()
+    return edn.dumps({"out": result})
 
 @app.route("/services_log", methods=['GET'])
 @crossdomain(origin="*")
