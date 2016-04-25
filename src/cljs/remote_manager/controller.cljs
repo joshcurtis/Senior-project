@@ -60,10 +60,11 @@
 (defn try-to-launch-resolver!
   []
   (if (-> @store/state :connection :connected?)
-    (do
-      (utils/log "launching resolver")
-      (server-interop/watch-mk-services! utils/log-ssh-cmd)
-      (utils/set-interval "update-services" update-mk-services! 2000))
+    (let [hostname (get-in @store/state [:connection :hostname])]
+      (do
+        (utils/log "launching resolver")
+        (bbserver/resolve-services hostname #(utils/log %))
+        (utils/set-interval "update-services" update-mk-services! 2000)))
     (utils/log "Resolver not started")))
 
 (defn- connect-callback
@@ -77,8 +78,7 @@
                            :username username
                            :error nil}))
         (update-configs!)
-        ; (try-to-launch-resolver!)
-        )
+        (try-to-launch-resolver!))
 
       (swap! store/state update :connection
              #(merge %1 {:connected? false
@@ -170,3 +170,5 @@
 (defn debug-state
   [timeout]
   (utils/set-interval "debug-state" log-state timeout))
+
+(debug-state 5000)

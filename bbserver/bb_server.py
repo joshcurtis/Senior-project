@@ -64,17 +64,20 @@ def crossdomain(origin=None, methods=None, headers=None,
     return decorator
 
 status = {"ok?": True,
-          "mk_is_running?": False}
+          "mk_is_running?": False,
+          "resolving_services": False}
+
 config_root = os.path.expanduser("~/machinekit/configs")
-service_log_path = os.path.expanduser("~/Desktop/services.log")
+service_log_path = os.path.expanduser("/home/machinekit/Desktop/services.log")
+service_log = open(service_log_path, 'a')
 mklauncher = None
 configserver = None
 linuxcnc = None
-
+resolver = None
 
 def clear_services_log():
     global service_log_path
-    open(service_log_path, 'w').write('')
+    open(service_log_path, 'w').write('cleared')
 clear_services_log()
 
 @app.route("/status")
@@ -128,8 +131,14 @@ def route_configs_file():
 @app.route("/resolve", methods=['GET'])
 @crossdomain(origin="*")
 def route_resolve():
-    result = os.popen("sh resolve.sh").read()
-    return edn.dumps({"out": result})
+    global service_log
+    global resolver
+    cmd = 'python /home/machinekit/Desktop/resolve.py'.split()
+    stop_process(resolver)
+    resolver = subprocess.Popen(cmd, stdout=service_log, stderr=service_log)
+    if not status['resolving_services']:
+        status['resolving_services'] = True
+    return edn.dumps(status)
 
 @app.route("/services_log", methods=['GET'])
 @crossdomain(origin="*")
@@ -156,8 +165,6 @@ def run_mk():
     #cmd2 = 'linuxcnc /home/machinekit/machinekit/configs/ARM.BeagleBone.CRAMPS/CRAMPS_REMOTE.ini -d'.split()
     #linuxcnc = subprocess.Popen(cmd2)
 
-
-
 @app.route("/stop_mk", methods=['GET'])
 @crossdomain(origin="*")
 def route_stop_mk():
@@ -168,6 +175,7 @@ def route_stop_mk():
     stop_process(mklauncher)
     stop_process(configserver)
     stop_process(linuxcnc)
+    stop_process(resolver)
     if status["mk_is_running?"]:
         status["mk_is_running?"] = False
     return edn.dumps(status)
