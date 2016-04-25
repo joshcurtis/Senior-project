@@ -17,10 +17,6 @@
   [name]
   (swap! store/state assoc-in [:connection :hostname] name))
 
-(defn set-username!
-  [name]
-  (swap! store/state assoc-in [:connection :username] name))
-
 (defn set-password!
   [password]
   (swap! store/state assoc-in [:connection :password] password))
@@ -70,35 +66,45 @@
       (utils/set-interval "update-services" update-mk-services! 2000))
     (utils/log "Resolver not started")))
 
+(defn- connect-callback
+  [res]
+  (let [{:keys [authenticated username]} res]
+    (if authenticated
+      (do
+        (swap! store/state update :connection
+               #(merge %1 {:connected? true
+                           :connection-pending? false
+                           :username username
+                           :error nil}))
+        (update-configs!)
+        ; (try-to-launch-resolver!)
+        )
+
+      (swap! store/state update :connection
+             #(merge %1 {:connected? false
+                         :connection-pending? false
+                         :username nil
+                         :error "Incorrect password"})))))
+
 (defn connect!
   []
   (let [{:keys [connection]} @store/state
-        {:keys [hostname username password]} connection
-        callback (fn [res]
-                   (if (nil? res) (do
-                                    (swap! store/state update :connection
-                                           #(merge %1 {:connected? true
-                                                       :connection-pending? false
-                                                       :error nil}))
-                                    (update-configs!)
-                                    (try-to-launch-resolver!))
-                       (swap! store/state update :connection
-                              #(merge %1 {:connected? false
-                                          :connection-pending? false
-                                          :error res}))))]
+        {:keys [hostname username password]} connection]
     (swap! store/state update :connection
-           #(merge %1 {:connection-pending? true
-                       :error nil}))
-    (server-interop/ssh-connect! hostname username password callback)))
+      #(merge %1 {:connected? false
+                  :connection-pending? true
+                  :username nil
+                  :error nil}))
+    (bbserver/login hostname password connect-callback)))
 
 (defn disconnect!
   []
-  (swap! store/state assoc-in [:connection :connected?] false)
-  (utils/clear-interval "update-services")
-  (server-interop/cleanup! server-interop/ssh-disconnect!)
   (swap! store/state update :connection
-         #(merge %1 {:connection-pending? false
-                     :error nil})))
+    #(merge %1 {:connected? false
+                :connection-pending? false
+                :username nil
+                :error nil}
+  (utils/clear-interval "update-services"))))
 
 (defn run-mk!
   []
@@ -155,26 +161,6 @@
   (let [hostname (get-in @store/state [:connection :hostname])
         callback update-configs!]
     (bbserver/delete-file hostname config filename callback)))
-
-(defn- --update-connection-status
-  [state status]
-  (let [{:keys [connected? hostname username]} status]
-    (if connected?
-      (update state :connection
-              #(merge %1 {:connected? %2
-                          :hostname %3
-                          :username %4})
-              connected? hostname username)
-      (assoc-in state [:connection :connected?] false))))
-
-(defn update-connection-status!
-  []
-  (server-interop/connection-status #(swap! store/state
-                                            --update-connection-status %1)))
-
-(utils/set-interval "update-connection-status!"
-                    update-connection-status!
-                    500)
 
 (defn log-state
   "Adding whatever information you want to see for debugging here"

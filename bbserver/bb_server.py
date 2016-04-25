@@ -14,6 +14,9 @@ from machinetalk.protobuf.types_pb2 import MT_PING
 app = Flask(__name__)
 app.debug = True
 
+login_username = 'machinekit'
+login_password = 'kit'
+
 # stolen code for crossdomain
 from datetime import timedelta
 from flask import make_response, request, current_app
@@ -80,6 +83,18 @@ def route_status():
     global status
     return edn.dumps(status)
 
+@app.route("/login", methods=['POST', 'OPTIONS'])
+@crossdomain(origin="*")
+def route_login():
+    global status
+    if request.method == 'OPTIONS':
+        return edn.dumps({})
+    if request.method == 'POST':
+        if request.form.get('password') == login_password:
+            return '{:authenticated true :username ' + login_username + '}'
+        else:
+            return '{:authenticated false}'
+
 @app.route("/configs", methods=['GET'])
 @crossdomain(origin="*")
 def route_configs():
@@ -92,11 +107,11 @@ def route_configs():
     m = dict(zip(m_keys, m_vals))
     return edn.dumps(m)
 
-@app.route("/configs/<config>/<filename>", methods=['GET', 'PUT', 'DELETE', 'OPTIONS'])
+@app.route("/config", methods=['GET', 'PUT', 'DELETE', 'OPTIONS'])
 @crossdomain(origin="*")
-def route_configs_file(config, filename):
+def route_configs_file():
     global config_root
-    path = "{}/{}/{}".format(config_root, config, filename)
+    path = "{}/{}".format(config_root, request.args.get('path'))
     if request.method == 'GET':
         txt = open(path).read()
         return edn.dumps({"contents": txt})
