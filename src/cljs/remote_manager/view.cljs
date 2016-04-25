@@ -26,12 +26,6 @@
                               :placeholder "Printer Address"
                               :value (or hostname "")}]
 
-        [:label.col-lg-2 {:style {:margin-top "15px"}} "Username"]
-        [:input.form-control {:type "text"
-                              :on-change #(-> %1 .-target .-value controller/set-username!)
-                              :placeholder "Username"
-                              :value (or username "")}]
-
         [:label.col-lg-2 {:style {:margin-top "15px"}} "Password"]
         [:input.form-control {:type "password"
                               :on-change #(-> %1 .-target .-value controller/set-password!)
@@ -149,7 +143,7 @@
     [:div {}
      [:h1 {} (str username \@ hostname)]
      [:div.well
-      (str "Remote configurations should be located in /home/" username "/machinekit/configs/. Running machinekit for the first time will load the configurations onto this directory.")]
+      (str "Remote configurations should be located in ~/machinekit/configs/. Running machinekit for the first time will load the configurations onto this directory.")]
      (control-buttons services-running?)
      [:div.panel.panel-default
       [:div.panel-body

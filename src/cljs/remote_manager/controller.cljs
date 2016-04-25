@@ -17,10 +17,6 @@
   [name]
   (swap! store/state assoc-in [:connection :hostname] name))
 
-(defn set-username!
-  [name]
-  (swap! store/state assoc-in [:connection :username] name))
-
 (defn set-password!
   [password]
   (swap! store/state assoc-in [:connection :password] password))
@@ -72,12 +68,13 @@
 
 (defn- connect-callback
   [res]
-  (let [authenticated? (:authenticated res)]
-    (if authenticated?
+  (let [{:keys [authenticated username]} res]
+    (if authenticated
       (do
         (swap! store/state update :connection
                #(merge %1 {:connected? true
                            :connection-pending? false
+                           :username username
                            :error nil}))
         (update-configs!)
         ; (try-to-launch-resolver!)
@@ -86,6 +83,7 @@
       (swap! store/state update :connection
              #(merge %1 {:connected? false
                          :connection-pending? false
+                         :username nil
                          :error "Incorrect password"})))))
 
 (defn connect!
@@ -94,8 +92,9 @@
         {:keys [hostname username password]} connection]
     (swap! store/state update :connection
       #(merge %1 {:connected? false
-                 :connection-pending? true
-                 :error nil}))
+                  :connection-pending? true
+                  :username nil
+                  :error nil}))
     (bbserver/login hostname password connect-callback)))
 
 (defn disconnect!
@@ -103,6 +102,7 @@
   (swap! store/state update :connection
     #(merge %1 {:connected? false
                 :connection-pending? false
+                :username nil
                 :error nil}
   (utils/clear-interval "update-services"))))
 

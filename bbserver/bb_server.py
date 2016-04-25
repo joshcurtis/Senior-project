@@ -8,7 +8,8 @@ import os.path
 app = Flask(__name__)
 app.debug = True
 
-login_password = 'machinekit'
+login_username = 'machinekit'
+login_password = 'kit'
 
 # stolen code for crossdomain
 from datetime import timedelta
@@ -80,7 +81,7 @@ def route_login():
         return edn.dumps({})
     if request.method == 'POST':
         if request.form.get('password') == login_password:
-            return '{:authenticated true}'
+            return '{:authenticated true :username ' + login_username + '}'
         else:
             return '{:authenticated false}'
 
