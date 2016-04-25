@@ -13,8 +13,8 @@
 (defn add-socket!
   "type should be one of :dealer or :subscriber
   TODO: Possibly choose the type based on the service"
-  [service port type]
-  (let [endpoint (str "tcp://" (:hostname @state/connection-state) ":" port)
+  [hostname service port type]
+  (let [endpoint (str "tcp://" hostname ":" port)
         context (zmq/zcontext)
         identity (.getBytes "machinekit-client")
         socket (doto  (zmq/socket context :dealer)
