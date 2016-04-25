@@ -6,6 +6,10 @@ from glob import glob
 import os.path
 import subprocess
 
+from machinetalk.protobuf.message_pb2 import Container
+from machinetalk.protobuf.types_pb2 import MT_PING
+
+
 app = Flask(__name__)
 app.debug = True
 
@@ -130,6 +134,8 @@ def run_mk():
     #cmd2 = 'linuxcnc /home/machinekit/machinekit/configs/ARM.BeagleBone.CRAMPS/CRAMPS_REMOTE.ini -d'.split()
     #linuxcnc = subprocess.Popen(cmd2)
 
+
+
 @app.route("/stop_mk", methods=['GET'])
 @crossdomain(origin="*")
 def route_stop_mk():
@@ -149,6 +155,23 @@ def stop_process(process):
         if process.returncode == None:
             process.kill()
 
+@app.route("/ping/<port>", methods=['GET'])
+@crossdomain(origin="*")
+def ping(port):
+    send_data(port, MT_PING)
+    return edn.dumps(status)
+
+def send_data(port, msg_type):
+    msg = Container()
+    msg.type = msg_type
+    context = zmq.Context()
+    dealer = context.socket(zmq.DEALER)
+    dealer.identity = 'batman'
+    hostname = 'tcp://localhost:' + str(port)
+
+    dealer.connect(hostname)
+    dealer.send(msg.SerializeToString())
+    return
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3001)
