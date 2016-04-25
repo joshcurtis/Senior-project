@@ -1,6 +1,4 @@
-# MachineKit Editor ![build-status](https://travis-ci.org/joshcurtis/MachineView.svg?branch=master "build status")
-Edit specifications for use with MachineKit
-
+# MachineView ![build-status](https://travis-ci.org/joshcurtis/MachineView.svg?branch=master "build status")
 
 ## Maintainers
 - Josh Curtis
