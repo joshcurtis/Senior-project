@@ -10,8 +10,6 @@
   (:import
    [org.apache.commons.codec.binary Hex]))
 
-(defonce SSH-NO-SUCH-FILE-ERROR 2)
-
 (defn add-socket!
   "type should be one of :dealer or :subscriber
   TODO: Possibly choose the type based on the service"
@@ -28,37 +26,6 @@
   [service]
   (zmq/close (service @state/sockets))
   (swap! state/sockets dissoc service))
-
-(defremote ssh-disconnect!
-  "Disconnects from SSH. Returns nil if successful, otherwise error message."
-  []
-  (try
-    (state/ssh-disconnect!)
-    nil
-  (catch Exception e (.getMessage e))))
-
-(defremote ssh-connect!
-  "Connect remotely through SSH. Returns nil if successful, otherwise error
-  message."
-  [hostname username password]
-  (try
-    (state/ssh-connect! hostname username password)
-    nil
-  (catch Exception e (.getMessage e))))
-
-(defremote connection-status
-  "Get the connection status of the server. This involves things such as being
-  connected, username, hostname, and etc... See source code for more details."
-  []
-  (select-keys @state/connection-state [:connected?
-                                        :hostname
-                                        :username]))
-(defremote run-ssh-command
-  "Runs the cmd passed as a string.
-   It returns the exit code, stdout, and stderr"
-  [cmd]
-  (locking state/ssh-lock
-    (ssh/ssh (:session @state/connection-state) {:cmd cmd})))
 
 (defn format-data
   [data]

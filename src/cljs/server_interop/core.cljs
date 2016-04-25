@@ -7,30 +7,13 @@
    [cljs.reader :refer [read-string]])
   (:require-macros [shoreleave.remotes.macros :as macros]))
 
-(defn ssh-disconnect!
-  "Disconnects from the remote device. If the device was not connected, nothing
-  happens."
-  []
-  (remote-callback :ssh-disconnect! [] identity))
-
-(defn ssh-connect!
-  "Connect to a remote device with ssh. nil is passed to the callback if the
-  connection was successful and an error string otherwise."
-  [hostname username password callback]
-  (assert (string? hostname))
-  (assert (string? username))
-  (assert (string? password))
-  (remote-callback :ssh-connect! [hostname username password] callback))
-
 (defn connection-status
   "Gets the connection status of the server as a hashmap. See
   clj/server/client_interop.clj for more details."
   [callback]
   (remote-callback :connection-status [] callback))
 
-(defn- run-ssh-command
-  [command callback]
-  (remote-callback :run-ssh-command [command] callback))
+;; todo
 
 (defn watch-mk-services!
   "Watch mk"
