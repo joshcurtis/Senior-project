@@ -11,6 +11,7 @@
    [text-editor.core :as text-editor]
    [utils.widgets :as widgets]
    [utils.core :as utils]
+   [three.core :as three]
    [reagent.core :as r :refer [atom]]))
 
 (defn app

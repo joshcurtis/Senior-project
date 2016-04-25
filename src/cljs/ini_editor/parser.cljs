@@ -34,7 +34,7 @@
       [:key-value (mapv string/trim (string/split l #"=" 2))]
 
       :else
-      (throw (js/Error. "ini parser error: " l)))))
+      (throw (js/Error. (str "ini parser error: " l))))))
 
 (defn- helper-update-value
   "Updates the ini value based on its metadata. For most cases, this means
@@ -55,7 +55,7 @@
       (assoc-in values [sec k]
                 (if (some? old-val) (conj old-val v) v)))))
 
-(defn my-merge
+(defn- my-merge
   ([] {})
   ([& args] (apply merge args)))
 
@@ -68,6 +68,7 @@
   :section-order - [section-string]
   :values - hashmap: section-string -> key-string -> value-string or [value-string]"
   [s]
+  {:pre [(string? s)]}
   (loop [[l & r] (string/split-lines s)
          section "" ; string
          meta-acc {} ;; string -> any
@@ -196,3 +197,18 @@
   (let [sec-order (:section-order ini)]
     (string/join \newline
                  (map #(ini-sec-to-str ini %1) sec-order))))
+
+(defn ini?
+  "Returns true if `ini` has all the keys required to be an ini
+  representation."
+  [ini]
+  (and
+   (map? ini)
+   (= (set (keys ini)) #{:key-metadata
+                         :key-order
+                         :section-metadata
+                         :section-order
+                         :values})
+   (every? #(map? (get ini %1))
+           [:key-metadata :key-order :section-metadata :values])
+   (sequential? (get ini :section-order))))

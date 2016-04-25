@@ -1,0 +1,24 @@
+announcing mklauncher
+launcher {
+  index: 0
+  name: "MachineCloj"
+  description: "meh"
+  info {
+    type: ""
+    manufacturer: ""
+    model: ""
+    variant: ""
+  }
+  running: false
+  terminating: false
+  command: "python /home/machinekit/Desktop/run.py -d"
+  shell: false
+  returncode: 0
+  workdir: "/home/machinekit/Desktop"
+}
+
+service: dsname = tcp://%(fqdn)s:55150 port = 55150 txtrec = ['dsn=tcp://%(fqdn)s:55150', 'uuid=a42c8c6b-4025-4f83-ba28-dad21114744a', 'instance=df762dc8-0689-11e6-815a-d03972182598', 'service=launcher'] name = Machinekit Launcher on %(fqdn)s
+service: dsname = tcp://%(fqdn)s:55735 port = 55735 txtrec = ['dsn=tcp://%(fqdn)s:55735', 'uuid=a42c8c6b-4025-4f83-ba28-dad21114744a', 'instance=df764b1e-0689-11e6-815a-d03972182598', 'service=launchercmd'] name = Launchercmd service on %(fqdn)s pid 20022
+Done with initialization
+stopping threads
+threads stopped
