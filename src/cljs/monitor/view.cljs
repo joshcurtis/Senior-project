@@ -97,7 +97,7 @@
                 :upx 0
                 :upy 1
                 :upz 0.5}
-       :update-camera false
+       :update-camera @(r/cursor store/state [:monitor :reset-camera])
        :light {:x 0.0
                :y 1.6
                :z 0.0}
@@ -105,8 +105,8 @@
      [:button.btn.btn-primary
       {:on-click
        (fn []
-         (utils/click-element "monitor-tabMeasurements")
-         (js/setTimeout #(utils/click-element "monitor-tabAxes") 30))}
+         (swap! store/state assoc-in [:monitor :reset-camera] true)
+         (js/setTimeout #(swap! store/state assoc-in [:monitor :reset-camera] false) 30))}
       "Reset Camera"]]))
 
 (defn table-measurements

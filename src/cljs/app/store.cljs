@@ -57,6 +57,7 @@
     :is-monitoring? false
     :monitor-tab "Measurements"
     :monitor {
+              :reset-camera false
               :history-display-size 512
               :history-store-size 800
               :all-components ["Axis-0-x" "Axis-0-y" "Axis-0-z" "Axis-0-a"
