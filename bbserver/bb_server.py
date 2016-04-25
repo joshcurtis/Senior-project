@@ -96,11 +96,11 @@ def route_configs():
     m = dict(zip(m_keys, m_vals))
     return edn.dumps(m)
 
-@app.route("/configs/<config>/<filename>", methods=['GET', 'PUT', 'DELETE', 'OPTIONS'])
+@app.route("/config", methods=['GET', 'PUT', 'DELETE', 'OPTIONS'])
 @crossdomain(origin="*")
-def route_configs_file(config, filename):
+def route_configs_file():
     global config_root
-    path = "{}/{}/{}".format(config_root, config, filename)
+    path = "{}/{}".format(config_root, request.args.get('path'))
     if request.method == 'GET':
         txt = open(path).read()
         return edn.dumps({"contents": txt})

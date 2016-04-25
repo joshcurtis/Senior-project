@@ -18,8 +18,10 @@
   ([http-type address callback] (bb-wrapper http-type address callback {})))
 
 (defn- bb-get
-  [address callback]
-  (bb-wrapper http/get address callback))
+  ([address callback]
+  (bb-get address callback {}))
+  ([address callback options]
+  (bb-wrapper http/get address callback options)))
 
 (defn- bb-put
   [address callback options]
@@ -30,8 +32,10 @@
   (bb-wrapper http/post address callback options))
 
 (defn- bb-delete
-  [address callback]
-  (bb-wrapper http/delete address callback))
+  ([address callback]
+  (bb-delete address callback {}))
+  ([address callback options]
+  (bb-wrapper http/delete address callback options)))
 
 (defn- build-address
   [hostname port route]
@@ -53,18 +57,21 @@
 (defn get-file
   [hostname config filename callback]
   {:pre [(string/includes? config \/)]}
-  (bb-get (build-address hostname 3001 (str "/configs/" config filename)) callback))
+  (bb-get (build-address hostname 3001 "/config") callback
+    {:query-params {:path (str config filename)}}))
 
 (defn put-file
   [hostname config filename contents callback]
   {:pre [(string/includes? config \/) (string? contents)]}
-  (bb-put (build-address hostname 3001 (str "/configs/" config filename))
-          callback {:form-params {:contents contents}}))
+  (bb-put (build-address hostname 3001 "/config") callback
+    {:query-params {:path (str config filename)}
+     :form-params {:contents contents}}))
 
 (defn delete-file
   [hostname config filename callback]
   {:pre [(string/includes? config \/)]}
-  (bb-delete (build-address hostname 3001 (str "/configs/" config filename)) callback))
+  (bb-delete (build-address hostname 3001 "/config") callback
+    {:query-params {:path (str config filename)}}))
 
 (defn get-services-log
   [hostname callback]
