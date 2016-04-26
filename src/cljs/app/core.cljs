@@ -1,6 +1,7 @@
 (ns app.core
   ""
   (:require
+   [cljsjs.bootstrap]
    [app.devtools-setup]
    [app.store :as store]
    [app.view]

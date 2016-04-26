@@ -17,6 +17,8 @@
                  [reagent "0.6.0-alpha"]
                  [figwheel-sidecar "0.5.2"]
                  [com.cemerick/piggieback "0.2.1"]
+                 [cljsjs/bootstrap "3.3.6-0"]
+                 [cljsjs/filesaverjs "1.1.20151003-0"]
                  [cljsjs/d3 "3.5.16-0"]
                  [cljsjs/three "0.0.72-0"]]
 
