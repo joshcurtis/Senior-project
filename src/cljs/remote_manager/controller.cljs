@@ -5,7 +5,6 @@
    [utils.core :as utils]
    [ini-editor.controller]
    [text-editor.controller]
-   [server-interop.core :as server-interop]
    [clojure.string :as string]))
 
 (defonce mt (.-protobuf js/machinetalk))
@@ -60,10 +59,11 @@
 (defn try-to-launch-resolver!
   []
   (if (-> @store/state :connection :connected?)
-    (do
-      (utils/log "launching resolver")
-      (server-interop/watch-mk-services! utils/log-ssh-cmd)
-      (utils/set-interval "update-services" update-mk-services! 2000))
+    (let [hostname (get-in @store/state [:connection :hostname])]
+      (do
+        (utils/log "launching resolver")
+        (bbserver/resolve-services hostname #(utils/log %))
+        (utils/set-interval "update-services" update-mk-services! 2000)))
     (utils/log "Resolver not started")))
 
 (defn- connect-callback
@@ -77,8 +77,7 @@
                            :username username
                            :error nil}))
         (update-configs!)
-        ; (try-to-launch-resolver!)
-        )
+        (try-to-launch-resolver!))
 
       (swap! store/state update :connection
              #(merge %1 {:connected? false
@@ -106,27 +105,17 @@
                 :error nil}
   (utils/clear-interval "update-services"))))
 
-(defn launch-mk!
+(defn run-mk!
   []
   (if (-> @store/state :connection :connected?)
-    (do
-      (.log js/console "Trying to launch mk")
-      (server-interop/launch-mk! utils/log-ssh-cmd))
-    (utils/log "Unable to launch machinekit. No SSH connection")))
+    (let [hostname (get-in @store/state [:connection :hostname])]
+      (bbserver/run_mk hostname #(utils/log %)))))
 
 (defn shutdown-mk!
   []
-  (utils/log "Shuting down machinekit")
   (if (-> @store/state :connection :connected?)
-    (do
-      (utils/log "Shutting down mk")
-      (server-interop/send-data (utils/encode-buffer MT_SHUTDOWN) #(utils/log %)))
-    "Unable to shutdown machinekit. Not connected"))
-
-(defn test-socket
-  []
-  (utils/log "Testing socket")
-  (server-interop/send-data (utils/encode-buffer MT_PING) #(utils/log %)))
+    (let [hostname (get-in @store/state [:connection :hostname])]
+      (bbserver/stop_mk hostname #(utils/log %)))))
 
 (defn- edit-ini!
   [s id]
@@ -167,6 +156,12 @@
         callback update-configs!]
     (bbserver/delete-file hostname config filename callback)))
 
+(defn ping
+  []
+  (let [hostname (get-in @store/state [:connection :hostname])
+        port (get-in @store/state [:services :config])]
+    (bbserver/ping hostname port #(utils/log "Pinging MachineKit"))))
+
 (defn log-state
   "Adding whatever information you want to see for debugging here"
   []
@@ -176,4 +171,4 @@
   [timeout]
   (utils/set-interval "debug-state" log-state timeout))
 
-(debug-state 10000)
+(debug-state 5000)

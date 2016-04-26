@@ -2,7 +2,6 @@
   "The server for our web application. It also provides RPC through the
   shoreleave library."
   (:require
-   [server.client-interop :as client-interop]
    [server.state :as state]
    [server.mdns :as mdns]
    [compojure.core :refer [defroutes GET]]

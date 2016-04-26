@@ -13,16 +13,12 @@
                  [hiccup "1.0.5"]
                  [compojure "1.5.0"]
                  [cljs-http "0.1.40"]
-                 [org.clojars.magomimmo/shoreleave-remote-ring "0.3.1"]
-                 [org.clojars.magomimmo/shoreleave-remote "0.3.1"]
                  [javax.servlet/servlet-api "2.5"]
-                 [clj-ssh "0.5.14"]
-                 [org.zeromq/jeromq "0.3.3"]
-                 [org.zeromq/cljzmq "0.1.4" :exclusions [org.zeromq/jzmq]]
                  [reagent "0.6.0-alpha"]
+                 [figwheel-sidecar "0.5.2"]
+                 [com.cemerick/piggieback "0.2.1"]
                  [cljsjs/d3 "3.5.16-0"]
-                 [cljsjs/three "0.0.72-0"]
-                 [commons-codec/commons-codec "1.10"]]
+                 [cljsjs/three "0.0.72-0"]]
 
   :jvm-opts ["-Djava.library.path=/usr/lib:/usr/local/lib"]
 
@@ -104,4 +100,6 @@
 
              ;; to configure a different figwheel logfile path
              ;; :server-logfile "tmp/logs/figwheel-logfile.log"
-             })
+             }
+
+  :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]})
