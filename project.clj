@@ -102,4 +102,8 @@
              ;; :server-logfile "tmp/logs/figwheel-logfile.log"
              }
 
-  :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]})
+  :repl-options
+  {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
+   :init (do
+           (use 'figwheel-sidecar.repl-api)
+           (start-figwheel!))})
