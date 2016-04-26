@@ -47,13 +47,19 @@
   (let [hostname (get-in @store/state [:connection :hostname])]
     (bbserver/get-services-log hostname update-mk-services-callback)))
 
+(defn- log-body
+  [status error-code body]
+  (if (and (= status 200) (some? body))
+    (utils/log body)
+    (utils/log [:status status :error-code error-code])))
+
 (defn- try-to-launch-resolver!
   "Request that services be resolved."
   []
   (let [hostname (get-in @store/state [:connection :hostname])]
     (do
       (utils/log "Launching Resolver")
-      (bbserver/resolve-services hostname #(utils/log %)))))
+      (bbserver/resolve-services hostname log-body))))
 
 (defn- merge-with-state-connection
   [merge-map]
@@ -113,13 +119,13 @@
   []
   (if (-> @store/state :connection :connected?)
     (let [hostname (get-in @store/state [:connection :hostname])]
-      (bbserver/run_mk hostname #(utils/log %)))))
+      (bbserver/run_mk hostname log-body))))
 
 (defn shutdown-mk!
   []
   (if (-> @store/state :connection :connected?)
     (let [hostname (get-in @store/state [:connection :hostname])]
-      (bbserver/stop_mk hostname #(utils/log %)))))
+      (bbserver/stop_mk hostname log-body))))
 
 (defn- edit-ini!
   [s id]
@@ -140,7 +146,7 @@
   (let [extension (utils/file-ext filename)
         hostname (get-in @store/state [:connection :hostname])
         callback (get edit-callbacks extension edit-unsupported)
-        callback #(callback (get %1 "contents") [:remote filename])]
+        callback #(callback (get %3 "contents") [:remote filename])]
     (bbserver/get-file hostname config filename callback)))
 
 (defn upload-file!
@@ -151,14 +157,13 @@
 (defn download-file!
   [config filename]
   (let [hostname (get-in @store/state [:connection :hostname])
-        callback #(utils/save-file (get %1 "contents") filename)]
+        callback #(utils/save-file (get %3 "contents") filename)]
     (bbserver/get-file hostname config filename callback)))
 
 (defn delete-file!
   [config filename]
-  (let [hostname (get-in @store/state [:connection :hostname])
-        callback update-configs!]
-    (bbserver/delete-file hostname config filename callback)))
+  (let [hostname (get-in @store/state [:connection :hostname])]
+    (bbserver/delete-file hostname config filename update-configs!)))
 
 (defn ping
   []
