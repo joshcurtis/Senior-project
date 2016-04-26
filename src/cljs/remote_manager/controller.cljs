@@ -12,6 +12,11 @@
 (defonce MT_PING (.-MT_PING container-types))
 (defonce MT_SHUTDOWN (.-MT_SHUTDOWN container-types))
 
+; Forward declare
+(declare
+  start-update-configs-and-services-interval
+  start-update-running-interval)
+
 (defn set-hostname!
   [name]
   (swap! store/state assoc-in [:connection :hostname] name))
@@ -65,7 +70,7 @@
   []
   "Request to see if MachinkeKit is running."
   (let [hostname (get-in @store/state [:connection :hostname])]
-    (bbserver/running hostname #(swap! @store/state assoc :running? %3))))
+    (bbserver/running hostname #(swap! store/state assoc :running? %3))))
 
 (defn- merge-with-state-connection
   [merge-map]
@@ -99,7 +104,8 @@
                                         :error nil})
           (update-configs!)
           (try-to-launch-resolver!)
-          (utils/set-interval "update-running" update-running! 500))))
+          (start-update-configs-and-services-interval)
+          (start-update-running-interval))))
   ))
 
 (defn connect!
@@ -185,16 +191,29 @@
 
 ; Create an update interval while the user is connected that
 ; updates configs and mk-services
-(utils/set-interval "update-configs-and-services"
-  #(let [{:keys [connection]} @store/state]
-    (if (:connected? connection)
-      (do
-        (update-configs!)
-        (update-mk-services!))))
-  2000)
+(defn- start-update-configs-and-services-interval
+  []
+  (utils/set-interval "update-configs-and-services"
+    #(let [{:keys [connection]} @store/state]
+      (if (:connected? connection)
+        (do
+          (update-configs!)
+          (update-mk-services!))))
+    2000))
+
+; Create an update interval while the user is connected that
+; updates whether MachineKit is running
+(defn- start-update-running-interval
+  []
+  (utils/set-interval "update-running"
+    #(let [{:keys [connection]} @store/state]
+      (if (:connected? connection)
+        (update-running!)))
+    500))
 
 ; Create a debug logging interval
 (utils/set-interval "debug-state"
   #(do
-    (utils/log (str "Services: " (:services @store/state))))
+    (utils/log (str "Services: " (:services @store/state)))
+   )
   5000)
