@@ -15,7 +15,9 @@
              {:keys [status error-code body]} resp
              body (reader/read-string body)]
          ; TODO Modify callbacks to take status + error-code + body
-         (-> resp :body reader/read-string callback))))
+         (callback status error-code body)
+         ; (-> resp :body reader/read-string callback)
+         )))
   ([http-type address callback] (bb-wrapper http-type address callback {})))
 
 (defn- bb-get

@@ -20,41 +20,38 @@
   [password]
   (swap! store/state assoc-in [:connection :password] password))
 
-(defn clear-configs!
-  []
-  (swap! store/state assoc
-         :configs {:dirs [] :contents {}}))
-
-(defn- --update-configs
-  [state configs]
-  (let [dirs (mapv identity (keys configs))
-        contents configs]
-    (assoc state :configs {:dirs dirs
-                           :contents contents})))
+(defn- update-configs-callback
+  "Callback for a file list in the machinekit config directory."
+  [status error-code body]
+  (if (and (= status 200) (some? body))
+    (let [dirs (mapv identity (keys body))]
+      (swap! store/state assoc :configs {:dirs dirs :contents body}))))
 
 (defn update-configs!
-  "Updates the configs based on the server."
+  "Requests a file list in the machinekit config directory."
   []
   (let [hostname (get-in @store/state [:connection :hostname])]
-    (bbserver/configs hostname #(swap! store/state --update-configs %1))))
+    (bbserver/configs hostname update-configs-callback)))
 
+; Update the configs while the user is connected
 (utils/set-interval "update-configs"
-                    #(let [{:keys [connection]} @store/state]
-                       (if (:connected? connection)
-                         (update-configs!)))
-                    2000)
+  #(let [{:keys [connection]} @store/state]
+    (if (:connected? connection) (update-configs!)))
+  2000)
 
-(defn update-services!
-  [log]
-  (swap! store/state assoc
-         :services (utils/parse-service-log log)))
+(defn- update-mk-services-callback
+  "Callback for MachinkeKit services list."
+  [status error-code body]
+  (if (and (= status 200) (some? body))
+    (swap! store/state assoc :services (utils/parse-service-log body))))
 
 (defn update-mk-services!
-  "Run to parse the ~/Desktop/services.log file
-  and update what machinekit services are available"
+  "Request the ~/Desktop/services.log file which will
+  be parsed to update and inform the user what machinekit
+  services are available"
   []
   (let [hostname (get-in @store/state [:connection :hostname])]
-    (bbserver/get-services-log hostname #(update-services! (get %1 "log")))))
+    (bbserver/get-services-log hostname update-mk-services-callback)))
 
 (defn try-to-launch-resolver!
   []
@@ -66,44 +63,55 @@
         (utils/set-interval "update-services" update-mk-services! 2000)))
     (utils/log "Resolver not started")))
 
-(defn- connect-callback
-  [res]
-  (let [{:keys [authenticated username]} res]
-    (if authenticated
-      (do
-        (swap! store/state update :connection
-               #(merge %1 {:connected? true
-                           :connection-pending? false
-                           :username username
-                           :error nil}))
-        (update-configs!)
-        (try-to-launch-resolver!))
+(defn- merge-with-state-connection
+  [merge-map]
+  (swap! store/state update :connection #(merge %1 merge-map)))
 
-      (swap! store/state update :connection
-             #(merge %1 {:connected? false
-                         :connection-pending? false
-                         :username nil
-                         :error "Incorrect password"})))))
+(defn- connect-callback
+  [status error-code body]
+  (cond
+    (or (= error-code :http-error) (= error-code :timeout))
+      (merge-with-state-connection {:connected? false
+                                    :connection-pending? false
+                                    :username nil
+                                    :error "Unable to connect with host"})
+    (nil? body)
+      (merge-with-state-connection {:connected? false
+                                    :connection-pending? false
+                                    :username nil
+                                    :error "Error with response body"})
+    :else
+    (let [{:keys [authenticated username]} body]
+      (if (not authenticated)
+        (merge-with-state-connection {:connected? false
+                                      :connection-pending? false
+                                      :username nil
+                                      :error "Incorrect password"})
+        (do
+          (merge-with-state-connection {:connected? true
+                                        :connection-pending? false
+                                        :username username
+                                        :error nil})
+          (update-configs!)
+          (try-to-launch-resolver!))))))
 
 (defn connect!
   []
   (let [{:keys [connection]} @store/state
         {:keys [hostname username password]} connection]
-    (swap! store/state update :connection
-      #(merge %1 {:connected? false
-                  :connection-pending? true
-                  :username nil
-                  :error nil}))
+    (merge-with-state-connection {:connected? false
+                                  :connection-pending? true
+                                  :username nil
+                                  :error nil})
     (bbserver/login hostname password connect-callback)))
 
 (defn disconnect!
   []
-  (swap! store/state update :connection
-    #(merge %1 {:connected? false
-                :connection-pending? false
-                :username nil
-                :error nil}
-  (utils/clear-interval "update-services"))))
+  (merge-with-state-connection {:connected? false
+                                :connection-pending? false
+                                :username nil
+                                :error nil})
+  (utils/clear-interval "update-services"))
 
 (defn run-mk!
   []
