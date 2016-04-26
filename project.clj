@@ -1,6 +1,6 @@
 (defproject machineview "0.1.0-SNAPSHOT"
-  :description "FIXME: write this!"
-  :url "http://example.com/FIXME"
+  :description "A clojurescript application for monitoring machinekit running on a beaglebone."
+  :url "http://joshcurtis.github.io/MachineView/"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
@@ -19,8 +19,6 @@
                  [com.cemerick/piggieback "0.2.1"]
                  [cljsjs/d3 "3.5.16-0"]
                  [cljsjs/three "0.0.72-0"]]
-
-  :jvm-opts ["-Djava.library.path=/usr/lib:/usr/local/lib"]
 
   :plugins [[lein-figwheel "0.5.2"]
             [lein-doo "0.1.6"]
@@ -102,9 +100,8 @@
              ;; :server-logfile "tmp/logs/figwheel-logfile.log"
              }
 
-  :repl-options
-  {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
-   :init (do
-           (use 'figwheel-sidecar.repl-api)
-           (start-figwheel!)
-           (println "Run (cljs-user) to connect to cljs repl"))})
+  :repl-options  {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
+                  :init (do
+                          (use 'figwheel-sidecar.repl-api)
+                          (start-figwheel!)
+                          (println "Run (cljs-repl) to connect to the cljs repl"))})
