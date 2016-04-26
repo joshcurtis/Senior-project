@@ -13,9 +13,9 @@
   [props]
   (let [connection @(r/cursor store/state [:connection])
         configs @(r/cursor store/state [:configs])
-        services @(r/cursor store/state [:services])]
+        running? @(r/cursor store/state [:running?])]
 
     [:div {}
      [view/remote-manager {:connection connection
                            :configs configs
-                           :services services}]]))
+                           :running? running?}]]))

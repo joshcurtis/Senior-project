@@ -109,13 +109,17 @@
   []
   (if (-> @store/state :connection :connected?)
     (let [hostname (get-in @store/state [:connection :hostname])]
-      (bbserver/run_mk hostname #(utils/log %)))))
+      (do
+        (bbserver/run_mk hostname #(utils/log %))
+        (swap! store/state assoc :running? true)))))
 
 (defn shutdown-mk!
   []
   (if (-> @store/state :connection :connected?)
     (let [hostname (get-in @store/state [:connection :hostname])]
-      (bbserver/stop_mk hostname #(utils/log %)))))
+      (do
+        (bbserver/stop_mk hostname #(utils/log %))
+        (swap! store/state assoc :running? false)))))
 
 (defn- edit-ini!
   [s id]
