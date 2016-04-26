@@ -106,4 +106,5 @@
   {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
    :init (do
            (use 'figwheel-sidecar.repl-api)
-           (start-figwheel!))})
+           (start-figwheel!)
+           (println "Run (cljs-user) to connect to cljs repl"))})
