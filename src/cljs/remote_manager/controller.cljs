@@ -156,6 +156,12 @@
         callback update-configs!]
     (bbserver/delete-file hostname config filename callback)))
 
+(defn ping
+  []
+  (let [hostname (get-in @store/state [:connection :hostname])
+        port (get-in @store/state [:services :config])]
+    (bbserver/ping hostname port #(utils/log "Pinging MachineKit"))))
+
 (defn log-state
   "Adding whatever information you want to see for debugging here"
   []

@@ -6,6 +6,7 @@ from glob import glob
 import os
 import os.path
 import subprocess
+import zmq
 
 from machinetalk.protobuf.message_pb2 import Container
 from machinetalk.protobuf.types_pb2 import MT_PING
