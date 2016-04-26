@@ -71,9 +71,11 @@
 
 (defonce render-tick (atom 0))
 
+(def camera-frame-rate 15)
+
 (utils/set-interval "render-tick"
                     #(swap! render-tick inc)
-                    (/ 1000 30))
+                    (/ 1000 camera-frame-rate))
 
 (defn axes-plot
   [{:keys [axes-group measurements]}]
@@ -92,11 +94,11 @@
                 :y 1.0
                 :z 1.5
                 :atx 0.0
-                :aty 10.0
+                :aty 1.0
                 :atz 0.0
                 :upx 0
                 :upy 1
-                :upz 0.5}
+                :upz 0}
        :update-camera @(r/cursor store/state [:monitor :reset-camera])
        :light {:x 0.0
                :y 1.6
@@ -106,7 +108,7 @@
       {:on-click
        (fn []
          (swap! store/state assoc-in [:monitor :reset-camera] true)
-         (js/setTimeout #(swap! store/state assoc-in [:monitor :reset-camera] false) 30))}
+         (js/setTimeout #(swap! store/state assoc-in [:monitor :reset-camera] false) 100))}
       "Reset Camera"]]))
 
 (defn table-measurements

@@ -628,7 +628,9 @@ THREE.TrackballControls.prototype = Object.create( THREE.EventDispatcher.prototy
 THREE.TrackballControls.prototype.constructor = THREE.TrackballControls;
 ")
 
-(defn new-controls
+(defn new-controls!
+  "Creates controls for the camera. It steals mouse actions such as the mouse
+  wheel. Use `stop-controls!` to give back mouse actions."
   [camera]
   (js/THREE.TrackballControls. camera))
 
@@ -637,7 +639,7 @@ THREE.TrackballControls.prototype.constructor = THREE.TrackballControls;
   (if (some? controls)
     (.update controls)))
 
-(defn stop-controls
+(defn stop-controls!
   [controls]
   (if (some? controls)
     (.dispose controls))

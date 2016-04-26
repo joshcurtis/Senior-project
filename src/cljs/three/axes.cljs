@@ -3,6 +3,7 @@
   primitive, lots of stuff is unhandled."
   (:require
    [three.trackball-controls :as trackball-controls]
+   [three.coordinates]
    [utils.core :as utils]
    [reagent.core :as r]
    [cljsjs.three]))
@@ -68,14 +69,34 @@
   (let [floor (js/THREE.Mesh.
                (js/THREE.BoxGeometry. 2.5 0.01 2.5)
                (js/THREE.MeshLambertMaterial. #js {:color "#888888"}))]
+    (aset (.-position floor) "y" -0.01)
     [floor]))
 
+(defn new-coordinate-legend
+  [len]
+  (let [obj (js/THREE.Object3D.)
+        axes (map #(three.coordinates/build-axis [0 0 0]
+                                                 (:dir %)
+                                                 (:color %)
+                                                 true)
+                  [{:dir [len 0 0] :color "red"}
+                   {:dir [0 0 (- len)] :color "green"}
+                   {:dir [0 len 0] :color "blue"}])]
+    (doseq [a axes]
+      (.add obj a))
+    obj))
+
 (def default-camera
-  "Defines a default camera, which is to say all the values are 0. The keys are
-  `x`, `y`, `z`, `atx`, `aty`, `atz`, `upx`, `upy`, and `upz`."
-  (apply hash-map (map #(vector % 0) [:x :y :z
-                                      :atx :aty :atz
-                                      :upx :upy :upz])))
+  "Defines a default camera, which is to say all the values are 0, except for
+  `scalex`, `scaley`, and `scalez` which are set to 1."
+  (let [zeros (apply hash-map (mapcat #(vector % 0)
+                                      [:x :y :z
+                                       :atx :aty :atz
+                                       :upx :upy :upz
+                                       :rotx :roty :rotz]))
+        ones (apply hash-map (mapcat #(vector % 1)
+                                     [:scalex :scaley :scalez]))]
+    (merge zeros ones)))
 
 (def default-props
   ;; width and height of canvas obj
@@ -86,8 +107,7 @@
    ;; if camera should be updated to props value at each frame,
    ;; this will override controls
    :update-camera false
-   ;; hash-map with the keys, `x`, `y`, `z`, `atx`, `aty`, `atz`, `upx`, `upy`,
-   ;; and `upz`.
+   ;; check `default-camera` hash-map
    :camera default-camera
    ;; max amount of axes that will every be shown. This can't be changed after
    ;; instantiation. Exceeding this limit will cause some axes to not be drawn.
@@ -103,9 +123,13 @@
   [camera props]
   (let [{:keys [x y z
                 atx aty atz
-                upx upy upz]} (merge default-camera props)]
+                upx upy upz
+                rotx roty rotz
+                scalex scaley scalez]} (merge default-camera props)]
     (.set (.-position camera) x y z)
     (.set (.-up camera) upx upy upz)
+    (.set (.-scale camera) scalex scaley scalez)
+    (.set (.-rotation camera) rotx roty rotz)
     (.lookAt camera (js/THREE.Vector3. atx aty atz))))
 
 (defn axes-plot
@@ -119,14 +143,15 @@
         n-axes (min max-axes (count axes))
         element-id (utils/unique-dom-id "r-axis-plot-")
         scene (js/THREE.Scene.)
-        light (js/THREE.PointLight. "white" 2.0)
+        light (js/THREE.DirectionalLight. "white" 1.5)
         camera (js/THREE.PerspectiveCamera. 75 ;; field of view
                                             (/ width height) ;; aspect ratio
                                             0.001 ;; near clipping
                                             100.0) ;; far clipping
         renderer (js/THREE.WebGLRenderer. #js {:antialias true})
-        controls (if controls (trackball-controls/new-controls camera))
+        controls (if controls (trackball-controls/new-controls! camera))
         floor-objs (new-floor-objs)
+        coordinate-legend (new-coordinate-legend 0.25)
         axis-objs (mapv #(new-axis-obj) (range max-axes))]
     ;; camera & lighting
     (adjust-camera! camera camera-props)
@@ -142,6 +167,7 @@
     (doseq [i (range max-axes)]
       (axis-set-pos! (get axis-objs i) (get axes i)))
     ;; add stuff to scene
+    (.add scene coordinate-legend)
     (doseq [obj floor-objs]
       (.add scene obj))
     (doseq [{:keys [point box]} axis-objs]
@@ -159,10 +185,10 @@
       :component-will-unmount
       (fn []
         (let [context (.-context renderer)]
-          (.clear renderer)
-          (trackball-controls/stop-controls controls)
+          (trackball-controls/stop-controls! controls)
           (.removeChild (js/document.getElementById element-id)
-                        (.-domElement renderer))))
+                        (.-domElement renderer))
+          (.dispose renderer)))
 
       :component-did-update
       (fn [this _]
