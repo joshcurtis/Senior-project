@@ -122,7 +122,7 @@
   (let [button-style {:margin-right "1rem"}]
     [:container-fluid {:style {:marginBottom "10px"}}
      [:div {:class "row" :style {:marginBottom "10px"}}
-      [:div {:class "col-md-6"}
+      [:div {:class "col-md-8"}
        [:button.btn.btn-primary {:style button-style
                                  :on-click controller/update-configs!} "Refresh"]
        [:button.btn.btn-warning {:style button-style
