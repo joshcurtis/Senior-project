@@ -8,7 +8,6 @@
    [compojure.handler :refer [site]]
    [compojure.route :refer [not-found files resources]]
    [hiccup.core :as hiccup]
-   [shoreleave.middleware.rpc :refer [wrap-rpc]]
    [ring.util.response :as resp]
    ))
 
@@ -23,10 +22,3 @@
   (files "/" {:root "target"})
   (resources "/" {:root "target"})
   (not-found "Page Not Found"))
-
-;; also a ring handler, but adds shoreleave functionality
-(def handler
-  "compojure route handler. This is similar to handler, but adds in
-  functionality from shoreleave which allows for easy Remote Procedure Calls
-  from cljs."
-  (-> (var static-handler) (wrap-rpc) (site)))
