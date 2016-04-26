@@ -9,7 +9,7 @@
 
 (defn- bb-wrapper
   ([http-type address callback options]
-   (go (let [options (merge {:with-credentials? false} options)
+   (go (let [options (merge {:with-credentials? false :timeout 2000} options)
              resp (<! (http-type address
                                  options))
              {:keys [status body]} resp]
