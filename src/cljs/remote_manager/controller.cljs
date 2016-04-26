@@ -56,6 +56,16 @@
   (let [hostname (get-in @store/state [:connection :hostname])]
     (bbserver/get-services-log hostname #(update-services! (get %1 "log")))))
 
+(defn update-running!
+  []
+  (let [hostname (get-in @store/state [:connection :hostname])]
+    (bbserver/running hostname #(swap! @store/state assoc :running? %))))
+
+
+(defn start-running-interval!
+  []
+  utils/set-interval "update-running" update-running!)
+
 (defn try-to-launch-resolver!
   []
   (if (-> @store/state :connection :connected?)
@@ -77,8 +87,8 @@
                            :username username
                            :error nil}))
         (update-configs!)
-        (try-to-launch-resolver!))
-
+        (try-to-launch-resolver!)
+        (start-running-interval!))
       (swap! store/state update :connection
              #(merge %1 {:connected? false
                          :connection-pending? false
@@ -102,8 +112,9 @@
     #(merge %1 {:connected? false
                 :connection-pending? false
                 :username nil
-                :error nil}
-  (utils/clear-interval "update-services"))))
+                :error nil}))
+  (utils/clear-interval "update-services")
+  (utils/clear-interval "update-running"))
 
 (defn run-mk!
   []

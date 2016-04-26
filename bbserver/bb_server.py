@@ -65,7 +65,7 @@ def crossdomain(origin=None, methods=None, headers=None,
     return decorator
 
 status = {"ok?": True,
-          "mk_is_running?": False,
+          "mk_running": False,
           "resolving_services": False}
 
 config_root = os.path.expanduser("~/machinekit/configs")
@@ -153,8 +153,8 @@ def route_services_log():
 def route_run_mk():
     global status
     run_mk()
-    if not status["mk_is_running?"]:
-        status["mk_is_running?"] = True
+    if not status["mk_running"]:
+        status["mk_running"] = True
     return edn.dumps(status)
 
 def run_mk():
@@ -163,8 +163,9 @@ def run_mk():
     global linuxcnc
     cmd1 = 'configserver /home/machinekit/Desktop -d'.split()
     configserver = subprocess.Popen(cmd1)
-    #cmd2 = 'linuxcnc /home/machinekit/machinekit/configs/ARM.BeagleBone.CRAMPS/CRAMPS_REMOTE.ini -d'.split()
-    #linuxcnc = subprocess.Popen(cmd2)
+    return edn.dumps(status)
+    # cmd2 = 'linuxcnc /home/machinekit/machinekit/configs/ARM.BeagleBone.CRAMPS/CRAMPS_REMOTE.ini -d'.split()
+    # linuxcnc = subprocess.Popen(cmd2)
 
 @app.route("/stop_mk", methods=['GET'])
 @crossdomain(origin="*")
@@ -177,14 +178,14 @@ def route_stop_mk():
     stop_process(configserver)
     stop_process(linuxcnc)
     stop_process(resolver)
-    if status["mk_is_running?"]:
-        status["mk_is_running?"] = False
+    if status["mk_running"]:
+        status["mk_running"] = False
     return edn.dumps(status)
 
 def stop_process(process):
     if process != None:
         if process.returncode == None:
-            process.kill()
+            process.terminate()
 
 @app.route("/ping/<port>", methods=['GET'])
 @crossdomain(origin="*")
@@ -203,6 +204,12 @@ def send_data(port, msg_type):
     dealer.connect(hostname)
     dealer.send(msg.SerializeToString())
     return
+
+@app.route("/running", methods=['GET'])
+@crossdomain(origin="*")
+def running():
+    status['mk_running'] = (configserver != None and configserver.poll() == None)
+    return edn.dumps(status['mk_running'])
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3001)
