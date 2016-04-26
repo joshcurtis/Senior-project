@@ -199,7 +199,7 @@
         (do
           (update-configs!)
           (update-mk-services!))))
-    2000))
+    500))
 
 ; Create an update interval while the user is connected that
 ; updates whether MachineKit is running
