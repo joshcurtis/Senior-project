@@ -84,6 +84,7 @@
                    {:dir [0 len 0] :color "blue"}])]
     (doseq [a axes]
       (.add obj a))
+    (.set (.-position obj) -0.5 0.0 0.75)
     obj))
 
 (def default-camera
