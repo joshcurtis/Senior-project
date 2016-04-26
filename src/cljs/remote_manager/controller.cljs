@@ -27,17 +27,11 @@
     (let [dirs (mapv identity (keys body))]
       (swap! store/state assoc :configs {:dirs dirs :contents body}))))
 
-(defn update-configs!
+(defn- update-configs!
   "Requests a file list in the machinekit config directory."
   []
   (let [hostname (get-in @store/state [:connection :hostname])]
     (bbserver/configs hostname update-configs-callback)))
-
-; Update the configs while the user is connected
-(utils/set-interval "update-configs"
-  #(let [{:keys [connection]} @store/state]
-    (if (:connected? connection) (update-configs!)))
-  2000)
 
 (defn- update-mk-services-callback
   "Callback for MachinkeKit services list."
@@ -45,7 +39,7 @@
   (if (and (= status 200) (some? body))
     (swap! store/state assoc :services (utils/parse-service-log body))))
 
-(defn update-mk-services!
+(defn- update-mk-services!
   "Request the ~/Desktop/services.log file which will
   be parsed to update and inform the user what machinekit
   services are available"
@@ -53,21 +47,20 @@
   (let [hostname (get-in @store/state [:connection :hostname])]
     (bbserver/get-services-log hostname update-mk-services-callback)))
 
-(defn try-to-launch-resolver!
+(defn- try-to-launch-resolver!
+  "Request that services be resolved."
   []
-  (if (-> @store/state :connection :connected?)
-    (let [hostname (get-in @store/state [:connection :hostname])]
-      (do
-        (utils/log "launching resolver")
-        (bbserver/resolve-services hostname #(utils/log %))
-        (utils/set-interval "update-services" update-mk-services! 2000)))
-    (utils/log "Resolver not started")))
+  (let [hostname (get-in @store/state [:connection :hostname])]
+    (do
+      (utils/log "Launching Resolver")
+      (bbserver/resolve-services hostname #(utils/log %)))))
 
 (defn- merge-with-state-connection
   [merge-map]
   (swap! store/state update :connection #(merge %1 merge-map)))
 
 (defn- connect-callback
+  "Callback for connection/login attempt with the BeagleBone."
   [status error-code body]
   (cond
     (or (= error-code :http-error) (= error-code :timeout))
@@ -93,9 +86,11 @@
                                         :username username
                                         :error nil})
           (update-configs!)
-          (try-to-launch-resolver!))))))
+          (try-to-launch-resolver!))))
+  ))
 
 (defn connect!
+  "Request authorization to access the BeagleBone."
   []
   (let [{:keys [connection]} @store/state
         {:keys [hostname username password]} connection]
@@ -106,12 +101,13 @@
     (bbserver/login hostname password connect-callback)))
 
 (defn disconnect!
+  "Disconnect from the BeagleBone and return to the login screen."
   []
   (merge-with-state-connection {:connected? false
                                 :connection-pending? false
                                 :username nil
                                 :error nil})
-  (utils/clear-interval "update-services"))
+  (utils/clear-interval "update-configs-and-services"))
 
 (defn run-mk!
   []
@@ -170,13 +166,18 @@
         port (get-in @store/state [:services :config])]
     (bbserver/ping hostname port #(utils/log "Pinging MachineKit"))))
 
-(defn log-state
-  "Adding whatever information you want to see for debugging here"
-  []
-  (utils/log (str "Services: " (:services @store/state))))
+; Create an update interval while the user is connected that
+; updates configs and mk-services
+(utils/set-interval "update-configs-and-services"
+  #(let [{:keys [connection]} @store/state]
+    (if (:connected? connection)
+      (do
+        (update-configs!)
+        (update-mk-services!))))
+  2000)
 
-(defn debug-state
-  [timeout]
-  (utils/set-interval "debug-state" log-state timeout))
-
-(debug-state 5000)
+; Create a debug logging interval
+(utils/set-interval "debug-state"
+  #(do
+    (utils/log (str "Services: " (:services @store/state))))
+  5000)
