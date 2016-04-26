@@ -627,3 +627,18 @@ THREE.TrackballControls = function ( object, domElement ) {
 THREE.TrackballControls.prototype = Object.create( THREE.EventDispatcher.prototype );
 THREE.TrackballControls.prototype.constructor = THREE.TrackballControls;
 ")
+
+(defn new-controls
+  [camera]
+  (js/THREE.TrackballControls. camera))
+
+(defn update-controls!
+  [controls]
+  (if (some? controls)
+    (.update controls)))
+
+(defn stop-controls
+  [controls]
+  (if (some? controls)
+    (.dispose controls))
+  nil)

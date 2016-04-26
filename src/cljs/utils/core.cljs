@@ -101,6 +101,11 @@
   []
   (swap! unique-int-counter inc))
 
+(defn unique-dom-id
+  "Returns a unique string that can be used to label dom elements"
+  [prefix]
+  (str prefix (unique-int)))
+
 (defn gen-unique-id
   "Generates an id so that it does not exist in ids. An id is a vector tuple of
   structure [any string]. To make the id unique, the string is prefixed with
