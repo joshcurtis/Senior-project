@@ -5,7 +5,6 @@
    [utils.core :as utils]
    [ini-editor.controller]
    [text-editor.controller]
-   [server-interop.core :as server-interop]
    [clojure.string :as string]))
 
 (defonce mt (.-protobuf js/machinetalk))
@@ -117,11 +116,6 @@
   (if (-> @store/state :connection :connected?)
     (let [hostname (get-in @store/state [:connection :hostname])]
       (bbserver/stop_mk hostname #(utils/log %)))))
-
-(defn test-socket
-  []
-  (utils/log "Testing socket")
-  (server-interop/send-data (utils/encode-buffer MT_PING) #(utils/log %)))
 
 (defn- edit-ini!
   [s id]
