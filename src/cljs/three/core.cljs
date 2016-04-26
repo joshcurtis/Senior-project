@@ -145,7 +145,10 @@
       :component-will-unmount
       (fn []
         (let [context (.-context renderer)]
-          (.clear renderer)))
+          (.clear renderer)
+          (.dispose controls)
+          (.removeChild (js/document.getElementById element-id)
+                        (.-domElement renderer))))
 
       :component-did-update
       (fn [this _]
