@@ -118,16 +118,16 @@
     ]))
 
 (defn- control-buttons
-  [services-running?]
+  [mk-running?]
   (let [button-style {:margin-right "1rem"}]
     [:container-fluid {:style {:marginBottom "10px"}}
      [:div {:class "row" :style {:marginBottom "10px"}}
-      [:div {:class "col-md-6"}
+      [:div {:class "col-md-8"}
        [:button.btn.btn-primary {:style button-style
                                  :on-click controller/update-configs!} "Refresh"]
        [:button.btn.btn-warning {:style button-style
                                  :on-click controller/disconnect!} "Disconnect"]
-      (if services-running?
+      (if mk-running?
         [:span
          [:button.btn.btn-info {:style button-style
                                 :on-click controller/ping} "Ping MachineKit"]
@@ -140,7 +140,7 @@
 (defn- connected
   ;; TODO fix repetition of ':margin-right "1rem"'
   [props]
-  (let [{:keys [connection configs services-running?]} props
+  (let [{:keys [connection configs mk-running?]} props
         {:keys [username hostname]} connection]
     (assert (some? connection))
     (assert (some? configs))
@@ -148,7 +148,7 @@
      [:h1 {} (str username \@ hostname)]
      [:div.well
       (str "Remote configurations should be located in ~/machinekit/configs/. Running machinekit for the first time will load the configurations onto this directory.")]
-     (control-buttons services-running?)
+     (control-buttons mk-running?)
      [:div.panel.panel-default
       [:div.panel-body
        (map (fn [d] [render-config {:key d
@@ -160,11 +160,10 @@
 (defn remote-manager
   "Renders a component for editing the machinekit configuration remotely."
   [props]
-  (let [{:keys [connection configs services]} props
+  (let [{:keys [connection configs running?]} props
         {:keys [connected?]} connection]
     (assert (some? connection))
     (assert (some? configs))
     (if connected?
-      [connected {:connection connection :configs configs
-                  :services-running? (not (empty? services))}]
+      [connected {:connection connection :configs configs :mk-running? running?}]
       [disconnected {:connection connection}])))

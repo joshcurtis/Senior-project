@@ -61,6 +61,12 @@
       (utils/log "Launching Resolver")
       (bbserver/resolve-services hostname log-body))))
 
+(defn update-running!
+  []
+  "Request to see if MachinkeKit is running."
+  (let [hostname (get-in @store/state [:connection :hostname])]
+    (bbserver/running hostname #(swap! @store/state assoc :running? %3))))
+
 (defn- merge-with-state-connection
   [merge-map]
   (swap! store/state update :connection #(merge %1 merge-map)))
@@ -92,7 +98,8 @@
                                         :username username
                                         :error nil})
           (update-configs!)
-          (try-to-launch-resolver!))))
+          (try-to-launch-resolver!)
+          (utils/set-interval "update-running" update-running! 500))))
   ))
 
 (defn connect!
@@ -113,19 +120,24 @@
                                 :connection-pending? false
                                 :username nil
                                 :error nil})
-  (utils/clear-interval "update-configs-and-services"))
+  (utils/clear-interval "update-configs-and-services")
+  (utils/clear-interval "update-running"))
 
 (defn run-mk!
   []
   (if (-> @store/state :connection :connected?)
     (let [hostname (get-in @store/state [:connection :hostname])]
-      (bbserver/run_mk hostname log-body))))
+      (do
+        (bbserver/run_mk hostname log-body)
+        (swap! store/state assoc :running? true)))))
 
 (defn shutdown-mk!
   []
   (if (-> @store/state :connection :connected?)
     (let [hostname (get-in @store/state [:connection :hostname])]
-      (bbserver/stop_mk hostname log-body))))
+      (do
+        (bbserver/stop_mk hostname log-body)
+        (swap! store/state assoc :running? false)))))
 
 (defn- edit-ini!
   [s id]

@@ -36,6 +36,7 @@
               :contents {}}
 
     :services {}
+    :running? false
 
     ;;; INI Stuff
     ;; hashmap: [source path] -> {:ini parsed-ini from ini-editor.parser
