@@ -69,7 +69,7 @@ status = {"ok?": True,
           "resolving_services": False}
 
 config_root = os.path.expanduser("~/machinekit/configs")
-service_log_path = os.path.expanduser("/home/machinekit/Desktop/services.log")
+service_log_path = os.path.expanduser("~/Desktop/services.log")
 service_log = open(service_log_path, 'a')
 mklauncher = None
 configserver = None

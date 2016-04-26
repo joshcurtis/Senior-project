@@ -121,22 +121,21 @@
   [services-running?]
   (let [button-style {:margin-right "1rem"}]
     [:container-fluid {:style {:marginBottom "10px"}}
-     [:div {:class "row" :style {:marginBOttom "10px"}}
-      [:div {:class "col-md-3"}
+     [:div {:class "row" :style {:marginBottom "10px"}}
+      [:div {:class "col-md-6"}
        [:button.btn.btn-primary {:style button-style
                                  :on-click controller/update-configs!} "Refresh"]
        [:button.btn.btn-warning {:style button-style
-                                 :on-click controller/disconnect!} "Disconnect"]]
+                                 :on-click controller/disconnect!} "Disconnect"]
       (if services-running?
-        [:div {:class "col-md-5"}
+        [:span
          [:button.btn.btn-info {:style button-style
                                 :on-click controller/ping} "Ping MachineKit"]
          [:button.btn.btn-danger {:style button-style
                                   :on-click controller/shutdown-mk!} "Shutdown MachineKit"]]
-        [:div {:class "col-md-2"}
-         [:button.btn.secondary {:style button-style
-                                 :on-click controller/run-mk!} "Launch MachineKit"]])
-      ]]))
+        [:button.btn.secondary {:style button-style
+                                :on-click controller/run-mk!} "Launch MachineKit"])
+      ]]]))
 
 (defn- connected
   ;; TODO fix repetition of ':margin-right "1rem"'
