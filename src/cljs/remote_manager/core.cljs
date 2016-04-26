@@ -4,7 +4,6 @@
    [app.store :as store]
    [remote-manager.view :as view]
    [utils.core :as utils]
-   [server-interop.core :as server-interop]
    [reagent.core :as r :refer [atom]]))
 
 (defn contents

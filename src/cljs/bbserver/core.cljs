@@ -77,6 +77,10 @@
   [hostname callback]
   (bb-get (build-address hostname 3001 "/services_log") callback))
 
+(defn resolve-services
+  [hostname callback]
+  (bb-get (build-address hostname 3001 "/resolve") callback))
+
 (defn run_mk
   [hostname callback]
   (bb-get (build-address hostname 3001 "/run_mk") callback))
@@ -84,3 +88,7 @@
 (defn stop_mk
   [hostname callback]
   (bb-get (build-address hostname 3001 "/stop_mk") callback))
+
+(defn ping
+  [hostname port callback]
+  (bb-get (build-address hostname 3001 (str "/ping/" port)) callback))

@@ -202,18 +202,6 @@
   ([x] (.log js/console (str x)))
   ([& args] (.log js/console (str args))))
 
-(defn- log-ssh-cmd
-  "Output should be a map with the keys :exit, :err, and :out.
-  :exit contains the return code
-  :err contains stderr
-  :out contains stdout"
-  [output]
-  (let [{:keys [exit err out]} output]
-    (if (some? err)
-      (log err))
-    (if (some? out)
-      (log out))))
-
 (defn encode-buffer
   "TODO: Handle more data"
   [type]
