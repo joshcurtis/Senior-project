@@ -84,7 +84,7 @@
                    {:dir [0 len 0] :color "blue"}])]
     (doseq [a axes]
       (.add obj a))
-    (.set (.-position obj) -0.5 0.0 0.75)
+    (.set (aget obj "position") -0.5 0.0 0.75)
     obj))
 
 (def default-camera
@@ -127,11 +127,18 @@
                 upx upy upz
                 rotx roty rotz
                 scalex scaley scalez]} (merge default-camera props)]
-    (.set (.-position camera) x y z)
-    (.set (.-up camera) upx upy upz)
-    (.set (.-scale camera) scalex scaley scalez)
-    (.set (.-rotation camera) rotx roty rotz)
+    (.set (aget camera "position") x y z)
+    (.set (aget camera "up") upx upy upz)
+    (.set (aget camera "scale") scalex scaley scalez)
+    (.set (aget camera "rotation") rotx roty rotz)
     (.lookAt camera (js/THREE.Vector3. atx aty atz))))
+
+;; hack needed for release mode
+(def renderer-set-clear-color!
+  (js/eval "var rscctffix=function(r,c){r.setClearColor(c)};rscctffix"))
+
+(def renderer-set-size!
+  (js/eval "var rsstffix=function(r,w,h){r.setSize(w,h)};rsstffix"))
 
 (defn axes-plot
   "Gotcha: max-axes can only be defined upon mounting."
@@ -156,14 +163,14 @@
         axis-objs (mapv #(new-axis-obj) (range max-axes))]
     ;; camera & lighting
     (adjust-camera! camera camera-props)
-    (.set (.-position light)
+    (.set (aget light "position")
           (:x light-props)
           (:y light-props)
           (:z light-props))
     (.add scene light)
     ;; renderer properties
-    (.setClearColor renderer background)
-    (.setSize renderer width height)
+    (renderer-set-clear-color! renderer background)
+    (renderer-set-size! renderer width height)
     ;; set position
     (doseq [i (range max-axes)]
       (axis-set-pos! (get axis-objs i) (get axes i)))
@@ -180,12 +187,12 @@
       :component-did-mount
       (fn []
         (.appendChild (js/document.getElementById element-id)
-                      (.-domElement renderer))
+                      (aget renderer "domElement"))
         (.render renderer scene camera))
 
       :component-will-unmount
       (fn []
-        (let [context (.-context renderer)]
+        (let [context (aget renderer "context")]
           (trackball-controls/stop-controls! controls)
           (.removeChild (js/document.getElementById element-id)
                         (.-domElement renderer))
