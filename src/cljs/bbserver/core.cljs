@@ -12,9 +12,9 @@
    (go (let [options (merge {:with-credentials? false :timeout 2000} options)
              resp (<! (http-type address
                                  options))
-             {:keys [status body]} resp]
-         ; TODO Modify callbacks to take status + body
-         (-> resp :body reader/read-string callback))))
+             {:keys [status error-code body]} resp
+             body (reader/read-string body)]
+         (callback status error-code body))))
   ([http-type address callback] (bb-wrapper http-type address callback {})))
 
 (defn- bb-get
