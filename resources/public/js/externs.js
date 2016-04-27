@@ -1,4 +1,7 @@
 var changeStyle = function() {};
+var rd3 = {
+    "LineChart": function() {}
+};
 var machinetalk = {
     "protobuf": {
         "message": {

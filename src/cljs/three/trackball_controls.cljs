@@ -632,7 +632,8 @@ THREE.TrackballControls.prototype.constructor = THREE.TrackballControls;
   "Creates controls for the camera. It steals mouse actions such as the mouse
   wheel. Use `stop-controls!` to give back mouse actions."
   [camera]
-  (js/THREE.TrackballControls. camera))
+  (let [tc (js/eval "THREE.TrackballControls")]
+    (tc. camera)))
 
 (defn update-controls!
   [controls]
