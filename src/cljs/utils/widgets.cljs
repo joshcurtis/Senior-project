@@ -152,46 +152,6 @@
      [:div.modal-body body]
      [:div.modal-footer footer]]]])
 
-(def plotly
-  "Renders a line line plot Plotly Documentation -
-  https://plot.ly/javascript/line-charts/#basic-line-plot Note: Changing layout
-  is not supported. Will have to delete and recreate component to update layout.
-  # Props
-  `data` - see Plotly documentation
-  `layout` - see Plotly documentation
-  ... - All other props are passed to the div"
-  (r/create-class
-   {
-    :get-initial-state (fn [this]
-                         (let [props (r/props this)
-                               id (or (:id props)
-                                      (str "line-plot-" (utils/unique-int)))]
-                           {:id id
-                            :plot nil}))
-    :component-did-mount (fn [this]
-                           (let [{:keys [id]} (r/state this)
-                                 {:keys [data layout]} (r/props this)
-                                 plot (.plot js/Plotly
-                                             id
-                                             (clj->js data)
-                                             (clj->js layout))]
-                             (r/set-state this {:plot plot})))
-    :component-did-update (fn [this _]
-                            (let [state (r/state this)
-                                  {:keys [id plot]} state
-                                  el (.getElementById js/document id)
-                                  old-data (:data state)
-                                  old-layout (:layout state)
-                                  {:keys [data layout]} (r/props this)]
-                              (aset el "data" (clj->js data))
-                              (aset el "layout" (clj->js layout))
-                              (.redraw js/Plotly el)))
-    :render (fn [this]
-              (let [{:keys [id]} (r/state this)
-                    div-props (assoc (r/props this) :id id)]
-                [:div div-props]))
-    }))
-
 (defn infosection
   "Renders information such as the available files for editing and their source/path.
   # Props

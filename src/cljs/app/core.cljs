@@ -1,6 +1,7 @@
 (ns app.core
   ""
   (:require
+   [cljsjs.bootstrap]
    [app.devtools-setup]
    [app.store :as store]
    [app.view]
@@ -35,3 +36,5 @@
   []
   (r/render-component [app {}]
                       (.getElementById js/document "app")))
+
+(start)
