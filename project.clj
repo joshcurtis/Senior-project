@@ -66,6 +66,7 @@
                {:id "min"
                 :source-paths ["src"]
                 :compiler {:output-to "resources/public/js/compiled/core.js"
+                           :externs ["resources/public/js/externs.js"]
                            :main app.core
                            :optimizations :advanced
                            :pretty-print false}}]}

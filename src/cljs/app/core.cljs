@@ -36,3 +36,5 @@
   []
   (r/render-component [app {}]
                       (.getElementById js/document "app")))
+
+(start)
