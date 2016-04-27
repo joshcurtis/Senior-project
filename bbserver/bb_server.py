@@ -81,7 +81,7 @@ def clear_services_log():
     open(service_log_path, 'w').write('cleared')
 clear_services_log()
 
-@app.route("/status")
+@app.route("/status", methods=['GET'])
 @crossdomain(origin="*")
 def route_status():
     global status
