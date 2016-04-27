@@ -25,6 +25,10 @@
   [password]
   (swap! store/state assoc-in [:connection :password] password))
 
+(defn- merge-with-state-connection
+  [merge-map]
+  (swap! store/state update :connection #(merge %1 merge-map)))
+
 (defn- update-configs-callback
   "Callback for a file list in the machinekit config directory."
   [status error-code body]
@@ -66,15 +70,23 @@
       (utils/log "Launching Resolver")
       (bbserver/resolve-services hostname log-body))))
 
-(defn update-running!
+(defn- update-running-callback
+  [status error-code body]
+  (cond
+    (or (= error-code :http-error) (= error-code :timeout))
+      (merge-with-state-connection {:connected? false
+                                    :connection-pending? false
+                                    :username nil
+                                    :error "Disconnected from BeagleBone"})
+    :else
+      (swap! store/state assoc :running? body)
+  ))
+
+(defn- update-running!
   []
   "Request to see if MachinkeKit is running."
   (let [hostname (get-in @store/state [:connection :hostname])]
-    (bbserver/running hostname #(swap! store/state assoc :running? %3))))
-
-(defn- merge-with-state-connection
-  [merge-map]
-  (swap! store/state update :connection #(merge %1 merge-map)))
+    (bbserver/running hostname update-running-callback)))
 
 (defn- connect-callback
   "Callback for connection/login attempt with the BeagleBone."
