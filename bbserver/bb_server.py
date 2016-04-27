@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-from flask import Flask
+from flask import Flask, send_from_directory
 import edn_format as edn
 
 from glob import glob
@@ -210,6 +210,26 @@ def send_data(port, msg_type):
 def running():
     status['mk_running'] = (configserver != None and configserver.poll() == None)
     return edn.dumps(status['mk_running'])
+
+@app.route("/js/<path:path>")
+def route_js(path):
+    return send_from_directory("./../resources/public/js", path)
+
+@app.route("/css/<path:path>")
+def route_css(path):
+    return send_from_directory("./../resources/public/css", path)
+
+@app.route ("/icons/<path:path>")
+def route_icons(path):
+    return send_from_directory("./../resources/public/icons", path)
+
+@app.route("/favicon.ico")
+def route_favicon():
+    return send_from_directory("./../resources/public", "favicon.ico")
+
+@app.route("/")
+def route_index():
+    return send_from_directory("./../resources/public", "index.html")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3001)
