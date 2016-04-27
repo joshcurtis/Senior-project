@@ -140,6 +140,10 @@
 (def renderer-set-size!
   (js/eval "var rsstffix=function(r,w,h){r.setSize(w,h)};rsstffix"))
 
+(def dispose!
+  (js/eval "var disposeffix=function(o){o.dispose()};disposeffix"))
+
+
 (defn axes-plot
   "Gotcha: max-axes can only be defined upon mounting."
   [props]
@@ -195,8 +199,8 @@
         (let [context (aget renderer "context")]
           (trackball-controls/stop-controls! controls)
           (.removeChild (js/document.getElementById element-id)
-                        (.-domElement renderer))
-          (.dispose renderer)))
+                        (aget renderer "domElement"))
+          (dispose! renderer)))
 
       :component-did-update
       (fn [this _]

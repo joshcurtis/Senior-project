@@ -640,8 +640,11 @@ THREE.TrackballControls.prototype.constructor = THREE.TrackballControls;
   (if (some? controls)
     (.update controls)))
 
+(def dispose!
+  (js/eval "var disposeffix=function(o){o.dispose()};disposeffix"))
+
 (defn stop-controls!
   [controls]
   (if (some? controls)
-    (.dispose controls))
+    (dispose! controls))
   nil)
