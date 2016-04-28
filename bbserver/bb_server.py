@@ -3,10 +3,7 @@ from flask import Flask, send_from_directory
 import edn_format as edn
 
 from glob import glob
-import os
-import os.path
-import subprocess
-import zmq
+import os, subprocess, zmq, time, random
 
 from machinetalk.protobuf.message_pb2 import Container
 from machinetalk.protobuf.types_pb2 import MT_PING
@@ -210,6 +207,30 @@ def send_data(port, msg_type):
 def running():
     status['mk_running'] = (configserver != None and configserver.poll() == None)
     return edn.dumps(status['mk_running'])
+
+@app.route("/measure", methods=['GET'])
+@crossdomain(origin="*")
+def route_measure():
+    return edn.dumps({"t": time.time(),
+                      "Ext-0": random.random(),
+                      "Ext-1": random.random(),
+                      "Ext-2": random.random(),
+                      "Axis-0-x": random.random(),
+                      "Axis-0-y": random.random(),
+                      "Axis-0-z": random.random(),
+                      "Axis-0-a": random.random(),
+                      "Axis-1-x": random.random(),
+                      "Axis-1-y": random.random(),
+                      "Axis-1-z": random.random(),
+                      "Axis-1-a": random.random(),
+                      "Axis-2-x": random.random(),
+                      "Axis-2-y": random.random(),
+                      "Axis-2-z": random.random(),
+                      "Axis-2-a": random.random(),
+                      "Axis-3-x": random.random(),
+                      "Axis-3-y": random.random(),
+                      "Axis-3-z": random.random(),
+                      "Axis-3-a": random.random()})
 
 @app.route("/js/<path:path>")
 def route_js(path):
