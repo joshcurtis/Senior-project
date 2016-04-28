@@ -1,12 +1,9 @@
 #!/usr/bin/env python2
-from flask import Flask
+from flask import Flask, send_from_directory
 import edn_format as edn
 
 from glob import glob
-import os
-import os.path
-import subprocess
-import zmq
+import datetime, os, subprocess, zmq, time, random
 
 from machinetalk.protobuf.message_pb2 import Container
 from machinetalk.protobuf.types_pb2 import MT_PING
@@ -210,6 +207,58 @@ def send_data(port, msg_type):
 def running():
     status['mk_running'] = (configserver != None and configserver.poll() == None)
     return edn.dumps(status['mk_running'])
+
+# TODO - "t", gives a large value, currently overwritten in client to improve
+# usefulness
+sim_pos = 0.0
+@app.route("/measure", methods=['GET'])
+@crossdomain(origin="*")
+def route_measure():
+    global sim_pos
+    t = time.time() / 1000.0
+    sim_pos += 0.1
+    if sim_pos > 1.0:
+        sim_pos = 0.0
+    return edn.dumps({"t": t,
+                      "Ext-0": random.random(),
+                      "Ext-1": random.random() + 1.0,
+                      "Ext-2": random.random() + 2.0,
+                      "Axis-0-x": sim_pos,
+                      "Axis-0-y": 0.0,
+                      "Axis-0-z": 0.0,
+                      "Axis-0-a": 0.0,
+                      "Axis-1-x": -sim_pos,
+                      "Axis-1-y": 0.0,
+                      "Axis-1-z": 0.0,
+                      "Axis-1-a": 0.0,
+                      "Axis-2-x": 0.0,
+                      "Axis-2-y": sim_pos,
+                      "Axis-2-z": 0.0,
+                      "Axis-2-a": 0.0,
+                      "Axis-3-x": 0.2*(random.random() - 0.5),
+                      "Axis-3-y": 0.2*(random.random() - 0.5),
+                      "Axis-3-z": max(0.0, 0.2*(random.random() - 0.5)),
+                      "Axis-3-a": 0.0})
+
+@app.route("/js/<path:path>")
+def route_js(path):
+    return send_from_directory("./../resources/public/js", path)
+
+@app.route("/css/<path:path>")
+def route_css(path):
+    return send_from_directory("./../resources/public/css", path)
+
+@app.route ("/icons/<path:path>")
+def route_icons(path):
+    return send_from_directory("./../resources/public/icons", path)
+
+@app.route("/favicon.ico")
+def route_favicon():
+    return send_from_directory("./../resources/public", "favicon.ico")
+
+@app.route("/")
+def route_index():
+    return send_from_directory("./../resources/public", "index.html")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3001)

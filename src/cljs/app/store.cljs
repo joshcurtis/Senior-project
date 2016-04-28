@@ -116,6 +116,15 @@
 
 ;; global helpers
 
+;; connection
+(defn hostname
+  "Returns the hostname if connected, `nil` if not connected."
+  []
+  (let [connection @(r/cursor state [:connection])]
+    (if (:connected? connection)
+      (:hostname connection)
+      nil)))
+
 ;; ini helpers
 
 (defn update-selected-ini!
