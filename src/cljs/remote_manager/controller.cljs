@@ -46,7 +46,7 @@
   "Callback for MachinkeKit services list."
   [status error-code body]
   (if (and (= status 200) (some? body))
-    (swap! store/state assoc :services (utils/parse-service-log body))))
+    (swap! store/state assoc :services (utils/parse-service-log (get body "log")))))
 
 (defn- update-mk-services!
   "Request the ~/Desktop/services.log file which will
