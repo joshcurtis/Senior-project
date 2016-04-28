@@ -244,13 +244,19 @@
                                    {:on-click close-modal!}
                                    "OK"]]}]))
 
-(defn topbar-connection-status
+(defn topbar-bb-status
   []
-  (let [connected? @(r/cursor store/state [:connection :connected?])]
-    [:li {:key "connection-status"}
-     [:a
-      [:span.label {:class (if connected? "label-info" "label-warning")}
-       (if connected? "Connected" "Disconnected")]]]))
+  (let [connected? @(r/cursor store/state [:connection :connected?])
+        running? @(r/cursor store/state [:running?])]
+    [:li {:key "bb-status"}
+     (if connected?
+       [:a
+        [:div.label.label-info "Connected"]
+        (if running?
+          [:span.label.label-info "Running"]
+          [:span.label.label-warning "Not Running"])]
+       [:a
+        [:span.label.label-danger "Disconnected"]])]))
 
 (defn render-topbar
   ""
@@ -266,4 +272,4 @@
                      :elements [(topbar-file-menu)
                                 (topbar-remote-menu)
                                 (topbar-help-menu)]
-                     :right-elements [(topbar-connection-status)]}]]))
+                     :right-elements [(topbar-bb-status)]}]]))
