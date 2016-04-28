@@ -1,8 +1,12 @@
 (ns monitor.controller
   ""
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require
    [app.store :as store]
    [utils.core :as utils]
+   [cljs.reader :as reader]
+   [cljs-http.client :as http]
+   [cljs.core.async :refer [<!]]
    [reagent.core :as r :refer [atom]]
    [clojure.string :as string]))
 
@@ -67,8 +71,16 @@
   "This function only applies if model/is-monitoring? is true. If it is false,
   nothing will happen. Updates the measurements of monitor, as well as adding
   the values to the history."
-  [measurements]
-  (swap! store/state --update-measurements measurements))
+  []
+  (let [hostname (store/hostname)]
+    (if (and (some? hostname)
+             (:is-monitoring? @store/state))
+      (go (let [url (str "http://" hostname ":3001/measure")
+                res (<! (http/get url
+                                  {:with-credentials? false}))
+                t (- (utils/time-seconds) (:initial-time @store/state))
+                measurements (-> res :body reader/read-string (assoc "t" t))]
+            (swap! store/state --update-measurements measurements))))))
 
 (defn ith-csv-row
   [history keys i]
