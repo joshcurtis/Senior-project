@@ -75,7 +75,7 @@ resolver = None
 
 def clear_services_log():
     global service_log_path
-    open(service_log_path, 'w').write('cleared')
+    open(service_log_path, 'w').write('cleared\n')
 clear_services_log()
 
 @app.route("/status", methods=['GET'])
