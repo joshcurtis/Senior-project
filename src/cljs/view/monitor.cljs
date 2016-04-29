@@ -5,7 +5,7 @@
    [utils.core :as utils]
    [widgets.core :as widgets]
    [utils.rd3 :as rd3]
-   [three.core :as three]
+   [viz.core :as viz]
    [reagent.core :as r :refer [atom]]))
 
 (defn contents-inactive
@@ -58,7 +58,7 @@
        [:p "Resume monitoring to collect more data."]])))
 
 (defn format-coords
-  "Format coordinates for use with `three/axes-plot`. Major hacks include
+  "Format coordinates for use with `viz/axes-plot`. Major hacks include
   switching `y` and `z` and coordinates the original `y` is negated."
   [measurements m]
   (let [x (get measurements (:x m))
@@ -83,7 +83,7 @@
                    axes-group)]
     [:div.r-axes-plot
      [:h2 "Axes"]
-     [three/axes-plot
+     [viz/axes-plot
       {:max-axes 6
        :background "#EEEEEE"
        :size {:width 512

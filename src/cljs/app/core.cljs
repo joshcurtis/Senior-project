@@ -8,7 +8,7 @@
    [app.topbar]
    [widgets.core :as widgets]
    [utils.core :as utils]
-   [three.core :as three]
+   [viz.core :as viz]
    [reagent.core :as r :refer [atom]]))
 
 (defn app
