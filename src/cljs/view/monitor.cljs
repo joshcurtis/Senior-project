@@ -1,4 +1,4 @@
-(ns monitor.view
+(ns view.monitor
   (:require
    [model.core :as model]
    [monitor.controller :as controller]
@@ -168,3 +168,15 @@
        "Measurements"
        [table-measurements {:all-components all-components
                             :measurements measurements}])]))
+
+(def topbar-actions {})
+
+(utils/set-interval "rand-update"
+                    controller/update-measurements!
+                    1000)
+
+(defn contents
+  [props]
+  (if @(r/cursor model/state [:connection :connected?])
+    [contents-active]
+    [contents-inactive]))

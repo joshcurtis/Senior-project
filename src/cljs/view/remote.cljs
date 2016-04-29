@@ -1,6 +1,7 @@
-(ns remote-manager.view
+(ns view.remote
   "Provides the view for the remote manager."
   (:require
+   [model.core :as model]
    [remote-manager.controller :as controller]
    [utils.navbar :as navbar]
    [reagent.core :as r :refer [atom]]))
@@ -166,3 +167,17 @@
     (if connected?
       [connected {:connection connection :configs configs :mk-running? running?}]
       [disconnected {:connection connection}])))
+
+(defn contents
+  "A view that can be rendered to manage the machinekit configuration
+  remotely. See machine_conf/core.cljs. This returns a reagent component that
+  takes no props."
+  [props]
+  (let [connection @(r/cursor model/state [:connection])
+        configs @(r/cursor model/state [:configs])
+        running? @(r/cursor model/state [:running?])]
+
+    [:div {}
+     [remote-manager {:connection connection
+                      :configs configs
+                      :running? running?}]]))

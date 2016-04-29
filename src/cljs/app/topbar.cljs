@@ -1,9 +1,9 @@
 (ns app.topbar
   (:require
    [model.core :as model]
+   [view.ini-editor]
+   [view.text-editor]
    [remote-manager.controller]
-   [ini-editor.core]
-   [text-editor.core]
    [utils.core :as utils]
    [utils.widgets :as widgets]
    [utils.navbar :as navbar]
@@ -30,8 +30,8 @@
 (def topbar-actions-map {"Home" nil
                          "Remote" nil
                          "Monitor" nil
-                         "INI" ini-editor.core/topbar-actions
-                         "Text" text-editor.core/topbar-actions})
+                         "INI" view.ini-editor/topbar-actions
+                         "Text" view.text-editor/topbar-actions})
 
 (defn current-topbar-actions
   []

@@ -1,6 +1,7 @@
-(ns ini-editor.view
+(ns view.ini-editor
   "Provides the view for the INI editor."
   (:require
+   [model.core :as model]
    [ini-editor.controller :as controller]
    [ini-editor.parser :as parser]
    [utils.core :as utils]
@@ -51,8 +52,7 @@
   (let [{:keys [section
                 key-metadata
                 key-order
-                metadata
-                values
+                metadata values
                 expanded?]} props
         comments (:comments metadata)]
     [:div.ini-section.panel.panel-default {}
@@ -116,8 +116,6 @@
    [:p "No configuration has been loaded, open a file or select a remote file."]])
 
 (defn ini-editor
-  "Renders a component for editing the current ini, if there is one. See
-  ini-editor.view/ini-editor-active for the props."
   [props]
   (let [{:keys [selected-id all-ids]} props]
     [:div
@@ -125,3 +123,28 @@
                            :all-ids all-ids
                            :on-change-id controller/set-selected-id!}]
      (if (some? selected-id) [ini-editor-active props] [ini-editor-inactive props])]))
+
+(def topbar-actions {"open" controller/load-str!
+                     "save" controller/ini-str
+                     "close" controller/close-selected!
+                     "filename" controller/filename
+                     "filename-filter" #(string/ends-with? %1 ".ini")})
+
+(defn contents
+  "A view that can be rendered to edit the current ini file. It is used in
+  app/core.cljs. This returns a reagent component that takes no props."
+  [props]
+  (let [inis @(r/cursor model/state [:inis])
+        selected-ini-id @(r/cursor model/state [:selected-ini-id])
+        all-ids (keys inis)
+        model-ini (get inis selected-ini-id)]
+    [ini-editor (merge (:ini model-ini)
+                       {:expanded? (:expanded? model-ini)
+                        :all-ids all-ids
+                        :selected-id selected-ini-id})]))
+
+(defn ini-as-str
+  "Convert the ini data that is currently in the ini-editor/model into an ini
+  string compatible with machinekit."
+  []
+  (model/ini-str))

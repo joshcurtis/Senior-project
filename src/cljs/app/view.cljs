@@ -2,10 +2,7 @@
   ""
   (:require
    [model.core :as model]
-   [ini-editor.core]
-   [remote-manager.core]
-   [monitor.core]
-   [text-editor.core]
+   [view.core :as view]
    [utils.core :as utils]
    [utils.navbar :as navbar]
    [utils.widgets :as widgets]
@@ -63,8 +60,8 @@
         [:div.tab-pane.active {}
           (case tab
             "Home" [home {}]
-            "Remote" [remote-manager.core/contents {}]
-            "Monitor" [monitor.core/contents {}]
-            "INI" [ini-editor.core/contents {}]
-            "Text" [text-editor.core/contents {}]
+            "Remote" [view/remote {}]
+            "Monitor" [view/monitor {}]
+            "INI" [view/ini {}]
+            "Text" [view/text {}]
           )]]]))

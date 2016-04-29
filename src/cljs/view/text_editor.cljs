@@ -1,6 +1,7 @@
-(ns text-editor.view
+(ns view.text-editor
   "Provides the view for the INI editor."
   (:require
+   [model.core :as model]
    [text-editor.controller :as controller]
    [utils.core :as utils]
    [utils.widgets :as widgets]
@@ -23,3 +24,19 @@
                             :width "100%"
                             :height "100%"}
                     :on-change #(controller/change-current-text! (-> %1 .-target .-value))}]]])))
+(def topbar-actions {"open" controller/load-text!
+                     "save" model/text-str
+                     "close" controller/close-selected!
+                     "filename" controller/filename
+                     "filename-filter" (constantly true)})
+
+(defn contents
+  "A view that can be rendered to edit the current ini file. It is used in
+  app/core.cljs. This returns a reagent component that takes no props."
+  [props]
+  (let [texts @(r/cursor model/state [:texts])
+        selected-text-id @(r/cursor model/state [:selected-text-id])
+        value (get texts selected-text-id)]
+    [simple-text-editor {:selected-id selected-text-id
+                         :all-ids (keys texts)
+                         :text value}]))
