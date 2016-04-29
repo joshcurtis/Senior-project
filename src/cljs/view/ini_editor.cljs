@@ -3,7 +3,7 @@
   (:require
    [model.core :as model]
    [controller.ini-editor :as controller]
-   [ini-editor.parser :as parser]
+   [utils.ini :as parser]
    [utils.core :as utils]
    [utils.widgets :as widgets]
    [utils.navbar :as navbar]

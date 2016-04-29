@@ -13,10 +13,7 @@
 
 (defn app
   "Reagent component which describes the app. It is a tab bar followed by the
-  contents of that tab. Here are the locations of the contents:
-  \"Home\" - `machine-conf.core/home`
-  \"Remote\" - `remote-manager.core/view`
-  \"INI\" - `ini-editor.core/view`"
+  contents of that tab."
   [props]
   (let [tab @(r/cursor model/state [:tab])
         tab-labels @(r/cursor model/state [:tab-labels])]

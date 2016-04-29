@@ -1,4 +1,4 @@
-(ns ini-editor.parser
+(ns utils.ini
   "Parse to and from ini files."
   (:require
    [utils.core :as utils]

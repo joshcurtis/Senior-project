@@ -1,7 +1,7 @@
 (ns model.core
   "The application state, this should've been it in the beginning."
   (:require
-   [ini-editor.parser :as parser]
+   [utils.ini]
    [bbserver.core :as bbserver]
    [utils.core :as utils]
    [reagent.core :as r :refer [atom]]))
@@ -29,7 +29,7 @@
     :running? false
 
     ;;; INI Stuff
-    ;; hashmap: [source path] -> {:ini parsed-ini from ini-editor.parser
+    ;; hashmap: [source path] -> {:ini parsed-ini from utils.ini
     ;;                            :expanded? #{section-strings}}
     :inis {}
 
@@ -142,7 +142,7 @@
   (let [{:keys [inis selected-ini-id]} @state
         ini (get-in inis [selected-ini-id :ini])]
     (if (some? ini)
-      (ini-editor.parser/ini-to-str ini)
+      (utils.ini/ini-to-str ini)
       (js/alert "No INI has been loaded!"))))
 
 ;; text editor helpers

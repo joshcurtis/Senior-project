@@ -2,8 +2,8 @@
   "Actions for editing the ini files."
   (:require
    [model.core :as model]
-   [ini-editor.parser :as parser]
    [utils.core :as utils]
+   [utils.ini :as parser]
    [clojure.string :as string]
    [reagent.core :as r :refer [atom]]))
 
