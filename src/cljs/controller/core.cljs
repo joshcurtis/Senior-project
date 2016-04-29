@@ -9,3 +9,7 @@
 (defn change-theme! [theme]
   (swap! model/state assoc :current-theme theme)
   (js/changeStyle (str "css/bootstrap-" theme ".css")))
+
+(defonce theme-changed?
+  (do (change-theme! "metro")
+      true))
