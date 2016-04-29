@@ -2,10 +2,11 @@
   ""
   (:require
    [model.core :as model]
+   [controller.core]
+   [view.core]
    [cljsjs.bootstrap]
    [app.devtools-setup]
-   [app.view]
-   [app.topbar]
+   [view.topbar]
    [widgets.core :as widgets]
    [utils.core :as utils]
    [viz.core :as viz]
@@ -18,12 +19,12 @@
   (let [tab @(r/cursor model/state [:tab])
         tab-labels @(r/cursor model/state [:tab-labels])]
     [:div.app {}
-     [app.topbar/render-topbar {}]
+     [view.topbar/render-topbar {}]
      [widgets/tabs {:labels tab-labels
                     :id-prefix "tab-navigation-"
                     :selected tab
-                    :on-change #(app.view/set-tab! %1)}]
-     [app.view/render-contents]]))
+                    :on-change #(controller.core/set-tab! %1)}]
+     [view.core/app-view]]))
 
 (defn ^:export start
   "Renders the application onto the DOM element \"app\""

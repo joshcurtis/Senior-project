@@ -1,4 +1,4 @@
-(ns app.topbar
+(ns view.topbar
   (:require
    [model.core :as model]
    [view.ini-editor]

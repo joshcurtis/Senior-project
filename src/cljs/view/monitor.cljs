@@ -4,7 +4,7 @@
    [controller.monitor :as controller]
    [utils.core :as utils]
    [widgets.core :as widgets]
-   [utils.rd3 :as rd3]
+   [widgets.rd3 :as rd3]
    [viz.core :as viz]
    [reagent.core :as r :refer [atom]]))
 

@@ -1,4 +1,4 @@
-(ns widgets/rd3
+(ns widgets.rd3
   "React d3 adapter for reagent."
   (:require
    [reagent.core :as r]
