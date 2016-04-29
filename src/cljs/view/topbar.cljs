@@ -1,12 +1,12 @@
-(ns app.topbar
+(ns view.topbar
   (:require
-   [app.store :as store]
-   [remote-manager.controller]
-   [ini-editor.core]
-   [text-editor.core]
+   [model.core :as model]
+   [view.ini-editor]
+   [view.text-editor]
+   [controller.remote-manager]
    [utils.core :as utils]
-   [utils.widgets :as widgets]
-   [utils.navbar :as navbar]
+   [widgets.core :as widgets]
+   [widgets.navbar :as navbar]
    [reagent.core :as r :refer [atom]]))
 
 
@@ -30,12 +30,12 @@
 (def topbar-actions-map {"Home" nil
                          "Remote" nil
                          "Monitor" nil
-                         "INI" ini-editor.core/topbar-actions
-                         "Text" text-editor.core/topbar-actions})
+                         "INI" view.ini-editor/topbar-actions
+                         "Text" view.text-editor/topbar-actions})
 
 (defn current-topbar-actions
   []
-  (get topbar-actions-map (:tab @store/state)))
+  (get topbar-actions-map (:tab @model/state)))
 
 (defn topbar-action-open
   ""
@@ -139,31 +139,26 @@
                              :list-items [about-el]}]))
 
 
-(defn map-do
-  "Not lazy version of map."
-  [f coll]
-  (doall (map f coll)))
-
 (defn- remote-open-modal-helper
   [dir contents]
   (let [contents (filter topbar-action-filename-filter contents)]
     [:div {:key dir}
      [:h3 dir]
      [:div.list-group
-      (map-do #(vector :a.list-group-item {:key %1
-                                           :on-click (fn []
-                                                       (do
-                                                         (close-modal!)
-                                                         (remote-manager.controller/edit-file!
-                                                          dir %1)))
-                                           :style {:cursor "pointer"}}
+      (utils/map-do #(vector :a.list-group-item {:key %1
+                                                 :on-click (fn []
+                                                             (do
+                                                               (close-modal!)
+                                                               (controller.remote-manager/edit-file!
+                                                                dir %1)))
+                                                 :style {:cursor "pointer"}}
                        %1)
               contents)]]))
 
 
 (defn remote-open-modal
   []
-  (let [configs @(r/cursor store/state [:configs])
+  (let [configs @(r/cursor model/state [:configs])
         dirs (:dirs configs)
         contents (:contents configs)
 
@@ -171,7 +166,7 @@
         [:h2 "Remote Open"]
 
         body
-        [:div (map-do #(remote-open-modal-helper %1 (get contents %1)) dirs)]
+        [:div (utils/map-do #(remote-open-modal-helper %1 (get contents %1)) dirs)]
 
         footer
         [:div
@@ -196,15 +191,15 @@
         [:span.input-group-btn
          [:button.btn.btn-primary {:on-click #(let [fname (utils/element-value text-input-id)
                                                     config dir]
-                                                (remote-manager.controller/upload-file!
+                                                (controller.remote-manager/upload-file!
                                                  config fname (topbar-action-save))
                                                 (close-modal!))}
           "Upload"]]]]
-      (map-do #(vector :a.list-group-item {:key %1
+      (utils/map-do #(vector :a.list-group-item {:key %1
                                            :on-click (fn []
                                                        (let [fname %1
                                                              config dir]
-                                                         (remote-manager.controller/upload-file!
+                                                         (controller.remote-manager/upload-file!
                                                           config fname (topbar-action-save))
                                                          (close-modal!)))
                                            :style {:cursor "pointer"}}
@@ -214,7 +209,7 @@
 
 (defn remote-save-modal
   []
-  (let [configs @(r/cursor store/state [:configs])
+  (let [configs @(r/cursor model/state [:configs])
         dirs (:dirs configs)
         contents (:contents configs)
 
@@ -222,7 +217,7 @@
         [:h2 "Remote Upload"]
 
         body
-        [:div (map-do #(remote-save-modal-helper %1 (get contents %1)) dirs)]
+        [:div (utils/map-do #(remote-save-modal-helper %1 (get contents %1)) dirs)]
 
         footer
         [:div
@@ -246,8 +241,8 @@
 
 (defn topbar-bb-status
   []
-  (let [connected? @(r/cursor store/state [:connection :connected?])
-        running? @(r/cursor store/state [:running?])]
+  (let [connected? @(r/cursor model/state [:connection :connected?])
+        running? @(r/cursor model/state [:running?])]
     [:li {:key "bb-status"}
      (if connected?
        [:a
@@ -261,7 +256,7 @@
 (defn render-topbar
   ""
   []
-  (let [tab @(r/cursor store/state [:tab])]
+  (let [tab @(r/cursor model/state [:tab])]
     [:div
      (case @current-modal
        "remote-open" [remote-open-modal]

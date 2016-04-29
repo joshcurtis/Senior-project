@@ -1,4 +1,4 @@
-(ns utils.navbar
+(ns widgets.navbar
   ""
   (:require
    [utils.core :as utils]
