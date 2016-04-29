@@ -1,9 +1,9 @@
 (ns app.core
   ""
   (:require
+   [model.core :as model]
    [cljsjs.bootstrap]
    [app.devtools-setup]
-   [app.store :as store]
    [app.view]
    [app.topbar]
    [ini-editor.core :as ini-editor]
@@ -21,8 +21,8 @@
   \"Remote\" - `remote-manager.core/view`
   \"INI\" - `ini-editor.core/view`"
   [props]
-  (let [tab @(r/cursor store/state [:tab])
-        tab-labels @(r/cursor store/state [:tab-labels])]
+  (let [tab @(r/cursor model/state [:tab])
+        tab-labels @(r/cursor model/state [:tab-labels])]
     [:div.app {}
      [app.topbar/render-topbar {}]
      [widgets/tabs {:labels tab-labels

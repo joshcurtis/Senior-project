@@ -1,7 +1,7 @@
 (ns monitor.view
   (:require
+   [model.core :as model]
    [monitor.controller :as controller]
-   [app.store :as store]
    [utils.core :as utils]
    [utils.widgets :as widgets]
    [utils.rd3 :as rd3]
@@ -99,7 +99,7 @@
                 :upx 0
                 :upy 1
                 :upz 0}
-       :update-camera @(r/cursor store/state [:monitor :reset-camera])
+       :update-camera @(r/cursor model/state [:monitor :reset-camera])
        :light {:x 0.0
                :y 1.6
                :z 0.0}
@@ -107,8 +107,8 @@
      [:button.btn.btn-primary
       {:on-click
        (fn []
-         (swap! store/state assoc-in [:monitor :reset-camera] true)
-         (js/setTimeout #(swap! store/state assoc-in [:monitor :reset-camera] false) 100))}
+         (swap! model/state assoc-in [:monitor :reset-camera] true)
+         (js/setTimeout #(swap! model/state assoc-in [:monitor :reset-camera] false) 100))}
       "Reset Camera"]]))
 
 (defn table-measurements
@@ -129,9 +129,9 @@
   "A view that can be rendered to monitor the machinekit configuration. It is
   used in app/core.cljs. This returns a reagent component that takes no props."
   [props]
-  (let [is-monitoring? @(r/cursor store/state [:is-monitoring?])
-        monitor @(r/cursor store/state [:monitor])
-        monitor-tab @(r/cursor store/state [:monitor-tab])
+  (let [is-monitoring? @(r/cursor model/state [:is-monitoring?])
+        monitor @(r/cursor model/state [:monitor])
+        monitor-tab @(r/cursor model/state [:monitor-tab])
         {:keys [all-components
                 measurements
                 history
@@ -156,7 +156,7 @@
      [widgets/tabs {:labels ["Measurements" "Axes" "History"]
                     :id-prefix "monitor-tab"
                     :selected monitor-tab
-                    :on-change #(swap! store/state assoc :monitor-tab %)}]
+                    :on-change #(swap! model/state assoc :monitor-tab %)}]
      (case monitor-tab
        "History"
        [temperature-plot {:temperature-group (:temperatures groups)

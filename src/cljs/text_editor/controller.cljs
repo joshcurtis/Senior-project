@@ -1,7 +1,7 @@
 (ns text-editor.controller
   "Actions for editing the ini files."
   (:require
-   [app.store :as store]
+   [model.core :as model]
    [utils.core :as utils]
    [reagent.core :as r :refer [atom]]))
 
@@ -20,11 +20,11 @@
   "Loads the given text for editing."
   [id text]
   {:pre [(vector? id) (string? text)]}
-  (swap! store/state --load-text id text))
+  (swap! model/state --load-text id text))
 
 (defn set-selected-id!
   [id]
-  (swap! store/state assoc
+  (swap! model/state assoc
          :selected-text-id id))
 
 (defn- --close-selected
@@ -35,11 +35,11 @@
 (defn close-selected!
   "Closes the text that is being edited."
   []
-  (swap! store/state --close-selected))
+  (swap! model/state --close-selected))
 
 (defn filename
   []
-  (-> @store/state :selected-text-id second utils/fname-from-path))
+  (-> @model/state :selected-text-id second utils/fname-from-path))
 
 ;; editing
 
@@ -52,4 +52,4 @@
   "Sets the currently selected text value."
   [new-text]
   {:pre [(string? new-text)]}
-  (swap! store/state --change-current-text new-text))
+  (swap! model/state --change-current-text new-text))

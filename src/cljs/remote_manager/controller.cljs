@@ -1,6 +1,6 @@
 (ns remote-manager.controller
   (:require
-   [app.store :as store]
+   [model.core :as model]
    [bbserver.core :as bbserver]
    [utils.core :as utils]
    [ini-editor.controller]
@@ -19,41 +19,41 @@
 
 (defn set-hostname!
   [name]
-  (swap! store/state assoc-in [:connection :hostname] name))
+  (swap! model/state assoc-in [:connection :hostname] name))
 
 (defn set-password!
   [password]
-  (swap! store/state assoc-in [:connection :password] password))
+  (swap! model/state assoc-in [:connection :password] password))
 
 (defn- merge-with-state-connection
   [merge-map]
-  (swap! store/state update :connection #(merge %1 merge-map)))
+  (swap! model/state update :connection #(merge %1 merge-map)))
 
 (defn- update-configs-callback
   "Callback for a file list in the machinekit config directory."
   [status error-code body]
   (if (and (= status 200) (some? body))
     (let [dirs (mapv identity (keys body))]
-      (swap! store/state assoc :configs {:dirs dirs :contents body}))))
+      (swap! model/state assoc :configs {:dirs dirs :contents body}))))
 
 (defn- update-configs!
   "Requests a file list in the machinekit config directory."
   []
-  (let [hostname (get-in @store/state [:connection :hostname])]
+  (let [hostname (get-in @model/state [:connection :hostname])]
     (bbserver/configs hostname update-configs-callback)))
 
 (defn- update-mk-services-callback
   "Callback for MachinkeKit services list."
   [status error-code body]
   (if (and (= status 200) (some? body))
-    (swap! store/state assoc :services (utils/parse-service-log (get body "log")))))
+    (swap! model/state assoc :services (utils/parse-service-log (get body "log")))))
 
 (defn- update-mk-services!
   "Request the ~/Desktop/services.log file which will
   be parsed to update and inform the user what machinekit
   services are available"
   []
-  (let [hostname (get-in @store/state [:connection :hostname])]
+  (let [hostname (get-in @model/state [:connection :hostname])]
     (bbserver/get-services-log hostname update-mk-services-callback)))
 
 (defn- log-body
@@ -65,7 +65,7 @@
 (defn- try-to-launch-resolver!
   "Request that services be resolved."
   []
-  (let [hostname (get-in @store/state [:connection :hostname])]
+  (let [hostname (get-in @model/state [:connection :hostname])]
     (do
       (utils/log "Launching Resolver")
       (bbserver/resolve-services hostname log-body))))
@@ -79,13 +79,13 @@
                                     :username nil
                                     :error "Disconnected from BeagleBone"})
     :else
-      (swap! store/state assoc :running? body)
+      (swap! model/state assoc :running? body)
   ))
 
 (defn- update-running!
   []
   "Request to see if MachinkeKit is running."
-  (let [hostname (get-in @store/state [:connection :hostname])]
+  (let [hostname (get-in @model/state [:connection :hostname])]
     (bbserver/running hostname update-running-callback)))
 
 (defn- connect-callback
@@ -123,7 +123,7 @@
 (defn connect!
   "Request authorization to access the BeagleBone."
   []
-  (let [{:keys [connection]} @store/state
+  (let [{:keys [connection]} @model/state
         {:keys [hostname username password]} connection]
     (merge-with-state-connection {:connected? false
                                   :connection-pending? true
@@ -143,19 +143,19 @@
 
 (defn run-mk!
   []
-  (if (-> @store/state :connection :connected?)
-    (let [hostname (get-in @store/state [:connection :hostname])]
+  (if (-> @model/state :connection :connected?)
+    (let [hostname (get-in @model/state [:connection :hostname])]
       (do
         (bbserver/run_mk hostname log-body)
-        (swap! store/state assoc :running? true)))))
+        (swap! model/state assoc :running? true)))))
 
 (defn shutdown-mk!
   []
-  (if (-> @store/state :connection :connected?)
-    (let [hostname (get-in @store/state [:connection :hostname])]
+  (if (-> @model/state :connection :connected?)
+    (let [hostname (get-in @model/state [:connection :hostname])]
       (do
         (bbserver/stop_mk hostname log-body)
-        (swap! store/state assoc :running? false)))))
+        (swap! model/state assoc :running? false)))))
 
 (defn- edit-ini!
   [s id]
@@ -174,31 +174,31 @@
 (defn edit-file!
   [config filename]
   (let [extension (utils/file-ext filename)
-        hostname (get-in @store/state [:connection :hostname])
+        hostname (get-in @model/state [:connection :hostname])
         callback (get edit-callbacks extension edit-unsupported)
         callback #(callback (get %3 "contents") [:remote filename])]
     (bbserver/get-file hostname config filename callback)))
 
 (defn upload-file!
   [config filename contents]
-  (let [hostname (get-in @store/state [:connection :hostname])]
+  (let [hostname (get-in @model/state [:connection :hostname])]
     (bbserver/put-file hostname config filename contents update-configs!)))
 
 (defn download-file!
   [config filename]
-  (let [hostname (get-in @store/state [:connection :hostname])
+  (let [hostname (get-in @model/state [:connection :hostname])
         callback #(utils/save-file (get %3 "contents") filename)]
     (bbserver/get-file hostname config filename callback)))
 
 (defn delete-file!
   [config filename]
-  (let [hostname (get-in @store/state [:connection :hostname])]
+  (let [hostname (get-in @model/state [:connection :hostname])]
     (bbserver/delete-file hostname config filename update-configs!)))
 
 (defn ping
   []
-  (let [hostname (get-in @store/state [:connection :hostname])
-        port (get-in @store/state [:services :config])]
+  (let [hostname (get-in @model/state [:connection :hostname])
+        port (get-in @model/state [:services :config])]
     (bbserver/ping hostname port #(utils/log "Pinging MachineKit"))))
 
 ; Create an update interval while the user is connected that
@@ -206,7 +206,7 @@
 (defn- start-update-configs-and-services-interval
   []
   (utils/set-interval "update-configs-and-services"
-    #(let [{:keys [connection]} @store/state]
+    #(let [{:keys [connection]} @model/state]
       (if (:connected? connection)
         (do
           (update-configs!)
@@ -218,7 +218,7 @@
 (defn- start-update-running-interval
   []
   (utils/set-interval "update-running"
-    #(let [{:keys [connection]} @store/state]
+    #(let [{:keys [connection]} @model/state]
       (if (:connected? connection)
         (update-running!)))
     500))
@@ -226,6 +226,6 @@
 ; Create a debug logging interval
 (utils/set-interval "debug-state"
   #(do
-    (utils/log (str "Services: " (:services @store/state)))
+    (utils/log (str "Services: " (:services @model/state)))
    )
   5000)

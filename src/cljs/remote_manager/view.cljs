@@ -1,7 +1,6 @@
 (ns remote-manager.view
   "Provides the view for the remote manager."
   (:require
-   [app.store :as store]
    [remote-manager.controller :as controller]
    [utils.navbar :as navbar]
    [reagent.core :as r :refer [atom]]))

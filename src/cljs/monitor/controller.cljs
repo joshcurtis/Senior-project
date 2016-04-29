@@ -2,7 +2,7 @@
   ""
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require
-   [app.store :as store]
+   [model.core :as model]
    [utils.core :as utils]
    [cljs.reader :as reader]
    [cljs-http.client :as http]
@@ -12,17 +12,17 @@
 
 (defn enable-monitoring!
   []
-  (swap! store/state assoc
+  (swap! model/state assoc
          :is-monitoring? true))
 
 (defn disable-monitoring!
   []
-  (swap! store/state assoc
+  (swap! model/state assoc
          :is-monitoring? false))
 
 (defn toggle-monitoring!
   []
-  (swap! store/state
+  (swap! model/state
          update :is-monitoring? not))
 
 
@@ -33,14 +33,14 @@
         (assoc :initial-time (utils/time-seconds))
         (update-in [:monitor :history]
                    #(apply hash-map
-                           (mapcat (fn [[k v]] [k store/empty-sequence])
+                           (mapcat (fn [[k v]] [k []])
                                    %1))))))
 
 (defn clear-history!
   []
   "Clears the history which deletes all data points. The time elapsed is also
   reset."
-  (swap! store/state --clear-history))
+  (swap! model/state --clear-history))
 
 (defn- conj-and-cut-fn
   [max-len cut-to-len]
@@ -72,15 +72,15 @@
   nothing will happen. Updates the measurements of monitor, as well as adding
   the values to the history."
   []
-  (let [hostname (store/hostname)]
+  (let [hostname (model/hostname)]
     (if (and (some? hostname)
-             (:is-monitoring? @store/state))
+             (:is-monitoring? @model/state))
       (go (let [url (str "http://" hostname ":3001/measure")
                 res (<! (http/get url
                                   {:with-credentials? false}))
-                t (- (utils/time-seconds) (:initial-time @store/state))
+                t (- (utils/time-seconds) (:initial-time @model/state))
                 measurements (-> res :body reader/read-string (assoc "t" t))]
-            (swap! store/state --update-measurements measurements))))))
+            (swap! model/state --update-measurements measurements))))))
 
 (defn ith-csv-row
   [history keys i]
@@ -100,7 +100,7 @@
 (defn download-measurements!
   []
   (utils/save-file
-   (history-to-csv (-> @store/state
+   (history-to-csv (-> @model/state
                        :monitor
                        :history))
    "measurements.csv"))

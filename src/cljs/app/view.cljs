@@ -1,7 +1,7 @@
 (ns app.view
   ""
   (:require
-   [app.store :as store]
+   [model.core :as model]
    [ini-editor.core]
    [remote-manager.core]
    [monitor.core]
@@ -13,19 +13,19 @@
 
 (defn set-tab!
   [label]
-  (swap! store/state assoc :tab label))
+  (swap! model/state assoc :tab label))
 
 (defn change-theme! [theme]
-  (swap! store/state assoc :current-theme theme)
+  (swap! model/state assoc :current-theme theme)
   (js/changeStyle (str "css/bootstrap-" theme ".css")))
 
 ;; contents
 (defn home
   "reagent-component for home tab."
   [props]
-  (let [tab (r/cursor store/state [:tab])
-        tab-labels (r/cursor store/state [:tab-labels])
-        current-theme (r/cursor store/state [:current-theme])]
+  (let [tab (r/cursor model/state [:tab])
+        tab-labels (r/cursor model/state [:tab-labels])
+        current-theme (r/cursor model/state [:current-theme])]
     [:div
      [:h1 [:a {:href "https://github.com/machinekit/machinekit"
                :target "_blank"} "MachineKit"]]
@@ -57,7 +57,7 @@
 (defn render-contents
   ""
   []
-  (let [tab @(r/cursor store/state [:tab])]
+  (let [tab @(r/cursor model/state [:tab])]
     [:div.tab.content.panel.panel-default
       [:div.panel-body
         [:div.tab-pane.active {}

@@ -1,6 +1,6 @@
 (ns app.topbar
   (:require
-   [app.store :as store]
+   [model.core :as model]
    [remote-manager.controller]
    [ini-editor.core]
    [text-editor.core]
@@ -35,7 +35,7 @@
 
 (defn current-topbar-actions
   []
-  (get topbar-actions-map (:tab @store/state)))
+  (get topbar-actions-map (:tab @model/state)))
 
 (defn topbar-action-open
   ""
@@ -163,7 +163,7 @@
 
 (defn remote-open-modal
   []
-  (let [configs @(r/cursor store/state [:configs])
+  (let [configs @(r/cursor model/state [:configs])
         dirs (:dirs configs)
         contents (:contents configs)
 
@@ -214,7 +214,7 @@
 
 (defn remote-save-modal
   []
-  (let [configs @(r/cursor store/state [:configs])
+  (let [configs @(r/cursor model/state [:configs])
         dirs (:dirs configs)
         contents (:contents configs)
 
@@ -246,8 +246,8 @@
 
 (defn topbar-bb-status
   []
-  (let [connected? @(r/cursor store/state [:connection :connected?])
-        running? @(r/cursor store/state [:running?])]
+  (let [connected? @(r/cursor model/state [:connection :connected?])
+        running? @(r/cursor model/state [:running?])]
     [:li {:key "bb-status"}
      (if connected?
        [:a
@@ -261,7 +261,7 @@
 (defn render-topbar
   ""
   []
-  (let [tab @(r/cursor store/state [:tab])]
+  (let [tab @(r/cursor model/state [:tab])]
     [:div
      (case @current-modal
        "remote-open" [remote-open-modal]
