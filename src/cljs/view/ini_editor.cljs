@@ -5,8 +5,8 @@
    [controller.ini-editor :as controller]
    [utils.ini :as parser]
    [utils.core :as utils]
-   [utils.widgets :as widgets]
-   [utils.navbar :as navbar]
+   [widgets.core :as widgets]
+   [widgets.navbar :as navbar]
    [reagent.core :as r :refer [atom]]
    [clojure.string :as string]))
 

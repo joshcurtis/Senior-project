@@ -4,8 +4,8 @@
    [model.core :as model]
    [view.core :as view]
    [utils.core :as utils]
-   [utils.navbar :as navbar]
-   [utils.widgets :as widgets]
+   [widgets.navbar :as navbar]
+   [widgets.core :as widgets]
    [reagent.core :as r :refer [atom]]))
 
 (defn set-tab!

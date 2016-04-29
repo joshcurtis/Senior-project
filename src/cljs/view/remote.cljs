@@ -3,7 +3,7 @@
   (:require
    [model.core :as model]
    [controller.remote-manager :as controller]
-   [utils.navbar :as navbar]
+   [widgets.navbar :as navbar]
    [reagent.core :as r :refer [atom]]))
 
 (defn- disconnected

@@ -3,7 +3,7 @@
    [model.core :as model]
    [controller.monitor :as controller]
    [utils.core :as utils]
-   [utils.widgets :as widgets]
+   [widgets.core :as widgets]
    [utils.rd3 :as rd3]
    [three.core :as three]
    [reagent.core :as r :refer [atom]]))

@@ -1,4 +1,4 @@
-(ns utils.widgets
+(ns widgets.core
   ""
   (:require
    [utils.core :as utils]

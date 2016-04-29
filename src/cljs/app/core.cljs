@@ -6,7 +6,7 @@
    [app.devtools-setup]
    [app.view]
    [app.topbar]
-   [utils.widgets :as widgets]
+   [widgets.core :as widgets]
    [utils.core :as utils]
    [three.core :as three]
    [reagent.core :as r :refer [atom]]))
