@@ -166,7 +166,7 @@
         [:h2 "Remote Open"]
 
         body
-        [:div (map-do #(remote-open-modal-helper %1 (get contents %1)) dirs)]
+        [:div (utils/map-do #(remote-open-modal-helper %1 (get contents %1)) dirs)]
 
         footer
         [:div
@@ -195,7 +195,7 @@
                                                  config fname (topbar-action-save))
                                                 (close-modal!))}
           "Upload"]]]]
-      (map-do #(vector :a.list-group-item {:key %1
+      (utils/map-do #(vector :a.list-group-item {:key %1
                                            :on-click (fn []
                                                        (let [fname %1
                                                              config dir]
@@ -217,7 +217,7 @@
         [:h2 "Remote Upload"]
 
         body
-        [:div (map-do #(remote-save-modal-helper %1 (get contents %1)) dirs)]
+        [:div (utils/map-do #(remote-save-modal-helper %1 (get contents %1)) dirs)]
 
         footer
         [:div
