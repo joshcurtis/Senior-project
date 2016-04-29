@@ -2,7 +2,7 @@
   "Provides the view for the remote manager."
   (:require
    [model.core :as model]
-   [remote-manager.controller :as controller]
+   [controller.remote-manager :as controller]
    [utils.navbar :as navbar]
    [reagent.core :as r :refer [atom]]))
 

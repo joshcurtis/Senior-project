@@ -2,7 +2,7 @@
   "Provides the view for the INI editor."
   (:require
    [model.core :as model]
-   [text-editor.controller :as controller]
+   [controller.text-editor :as controller]
    [utils.core :as utils]
    [utils.widgets :as widgets]
    [utils.navbar :as navbar]

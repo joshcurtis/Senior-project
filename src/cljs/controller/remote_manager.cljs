@@ -1,10 +1,10 @@
-(ns remote-manager.controller
+(ns controller.remote-manager
   (:require
    [model.core :as model]
+   [controller.ini-editor]
+   [controller.text-editor]
    [bbserver.core :as bbserver]
    [utils.core :as utils]
-   [ini-editor.controller]
-   [text-editor.controller]
    [clojure.string :as string]))
 
 (defonce mt (.-protobuf js/machinetalk))
@@ -161,12 +161,12 @@
   [s id]
   (assert (string? s))
   (assert (some? id))
-  (ini-editor.controller/load-str! id s)
+  (controller.ini-editor/load-str! id s)
   (utils/click-element "tab-navigation-INI"))
 
 (defn- edit-unsupported
   [s id]
-  (text-editor.controller/load-text! id s)
+  (controller.text-editor/load-text! id s)
   (utils/click-element "tab-navigation-Text"))
 
 (def edit-callbacks {"ini" edit-ini!})

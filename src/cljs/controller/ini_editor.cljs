@@ -1,4 +1,4 @@
-(ns ini-editor.controller
+(ns controller.ini-editor
   "Actions for editing the ini files."
   (:require
    [model.core :as model]
@@ -31,7 +31,7 @@
 (defn load-str!
   "The given ini string representation is loaded for editing. The model is
   updated to represent the new ini And the selected id is changed to the new
-  str. ini-editor.controller/expand-important! is called."
+  str. controller.ini-editor/expand-important! is called."
   [id s]
   (swap! model/state --load-str id s))
 

@@ -3,7 +3,7 @@
    [model.core :as model]
    [view.ini-editor]
    [view.text-editor]
-   [remote-manager.controller]
+   [controller.remote-manager]
    [utils.core :as utils]
    [utils.widgets :as widgets]
    [utils.navbar :as navbar]
@@ -154,7 +154,7 @@
                                            :on-click (fn []
                                                        (do
                                                          (close-modal!)
-                                                         (remote-manager.controller/edit-file!
+                                                         (controller.remote-manager/edit-file!
                                                           dir %1)))
                                            :style {:cursor "pointer"}}
                        %1)
@@ -196,7 +196,7 @@
         [:span.input-group-btn
          [:button.btn.btn-primary {:on-click #(let [fname (utils/element-value text-input-id)
                                                     config dir]
-                                                (remote-manager.controller/upload-file!
+                                                (controller.remote-manager/upload-file!
                                                  config fname (topbar-action-save))
                                                 (close-modal!))}
           "Upload"]]]]
@@ -204,7 +204,7 @@
                                            :on-click (fn []
                                                        (let [fname %1
                                                              config dir]
-                                                         (remote-manager.controller/upload-file!
+                                                         (controller.remote-manager/upload-file!
                                                           config fname (topbar-action-save))
                                                          (close-modal!)))
                                            :style {:cursor "pointer"}}

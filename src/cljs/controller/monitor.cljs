@@ -1,4 +1,4 @@
-(ns monitor.controller
+(ns controller.monitor
   ""
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require

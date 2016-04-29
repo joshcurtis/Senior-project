@@ -1,5 +1,5 @@
-(ns text-editor.controller
-  "Actions for editing the ini files."
+(ns controller.text-editor
+  "Actions for editing the text files."
   (:require
    [model.core :as model]
    [utils.core :as utils]

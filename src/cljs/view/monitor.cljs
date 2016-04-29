@@ -1,7 +1,7 @@
 (ns view.monitor
   (:require
    [model.core :as model]
-   [monitor.controller :as controller]
+   [controller.monitor :as controller]
    [utils.core :as utils]
    [utils.widgets :as widgets]
    [utils.rd3 :as rd3]
