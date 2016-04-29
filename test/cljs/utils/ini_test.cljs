@@ -1,4 +1,4 @@
-(ns ini-editor.utils.ini-test
+(ns utils.ini-test
   "Testing for ini_editor/utils.ini.cljs"
   (:require
    [clojure.string :as string]
@@ -37,7 +37,7 @@ key = value
   (is (= (try (utils.ini/parse-ini bad-ini)
               nil
               (catch js/Error e (.-message e)))
-         (str "ini utils.ini error: " (-> bad-ini string/split-lines second)))))
+         (str "ini parser error: " (-> bad-ini string/split-lines second)))))
 
 ;; nil should not be accepted
 (deftest parse-nil
