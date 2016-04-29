@@ -139,24 +139,19 @@
                              :list-items [about-el]}]))
 
 
-(defn map-do
-  "Not lazy version of map."
-  [f coll]
-  (doall (map f coll)))
-
 (defn- remote-open-modal-helper
   [dir contents]
   (let [contents (filter topbar-action-filename-filter contents)]
     [:div {:key dir}
      [:h3 dir]
      [:div.list-group
-      (map-do #(vector :a.list-group-item {:key %1
-                                           :on-click (fn []
-                                                       (do
-                                                         (close-modal!)
-                                                         (controller.remote-manager/edit-file!
-                                                          dir %1)))
-                                           :style {:cursor "pointer"}}
+      (utils/map-do #(vector :a.list-group-item {:key %1
+                                                 :on-click (fn []
+                                                             (do
+                                                               (close-modal!)
+                                                               (controller.remote-manager/edit-file!
+                                                                dir %1)))
+                                                 :style {:cursor "pointer"}}
                        %1)
               contents)]]))
 
