@@ -5,6 +5,10 @@
    [clojure.set]
    [clojure.string :as string]))
 
+(defn map-do
+  "Not lazy version of map."
+  [f coll]
+  (doall (map f coll)))
 
 (defn alert
   "Shows an alert box with the provided arguments displayed as strings."

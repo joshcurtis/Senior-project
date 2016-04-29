@@ -1,9 +1,9 @@
-(ns three.axes
+(ns viz.axes
   "Use three to render stuff for our project. Very primitive. Very very very
   primitive, lots of stuff is unhandled."
   (:require
-   [three.trackball-controls :as trackball-controls]
-   [three.coordinates]
+   [viz.controls]
+   [viz.coordinates]
    [utils.core :as utils]
    [reagent.core :as r]
    [cljsjs.three]))
@@ -75,10 +75,10 @@
 (defn new-coordinate-legend
   [len]
   (let [obj (js/THREE.Object3D.)
-        axes (map #(three.coordinates/build-axis [0 0 0]
-                                                 (:dir %)
-                                                 (:color %)
-                                                 true)
+        axes (map #(viz.coordinates/build-axis [0 0 0]
+                                               (:dir %)
+                                               (:color %)
+                                               true)
                   [{:dir [len 0 0] :color "red"}
                    {:dir [0 0 (- len)] :color "green"}
                    {:dir [0 len 0] :color "blue"}])]
@@ -161,7 +161,7 @@
                                             0.001 ;; near clipping
                                             100.0) ;; far clipping
         renderer (js/THREE.WebGLRenderer. #js {:antialias true})
-        controls (if controls (trackball-controls/new-controls! camera))
+        controls (if controls (viz.controls/new-controls! camera))
         floor-objs (new-floor-objs)
         coordinate-legend (new-coordinate-legend 0.25)
         axis-objs (mapv #(new-axis-obj) (range max-axes))]
@@ -197,7 +197,7 @@
       :component-will-unmount
       (fn []
         (let [context (aget renderer "context")]
-          (trackball-controls/stop-controls! controls)
+          (viz.controls/stop-controls! controls)
           (.removeChild (js/document.getElementById element-id)
                         (aget renderer "domElement"))
           (dispose! renderer)))
@@ -220,7 +220,7 @@
           ;;
           (doseq [i (range max-axes)]
             (axis-set-pos! (get axis-objs i) (get axes i)))
-          (trackball-controls/update-controls! controls)
+          (viz.controls/update-controls! controls)
           (.render renderer scene camera)))
 
       :reagent-render

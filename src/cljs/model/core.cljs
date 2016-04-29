@@ -1,20 +1,10 @@
-(ns app.store
+(ns model.core
   "The application state, this should've been it in the beginning."
   (:require
-   [ini-editor.parser :as parser]
+   [utils.ini]
    [bbserver.core :as bbserver]
    [utils.core :as utils]
    [reagent.core :as r :refer [atom]]))
-
-(def empty-sequence
-  " Update: vector is entrenched as using `subvec` is convenient.
-  A sequence is a data structure that can conj a new item. This will be
-  converted into a js-array.  Why is this a constant? You can use a list, and
-  new items will be put at the front and the plot will be drawn backwards. You
-  can use a vector, and items will be pushed back. I don't know which is more
-  efficient considering memory, conj'ing, and js conversion."
-  [])
-
 
 (defonce state
   (atom
@@ -39,7 +29,7 @@
     :running? false
 
     ;;; INI Stuff
-    ;; hashmap: [source path] -> {:ini parsed-ini from ini-editor.parser
+    ;; hashmap: [source path] -> {:ini parsed-ini from utils.ini
     ;;                            :expanded? #{section-strings}}
     :inis {}
 
@@ -85,26 +75,26 @@
                              "Ext-0" nil
                              "Ext-1" nil
                              "Ext-2" nil}
-              :history {"t" empty-sequence
-                        "Axis-0-x" empty-sequence
-                        "Axis-0-y" empty-sequence
-                        "Axis-0-z" empty-sequence
-                        "Axis-0-a" empty-sequence
-                        "Axis-1-x" empty-sequence
-                        "Axis-1-y" empty-sequence
-                        "Axis-1-z" empty-sequence
-                        "Axis-1-a" empty-sequence
-                        "Axis-2-x" empty-sequence
-                        "Axis-2-y" empty-sequence
-                        "Axis-2-z" empty-sequence
-                        "Axis-2-a" empty-sequence
-                        "Axis-3-x" empty-sequence
-                        "Axis-3-y" empty-sequence
-                        "Axis-3-z" empty-sequence
-                        "Axis-3-a" empty-sequence
-                        "Ext-0" empty-sequence
-                        "Ext-1" empty-sequence
-                        "Ext-2" empty-sequence}
+              :history {"t" []
+                        "Axis-0-x" []
+                        "Axis-0-y" []
+                        "Axis-0-z" []
+                        "Axis-0-a" []
+                        "Axis-1-x" []
+                        "Axis-1-y" []
+                        "Axis-1-z" []
+                        "Axis-1-a" []
+                        "Axis-2-x" []
+                        "Axis-2-y" []
+                        "Axis-2-z" []
+                        "Axis-2-a" []
+                        "Axis-3-x" []
+                        "Axis-3-y" []
+                        "Axis-3-z" []
+                        "Axis-3-a" []
+                        "Ext-0" []
+                        "Ext-1" []
+                        "Ext-2" []}
               :groups {:temperatures ["Ext-0" "Ext-1" "Ext-2"]
                        :axes (mapv #(let [name (str "Axis-" %1)]
                                       {:name name
@@ -125,6 +115,16 @@
       (:hostname connection)
       nil)))
 
+(defn machine-endpoint
+  "Returns the http endpoint of the hardware or `nil` if not connected. The
+  route must start with a `/`."
+  [route]
+  {:pre [(string? route) (= (first route) "/")]}
+  (let [h (hostname)]
+    (if (some? h)
+      (str "http://" h ":3001" route)
+      nil)))
+
 ;; ini helpers
 
 (defn update-selected-ini!
@@ -142,7 +142,7 @@
   (let [{:keys [inis selected-ini-id]} @state
         ini (get-in inis [selected-ini-id :ini])]
     (if (some? ini)
-      (ini-editor.parser/ini-to-str ini)
+      (utils.ini/ini-to-str ini)
       (js/alert "No INI has been loaded!"))))
 
 ;; text editor helpers
