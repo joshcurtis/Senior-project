@@ -1,7 +1,9 @@
-(ns three.trackball-controls
+(ns viz.controls
+  "Move the camera around using the mouse in a 3D three scene."
   (:require
    [cljsjs.three]))
 
+;; TODO - use js file instead of eval inside ClojureScript
 (js/eval "
 /**
  * @author Eberhard Graether / http://egraether.com/

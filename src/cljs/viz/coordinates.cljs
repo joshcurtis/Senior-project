@@ -1,5 +1,5 @@
-(ns three.coordinates
-  ""
+(ns viz.coordinates
+  "Draw a 3D compass."
   (:require [cljsjs.three]))
 
 (def line-segments (js/eval "THREE.LineSegments"))

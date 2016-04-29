@@ -1,9 +1,9 @@
-(ns ini-editor.parser-test
-  "Testing for ini_editor/parser.cljs"
+(ns utils.ini-test
+  "Testing for ini_editor/utils.ini.cljs"
   (:require
    [clojure.string :as string]
    [cljs.test :refer-macros [deftest is are]]
-   [ini-editor.parser :as parser]))
+   [utils.ini]))
 
 (def good-ini
 "
@@ -29,27 +29,27 @@ key = value
 ")
 
 (deftest parse-good-ini
-  (is (not (try (parser/parse-ini good-ini)
+  (is (not (try (utils.ini/parse-ini good-ini)
                 nil
                 (catch js/Error e (.-message e))))))
 
 (deftest parse-bad-ini
-  (is (= (try (parser/parse-ini bad-ini)
+  (is (= (try (utils.ini/parse-ini bad-ini)
               nil
               (catch js/Error e (.-message e)))
          (str "ini parser error: " (-> bad-ini string/split-lines second)))))
 
 ;; nil should not be accepted
 (deftest parse-nil
-  (is (not (string/blank? (try (parser/parse-ini nil)
+  (is (not (string/blank? (try (utils.ini/parse-ini nil)
                                ""
                                (catch js/Error e (.-message e)))))))
 
 (deftest is-ini
-  (is (parser/ini? (parser/parse-ini good-ini))))
+  (is (utils.ini/ini? (utils.ini/parse-ini good-ini))))
 
 (deftest ini-correctness
-  (let [ini (parser/parse-ini good-ini)]
+  (let [ini (utils.ini/parse-ini good-ini)]
     (are [sec k v] (= (get-in ini [:values sec k]) v)
       "A" "a" "12"
       "A" "b" "321"
@@ -64,9 +64,9 @@ key = value
     (is (= (get-in ini [:key-order "B"]) '("c" "b" "key" "repeated")))))
 
 (deftest ini-to-str
-  (let [ini (parser/parse-ini good-ini)]
-    (is (= ini (-> ini parser/ini-to-str parser/parse-ini)))
-    (is (= (parser/ini-to-str ini) (-> ini
-                                       parser/ini-to-str
-                                       parser/parse-ini
-                                       parser/ini-to-str)))))
+  (let [ini (utils.ini/parse-ini good-ini)]
+    (is (= ini (-> ini utils.ini/ini-to-str utils.ini/parse-ini)))
+    (is (= (utils.ini/ini-to-str ini) (-> ini
+                                       utils.ini/ini-to-str
+                                       utils.ini/parse-ini
+                                       utils.ini/ini-to-str)))))

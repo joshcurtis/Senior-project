@@ -1,9 +1,9 @@
-(ns ini-editor.controller
+(ns controller.ini-editor
   "Actions for editing the ini files."
   (:require
-   [app.store :as store]
-   [ini-editor.parser :as parser]
+   [model.core :as model]
    [utils.core :as utils]
+   [utils.ini :as parser]
    [clojure.string :as string]
    [reagent.core :as r :refer [atom]]))
 
@@ -31,13 +31,13 @@
 (defn load-str!
   "The given ini string representation is loaded for editing. The model is
   updated to represent the new ini And the selected id is changed to the new
-  str. ini-editor.controller/expand-important! is called."
+  str. controller.ini-editor/expand-important! is called."
   [id s]
-  (swap! store/state --load-str id s))
+  (swap! model/state --load-str id s))
 
 (defn ini-str
   []
-  (store/ini-str))
+  (model/ini-str))
 
 (defn- --close-selected
   [state]
@@ -49,13 +49,13 @@
 (defn close-selected!
   "Closes the currently selected ini."
   []
-  (swap! store/state --close-selected))
+  (swap! model/state --close-selected))
 
 (defn filename
   "Gets the filename for the currently selected ini. This does not include the
   path."
   []
-  (utils/fname-from-path (-> @store/state :selected-ini-id second)))
+  (utils/fname-from-path (-> @model/state :selected-ini-id second)))
 
 (defn filename-filter
   "Given a filename, it returns true if the filename has the right mimetype for
@@ -76,12 +76,12 @@
   "Toggles the given section between expanded and collapsed."
   [section]
   {:pre [(string? section)]}
-  (swap! store/state --toggle-expanded section))
+  (swap! model/state --toggle-expanded section))
 
 (defn set-selected-id!
   [id]
   {:pre [(or (vector? id) (nil? id))]}
-  (swap! store/state assoc
+  (swap! model/state assoc
          :selected-ini-id id))
 
 ;; editing
@@ -97,4 +97,4 @@
   "The value in the provided section/key is set to value."
   [section key value]
   {:pre [(string? section) (string? key) (string? value)]}
-  (swap! store/state --set-ini-value section key value))
+  (swap! model/state --set-ini-value section key value))
