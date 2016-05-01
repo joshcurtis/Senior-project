@@ -52,6 +52,13 @@
                            :asset-path "js/compiled/out"
                            :output-to "resources/public/js/compiled/core.js"
                            :output-dir "resources/public/js/compiled/out"
+                           :foreign-libs [{:file "resources/public/js/react-d3.js"
+                                           :requires ["cljsjs.d3"
+                                                      "cljsjs.react"]
+                                           :provides ["cljsjs.rd3"]}
+                                          {:file "resources/public/js/TrackballControls.js"
+                                           :requires ["cljsjs.three"]
+                                           :provides ["cljsjs.trackball-controls"]}]
                            :source-map-timestamp true}}
 
                {:id "test"
@@ -59,7 +66,13 @@
 
                 :compiler {:main app.runner
                            :output-to "resources/public/js/compiled/test.js"
-                           :output-dir "resources/public/js/compiled/test"}}
+                           :output-dir "resources/public/js/compiled/test"
+                           :foreign-libs [{:file "resources/public/js/react-d3.js"
+                                           :requires ["cljsjs.d3"]
+                                           :provides ["cljsjs.rd3"]}
+                                          {:file "resources/public/js/TrackballControls.js"
+                                           :requires ["cljsjs.three"]
+                                           :provides ["cljsjs.trackball-controls"]}]}}
 
 
                ;; This next build is an compressed minified build for
@@ -68,6 +81,12 @@
                {:id "min"
                 :source-paths ["src"]
                 :compiler {:output-to "resources/public/js/compiled/core.js"
+                           :foreign-libs [{:file "resources/public/js/react-d3.js"
+                                           :requires ["cljsjs.d3"]
+                                           :provides ["cljsjs.rd3"]}
+                                         {:file "resources/public/js/TrackballControls.js"
+                                           :requires ["cljsjs.three"]
+                                           :provides ["cljsjs.trackball-controls"]}]
                            :externs ["resources/public/js/externs.js"]
                            :main app.core
                            :optimizations :advanced
