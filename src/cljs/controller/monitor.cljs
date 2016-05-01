@@ -1,5 +1,5 @@
 (ns controller.monitor
-  ""
+  "Actions for fetching and updating remote data."
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require
    [model.core :as model]

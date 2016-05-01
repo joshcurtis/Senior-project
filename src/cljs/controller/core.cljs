@@ -1,5 +1,5 @@
 (ns controller.core
-  "Misc. functionality."
+  "Misc. functionality such as switching the current tab or changing the theme."
   (:require [model.core :as model]))
 
 (defn set-tab!

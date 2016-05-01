@@ -1,5 +1,5 @@
 (ns model.core
-  "The application state, this should've been it in the beginning."
+  "The application state, everything is stored in the state atom which contains a hash-map."
   (:require
    [utils.ini]
    [bbserver.core :as bbserver]

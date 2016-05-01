@@ -1,5 +1,6 @@
 (ns viz.controls
-  "Move the camera around using the mouse in a 3D three scene."
+  "Move the camera around using the mouse in a 3D three scene. Main
+  functionality is implemented in JavaScript."
   (:require
    [cljsjs.trackball-controls]
    [cljsjs.three]))

@@ -1,5 +1,5 @@
 (ns view.text-editor
-  "Provides the view for the INI editor."
+  "Provides the view for the text editor."
   (:require
    [model.core :as model]
    [controller.text-editor :as controller]

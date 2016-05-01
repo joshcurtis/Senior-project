@@ -1,5 +1,5 @@
 (ns widgets.rd3
-  "React d3 adapter for reagent."
+  "React d3 adapter for reagent. Provides charting components."
   (:require
    [reagent.core :as r]
    [cljsjs.d3]

@@ -1,5 +1,6 @@
 (ns widgets.navbar
-  ""
+  "Generic topbar component. The navbar goes on top and can have menus such as
+  `file`."
   (:require
    [utils.core :as utils]
    [reagent.core :as r :refer [atom]]

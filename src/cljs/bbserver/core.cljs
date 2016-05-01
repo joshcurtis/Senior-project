@@ -1,4 +1,6 @@
 (ns bbserver.core
+  "Functions to interact with the hardware. Should be removed as HTTP interface
+  isn't complex and cljs-http allows for a synchronous looking workflow."
   (:require-macros
    [cljs.core.async.macros :refer [go]])
   (:require

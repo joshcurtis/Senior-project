@@ -1,4 +1,6 @@
 (ns view.monitor
+  "Provides a view into monitoring capabilities, such as plots, tables, and 3d
+  views."
   (:require
    [model.core :as model]
    [controller.monitor :as controller]

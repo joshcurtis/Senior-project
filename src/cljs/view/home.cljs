@@ -1,5 +1,6 @@
 (ns view.home
-  "Provides the view for the INI editor."
+  "Provides the view for the home tab. The home tab has some links and can
+  change the theme."
   (:require
    [model.core :as model]
    [controller.core]

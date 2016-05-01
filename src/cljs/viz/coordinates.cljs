@@ -1,5 +1,5 @@
 (ns viz.coordinates
-  "Draw a 3D compass."
+  "Generate a three object that represents a 3D company for x, y, and z."
   (:require [cljsjs.three]))
 
 (def line-segments (js/eval "THREE.LineSegments"))

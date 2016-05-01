@@ -1,4 +1,5 @@
 (ns view.topbar
+  "Provides a topbar component for things such as `File`, `Remote` and `Help`."
   (:require
    [model.core :as model]
    [view.ini-editor]

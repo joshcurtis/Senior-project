@@ -1,4 +1,6 @@
 (ns controller.remote-manager
+  "Actions for connecting, disconnecting, and getting the state of the
+  hardware. The connecting and disconnecting should be moved."
   (:require
    [model.core :as model]
    [controller.ini-editor]

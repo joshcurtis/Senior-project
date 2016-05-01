@@ -1,5 +1,5 @@
 (ns app.core
-  ""
+  "Mounts the application onto the `div` with the id `"app"`."
   (:require
    [model.core :as model]
    [controller.core]

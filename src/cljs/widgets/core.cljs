@@ -1,5 +1,5 @@
 (ns widgets.core
-  ""
+  "Generic `reagent` components."
   (:require
    [utils.core :as utils]
    [clojure.string :as string]

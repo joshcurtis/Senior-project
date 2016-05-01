@@ -1,4 +1,6 @@
 (ns view.core
+  "Contains `app-view` which provides a view to the application. The views for
+  each tab are specified in the other namespaces under `view`."
   (:require
    [model.core :as model]
    [view.home]
