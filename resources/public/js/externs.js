@@ -1,3 +1,4 @@
+var TrackballControls = function();
 var THREE = {
   "REVISION": {},
   "MOUSE": {

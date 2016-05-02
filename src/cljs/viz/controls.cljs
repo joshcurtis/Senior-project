@@ -5,13 +5,11 @@
    [cljsjs.trackball-controls]
    [cljsjs.three]))
 
-(def tc-constructor (js/eval "THREE.TrackballControls"))
-
 (defn new-controls!
   "Creates controls for the camera. It steals mouse actions such as the mouse
   wheel. Use `stop-controls!` to give back mouse actions."
   [camera]
-  (tc-constructor. camera))
+  (js/TrackballControls. camera))
 
 (defn update-controls!
   [controls]

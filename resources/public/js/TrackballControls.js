@@ -1,4 +1,4 @@
-THREE.TrackballControls = function ( object, domElement ) {
+window["TrackballControls"] = function ( object, domElement ) {
 
     var _this = this; // bind for later use
     var STATE = { NONE: - 1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4 };
@@ -612,5 +612,5 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 };
 
-THREE.TrackballControls.prototype = Object.create( THREE.EventDispatcher.prototype );
-THREE.TrackballControls.prototype.constructor = THREE.TrackballControls;
+TrackballControls.prototype = Object.create( THREE.EventDispatcher.prototype );
+TrackballControls.prototype.constructor = THREE.TrackballControls;
