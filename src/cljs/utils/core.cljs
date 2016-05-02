@@ -10,6 +10,12 @@
   [f coll]
   (doall (map f coll)))
 
+(defn timestamp-to-str
+  [t]
+  (-> t
+      js/Date.
+      .toString))
+
 (defn alert
   "Shows an alert box with the provided arguments displayed as strings."
   ([arg] (js/alert (str arg)))

@@ -5,6 +5,7 @@
    [model.core :as model]
    [view.home]
    [view.ini-editor]
+   [view.jobs]
    [view.monitor]
    [view.remote]
    [view.text-editor]
@@ -12,6 +13,7 @@
 
 (def home view.home/contents)
 (def remote view.remote/contents)
+(def jobs view.jobs/contents) ;; not included, MachineKit backend not ready
 (def monitor view.monitor/contents)
 (def ini view.ini-editor/contents)
 (def text view.text-editor/contents)
@@ -26,6 +28,7 @@
           (case tab
             "Home" [home {}]
             "Remote" [remote {}]
+            "Jobs" [jobs {}]
             "Monitor" [monitor {}]
             "INI" [ini {}]
             "Text" [text {}]
