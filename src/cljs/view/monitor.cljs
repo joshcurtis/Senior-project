@@ -123,8 +123,8 @@
        [:th "Value"]]]
      [:tbody
       (map (fn [k] [:tr {:key k}
-                    [:td k]
-                    [:td (get measurements k)]])
+                    [:td {:width "50%"} k]
+                    [:td {:width "50%"} (get measurements k)]])
            all-components)]]))
 
 (defn contents-active
